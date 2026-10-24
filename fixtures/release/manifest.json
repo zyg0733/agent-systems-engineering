@@ -1,0 +1,718 @@
+{
+  "schema_version": 1,
+  "kind": "agent-systems-lab.release-preparation.v1",
+  "project_version": "0.1.0-dev",
+  "target_version": "0.1.0",
+  "runtime_pins": {
+    "elixir": "1.20.4",
+    "otp": "28.4",
+    "postgres": "18.6"
+  },
+  "schema_versions": {
+    "kernel": 1,
+    "codec": 1,
+    "history_layouts": [
+      1,
+      2
+    ]
+  },
+  "pinned_files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "881020834733a866d9784d76149edf8e1c1c86b4ce2757caf402985f38528009",
+      "bytes": 7709,
+      "mode": 420
+    },
+    {
+      "path": ".tool-versions",
+      "sha256": "93a8354d7c0bc9d5664f88669d501b9ec7ae10e6bf3fc07b11bed41ea48f2a7a",
+      "bytes": 33,
+      "mode": 420
+    },
+    {
+      "path": "lib/agent_systems_lab/history/encoding.ex",
+      "sha256": "4ae52c2de0c19c9f557b0efa6ee195fdbea102691f5ad7f94e20dad466b272bf",
+      "bytes": 3100,
+      "mode": 420
+    },
+    {
+      "path": "lib/agent_systems_lab/kernel.ex",
+      "sha256": "86e7bc4f47a27c7465800d8de22054f4c8548b8f7a36dd6f054ffa76a39314c7",
+      "bytes": 16002,
+      "mode": 420
+    },
+    {
+      "path": "lib/agent_systems_lab/kernel/event.ex",
+      "sha256": "eecc05a3ba29220e1120770989d377bcc9061c954ca29da3e85264e8dcfeb206",
+      "bytes": 949,
+      "mode": 420
+    },
+    {
+      "path": "lib/agent_systems_lab/storage/codec.ex",
+      "sha256": "9cc7e04e7a58d0ea0c3ebe838c4e8f17c79b0c1ab12d873a148d3ac9a24fefd0",
+      "bytes": 3830,
+      "mode": 420
+    },
+    {
+      "path": "mix.exs",
+      "sha256": "fa2b8859813d26ebdf17e470400f052610d2d2448294397beb1272f56130db49",
+      "bytes": 1691,
+      "mode": 420
+    },
+    {
+      "path": "mix.lock",
+      "sha256": "18505dab7002988db3247a02c2ca0f3430f1bfccf415bd08eb02cd3dd55d30b4",
+      "bytes": 2347,
+      "mode": 420
+    },
+    {
+      "path": "scripts/bootstrap_postgres.sh",
+      "sha256": "a04bd51990506e0d4e546fe49674afac5a72e3574fe9120cb3a6a414a18f3412",
+      "bytes": 1293,
+      "mode": 493
+    },
+    {
+      "path": "scripts/bootstrap_runtime.sh",
+      "sha256": "31115bd28e6bf63cacabbf8ef5a97a114296dd8ec7f1ec0e3e5300ef989af608",
+      "bytes": 1514,
+      "mode": 493
+    },
+    {
+      "path": "scripts/iex",
+      "sha256": "604d915145b964bd8e5fd035fa7bb3d3b212ae35a4067afb3bf17b1909708b5a",
+      "bytes": 570,
+      "mode": 493
+    },
+    {
+      "path": "scripts/mix",
+      "sha256": "4fb2ba348d2061a0011d0b4bcb54cded1663fcbe8642e6a89debed33b914f5fb",
+      "bytes": 565,
+      "mode": 493
+    },
+    {
+      "path": "scripts/postgres",
+      "sha256": "607fb5a087f309bbf66e0ab39dd7545d8f274d178d254839c93230fe834feb6e",
+      "bytes": 1114,
+      "mode": 493
+    }
+  ],
+  "migrations": [
+    {
+      "path": "priv/repo/migrations/20261020000000_create_durable_runs.exs",
+      "sha256": "6180b05abd92e901dc94deb7f4d24cf1ac25a332ce3e932b0d8fa0fd441b9f2f",
+      "bytes": 3425,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020010000_create_sessions_and_contexts.exs",
+      "sha256": "32260db4ced6309a13eec3f2ade514565b245537ce230c4db16a839f24def215",
+      "bytes": 1650,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020020000_create_lab_checkpoints.exs",
+      "sha256": "4be552632af990e4d0e1c77761244cd649f76c2bbe51cb8d039849b72b14c150",
+      "bytes": 967,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020030000_create_model_results.exs",
+      "sha256": "4c3983681848e15488b54c71944b453fce5f949723fcd2d78575128843064894",
+      "bytes": 1595,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020040000_add_intent_claims.exs",
+      "sha256": "16f803e268ca3f9800d348f9d95d2450014b57c2defdce392ec64cd8d6263a53",
+      "bytes": 762,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020050000_create_durable_operations.exs",
+      "sha256": "6b036beef47fc7d327f7b05b386f10b6ec86faa48af2f91aa7571787300febe2",
+      "bytes": 3465,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020060000_create_recovery_configs.exs",
+      "sha256": "af8eaafdc68950f762fc616175b3b8218f7a9585d3f49c442fcf9602d87a537f",
+      "bytes": 767,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020070000_add_manual_tool_reconciliation.exs",
+      "sha256": "6829823e0dfed42b05e6c055cdb40e8f5fdc12dc625075cb72e0feb8ea36b166",
+      "bytes": 666,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020080000_create_retries.exs",
+      "sha256": "56c37c664a960ef78e66b077fc87676956ad01d58867897805492ff9929bad4a",
+      "bytes": 1082,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261020090000_add_timeout_observations.exs",
+      "sha256": "05bb2175ca21b758e7c5311bcee8666100980679b48497f04f67be0f86082a11",
+      "bytes": 552,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261021000000_add_recovery_retry_config.exs",
+      "sha256": "8b1b49fc24ecdb8e9a8123f09b9d02e4404552e63ae551183a2060480517ad12",
+      "bytes": 400,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261021010000_add_intent_availability.exs",
+      "sha256": "eeaff550f56c3f7cc9151162ff5e04561ada0b813cff74195a1b2d9f58c2edd4",
+      "bytes": 571,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261021020000_create_bounded_queues.exs",
+      "sha256": "85eabfcbbef4cb5b8c715049275c5eb48441017aa92049838fc8b4523e879409",
+      "bytes": 1045,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261021030000_create_task_budgets.exs",
+      "sha256": "2b177af680cca3d07a9fc0bd03e0eec612a9140f209fdbb6ca6cf6f72ae816e3",
+      "bytes": 598,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261021040000_add_isolation_policy.exs",
+      "sha256": "6cf3450530c2377ab5d9d39ed6334436a8b0cae0dae9d3fe180ca4ae1f50531b",
+      "bytes": 238,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261022000000_add_mcp_policy.exs",
+      "sha256": "06d7f773109b5113592aeba8de2412376116ff7bce89f82dbea6ccd7f30d5f3b",
+      "bytes": 220,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261023000000_create_workflows.exs",
+      "sha256": "5e14174cf3e106ec1e5a2a8fa42d2016d296a7c4aa2eef40e9dde1392f92d948",
+      "bytes": 2096,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261024000000_add_workflow_controls.exs",
+      "sha256": "fbb1c036eb0a138f7c4faf401c7b4bb032e6ee737865d52d0a22c7c56853ab4e",
+      "bytes": 1279,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261024010000_create_approval_cases.exs",
+      "sha256": "7c1680970cbebd6a7f746eb9a195afdf92bde5d476c4e2837d3f4e61d0e97d4d",
+      "bytes": 1144,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261024020000_bind_workflow_control_ownership.exs",
+      "sha256": "7d4ce7576ae82f5e9393451bfef976c87b85412b612cf0f787c13d3442e6ccaa",
+      "bytes": 493,
+      "mode": 420
+    },
+    {
+      "path": "priv/repo/migrations/20261025000000_add_history_formats.exs",
+      "sha256": "2f6f22a01dd10197cfd2a6877b5521e6bd2d9249e61ee4884a9e6761a1c9a81f",
+      "bytes": 1735,
+      "mode": 420
+    }
+  ],
+  "manuals": [
+    "docs/public-interfaces.md",
+    "docs/release-operations.md",
+    "docs/known-limitations.md",
+    "docs/recovery-runbook.md",
+    "docs/course-map.md",
+    "book/chapter-cards.md",
+    "labs/L22-release-readiness.md",
+    "labs/solutions/L22.md",
+    "docs/adr/0022-release-readiness.md"
+  ],
+  "courses": [
+    {
+      "id": "C01",
+      "original_lab": "L01",
+      "title": "状态机与 reducer",
+      "labs": [
+        "labs/L01-state-machine.md"
+      ],
+      "solutions": [
+        "labs/solutions/L01.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/kernel_test.exs",
+        "test/agent_systems_lab/scenarios_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/kernel_test.exs",
+          "test/agent_systems_lab/scenarios_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C02",
+      "original_lab": "L02",
+      "title": "事务与持久化",
+      "labs": [
+        "labs/L02-transactions.md"
+      ],
+      "solutions": [
+        "labs/solutions/L02.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/storage_test.exs",
+        "test/agent_systems_lab/persisted_run_server_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/storage_test.exs",
+          "test/agent_systems_lab/persisted_run_server_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C03",
+      "original_lab": "L03",
+      "title": "Agent Loop 与工具调用",
+      "labs": [
+        "labs/L03-streaming-control.md",
+        "labs/L04-controlled-tools.md"
+      ],
+      "solutions": [
+        "labs/solutions/L03.md",
+        "labs/solutions/L04.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/run_server_stream_test.exs",
+        "test/agent_systems_lab/run_server_files_test.exs",
+        "test/agent_systems_lab/kernel_tool_pairing_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/run_server_stream_test.exs",
+          "test/agent_systems_lab/run_server_files_test.exs",
+          "test/agent_systems_lab/kernel_tool_pairing_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C04",
+      "original_lab": "L04",
+      "title": "Session 与 Context",
+      "labs": [
+        "labs/L05-session-context.md"
+      ],
+      "solutions": [
+        "labs/solutions/L05.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/session_test.exs",
+        "test/agent_systems_lab/context_test.exs",
+        "test/agent_systems_lab/persisted_context_runtime_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/session_test.exs",
+          "test/agent_systems_lab/context_test.exs",
+          "test/agent_systems_lab/persisted_context_runtime_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C05",
+      "original_lab": "L05",
+      "title": "历史与 checkpoint",
+      "labs": [
+        "labs/L06-history-checkpoints.md"
+      ],
+      "solutions": [
+        "labs/solutions/L06.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/history_test.exs",
+        "test/agent_systems_lab/checkpoint_store_test.exs",
+        "test/agent_systems_lab/run_server_recording_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/history_test.exs",
+          "test/agent_systems_lab/checkpoint_store_test.exs",
+          "test/agent_systems_lab/run_server_recording_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C06",
+      "original_lab": "L06",
+      "title": "工具幂等与不确定结果",
+      "labs": [
+        "labs/L07-recovery.md",
+        "labs/L08-retries-and-reconciliation.md",
+        "labs/L09-p2-fault-acceptance.md"
+      ],
+      "solutions": [
+        "labs/solutions/L07.md",
+        "labs/solutions/L08.md",
+        "labs/solutions/L09.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/recovery_claim_test.exs",
+        "test/agent_systems_lab/durable_tools_test.exs",
+        "test/agent_systems_lab/reconciliation_queue_test.exs",
+        "test/agent_systems_lab/retry_runtime_safety_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/recovery_claim_test.exs",
+          "test/agent_systems_lab/durable_tools_test.exs",
+          "test/agent_systems_lab/reconciliation_queue_test.exs",
+          "test/agent_systems_lab/retry_runtime_safety_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C07",
+      "original_lab": "L07",
+      "title": "Queue 与 Worker",
+      "labs": [
+        "labs/L10-background-scheduling.md",
+        "labs/L12-backpressure-budgets-fairness.md",
+        "labs/L13-database-outages-p3.md"
+      ],
+      "solutions": [
+        "labs/solutions/L10.md",
+        "labs/solutions/L12.md",
+        "labs/solutions/L13.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/scheduler_test.exs",
+        "test/agent_systems_lab/queue_store_test.exs",
+        "test/agent_systems_lab/scheduler_deadline_test.exs",
+        "test/agent_systems_lab/database_fault_demo_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/scheduler_test.exs",
+          "test/agent_systems_lab/queue_store_test.exs",
+          "test/agent_systems_lab/scheduler_deadline_test.exs",
+          "test/agent_systems_lab/database_fault_demo_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C08",
+      "original_lab": "L08",
+      "title": "Lease 与 fencing",
+      "labs": [
+        "labs/L11-leases-heartbeats-fencing.md"
+      ],
+      "solutions": [
+        "labs/solutions/L11.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/lease_heartbeat_test.exs",
+        "test/agent_systems_lab/fencing_safety_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/lease_heartbeat_test.exs",
+          "test/agent_systems_lab/fencing_safety_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C09",
+      "original_lab": "L09",
+      "title": "Sandbox 与权限",
+      "labs": [
+        "labs/L14-isolated-execution.md"
+      ],
+      "solutions": [
+        "labs/solutions/L14.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/isolation_policy_test.exs",
+        "test/agent_systems_lab/isolation_test.exs",
+        "test/agent_systems_lab/durable_isolation_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/isolation_policy_test.exs",
+          "test/agent_systems_lab/isolation_test.exs",
+          "test/agent_systems_lab/durable_isolation_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C10",
+      "original_lab": "L10",
+      "title": "MCP 工具适配",
+      "labs": [
+        "labs/L15-mcp-stdio.md"
+      ],
+      "solutions": [
+        "labs/solutions/L15.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/mcp_transport_test.exs",
+        "test/agent_systems_lab/mcp_schema_test.exs",
+        "test/agent_systems_lab/durable_mcp_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/mcp_transport_test.exs",
+          "test/agent_systems_lab/mcp_schema_test.exs",
+          "test/agent_systems_lab/durable_mcp_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C11",
+      "original_lab": "L11",
+      "title": "DAG 与人工审批",
+      "labs": [
+        "labs/L16-dag-workflows.md",
+        "labs/L17-human-approvals.md"
+      ],
+      "solutions": [
+        "labs/solutions/L16.md",
+        "labs/solutions/L17.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/workflow_definition_test.exs",
+        "test/agent_systems_lab/workflow_controls_test.exs",
+        "test/agent_systems_lab/approval_cases_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/workflow_definition_test.exs",
+          "test/agent_systems_lab/workflow_controls_test.exs",
+          "test/agent_systems_lab/approval_cases_test.exs"
+        ]
+      ]
+    },
+    {
+      "id": "C12",
+      "original_lab": "L12",
+      "title": "评估与回归",
+      "labs": [
+        "labs/L18-observability.md",
+        "labs/L19-repeatable-evaluation.md",
+        "labs/L20-history-migration-backup-restore.md",
+        "labs/L21-reader-study-and-clean-reproduction.md",
+        "labs/L22-release-readiness.md"
+      ],
+      "solutions": [
+        "labs/solutions/L18.md",
+        "labs/solutions/L19.md",
+        "labs/solutions/L20.md",
+        "labs/solutions/L21.md",
+        "labs/solutions/L22.md"
+      ],
+      "tests": [
+        "test/agent_systems_lab/observability_test.exs",
+        "test/agent_systems_lab/evaluation_test.exs",
+        "test/agent_systems_lab/evaluation_report_test.exs",
+        "test/agent_systems_lab/history_migration_test.exs",
+        "test/agent_systems_lab/backup_test.exs",
+        "test/agent_systems_lab/reader_study_test.exs",
+        "test/agent_systems_lab/release_readiness_test.exs"
+      ],
+      "commands": [
+        [
+          "./scripts/mix",
+          "test",
+          "test/agent_systems_lab/observability_test.exs",
+          "test/agent_systems_lab/evaluation_test.exs",
+          "test/agent_systems_lab/evaluation_report_test.exs",
+          "test/agent_systems_lab/history_migration_test.exs",
+          "test/agent_systems_lab/backup_test.exs",
+          "test/agent_systems_lab/reader_study_test.exs",
+          "test/agent_systems_lab/release_readiness_test.exs"
+        ]
+      ]
+    }
+  ],
+  "chapters": [
+    {
+      "id": "ch01",
+      "title": "从 LLM 应用到 Agent Systems Engineering",
+      "status": "design_card"
+    },
+    {
+      "id": "ch02",
+      "title": "状态机 事件 命令与系统不变量",
+      "status": "draft"
+    },
+    {
+      "id": "ch03",
+      "title": "进程 线程 异步 Actor 与消息传递",
+      "status": "design_card"
+    },
+    {
+      "id": "ch04",
+      "title": "事务 WAL 持久化与故障模型",
+      "status": "design_card"
+    },
+    {
+      "id": "ch05",
+      "title": "Agent Loop 的理论 设计与实现",
+      "status": "draft"
+    },
+    {
+      "id": "ch06",
+      "title": "Model Streaming 事件流 取消与控制",
+      "status": "design_card"
+    },
+    {
+      "id": "ch07",
+      "title": "Tool Calling 与工具生命周期",
+      "status": "design_card"
+    },
+    {
+      "id": "ch08",
+      "title": "Session Turn Message 与状态演化",
+      "status": "draft"
+    },
+    {
+      "id": "ch09",
+      "title": "Context Engineering 与上下文构造",
+      "status": "design_card"
+    },
+    {
+      "id": "ch10",
+      "title": "Compaction 短期记忆 长期记忆与检索",
+      "status": "design_card"
+    },
+    {
+      "id": "ch11",
+      "title": "Tool Registry MCP Transport 与 Schema",
+      "status": "design_card"
+    },
+    {
+      "id": "ch12",
+      "title": "状态版本化 隔离与 Context Recovery",
+      "status": "design_card"
+    },
+    {
+      "id": "ch13",
+      "title": "Checkpoint Snapshot 与持久化状态",
+      "status": "design_card"
+    },
+    {
+      "id": "ch14",
+      "title": "Event Sourcing Event History 与 Replay",
+      "status": "draft"
+    },
+    {
+      "id": "ch15",
+      "title": "Retry Timeout Idempotency 与故障语义",
+      "status": "design_card"
+    },
+    {
+      "id": "ch16",
+      "title": "External Side Effects 与提交协议",
+      "status": "draft"
+    },
+    {
+      "id": "ch17",
+      "title": "Resume Recovery 状态迁移与任务恢复",
+      "status": "design_card"
+    },
+    {
+      "id": "ch18",
+      "title": "Queue Priority Backpressure 与流量控制",
+      "status": "design_card"
+    },
+    {
+      "id": "ch19",
+      "title": "Worker Pool 并发控制与公平调度",
+      "status": "design_card"
+    },
+    {
+      "id": "ch20",
+      "title": "Lease Heartbeat 超时与任务所有权",
+      "status": "draft"
+    },
+    {
+      "id": "ch21",
+      "title": "Distributed State Consistency 与 Replication",
+      "status": "design_card"
+    },
+    {
+      "id": "ch22",
+      "title": "故障转移 资源调度与多租户隔离",
+      "status": "design_card"
+    },
+    {
+      "id": "ch23",
+      "title": "Task Planning DAG 与 Workflow Engine",
+      "status": "design_card"
+    },
+    {
+      "id": "ch24",
+      "title": "Multi Agent Handoff Reviewer 与人工审批",
+      "status": "design_card"
+    },
+    {
+      "id": "ch25",
+      "title": "Sandbox 文件系统 进程与网络隔离",
+      "status": "design_card"
+    },
+    {
+      "id": "ch26",
+      "title": "Authentication Authorization Secrets 与 Audit",
+      "status": "design_card"
+    },
+    {
+      "id": "ch27",
+      "title": "OpenTelemetry Trace Span 与 Metrics",
+      "status": "design_card"
+    },
+    {
+      "id": "ch28",
+      "title": "Agent Evaluation Dataset Rubric 与 Scorer",
+      "status": "design_card"
+    },
+    {
+      "id": "ch29",
+      "title": "Replay Testing Regression 与 Fault Injection",
+      "status": "design_card"
+    },
+    {
+      "id": "ch30",
+      "title": "完整 Agent 系统设计 实现 测试与部署",
+      "status": "design_card"
+    }
+  ]
+}

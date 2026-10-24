@@ -1,0 +1,1 @@
+Merge both label lists, remove duplicates and sort labels ascending, one per line.

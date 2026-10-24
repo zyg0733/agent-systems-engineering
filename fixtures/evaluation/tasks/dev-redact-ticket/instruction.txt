@@ -1,0 +1,1 @@
+Replace the value after token= with [REDACTED], keeping the rest of the ticket unchanged.

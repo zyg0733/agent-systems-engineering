@@ -1,0 +1,1 @@
+Emit the keys sorted ascending as key=value, one per line.

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "project": "oban-bg/oban",
+  "version": "2.24.2",
+  "tag": "v2.24.2",
+  "commit": "0704bf0018bfc915560998fbdfb899dd508f5aff",
+  "retrieved_on": "2026-10-21",
+  "release_url": "https://github.com/oban-bg/oban/releases/tag/v2.24.2",
+  "archive_url": "https://github.com/oban-bg/oban/archive/0704bf0018bfc915560998fbdfb899dd508f5aff.tar.gz",
+  "archive_sha256": "8efce6e2252ddd0ac71946abb09906e17e75dae63c266922ae076009c3f98ceb",
+  "archive_root": "oban-0704bf0018bfc915560998fbdfb899dd508f5aff",
+  "upstream_tests_run": false,
+  "license": "Apache-2.0; source downloaded only to temporary research directory; no vendored source",
+  "files": [
+    {
+      "path": "mix.exs",
+      "sha256": "8766343ba16e16a46dc0b1daf5c1eb68ee4830ea51816ba19111dd2cd6d47437",
+      "lines": 242
+    },
+    {
+      "path": "LICENSE.txt",
+      "sha256": "b2f98276988eca5cd4ef9339a0a42cffa2d2723f20467f706d5bdec21bc7af33",
+      "lines": 201
+    },
+    {
+      "path": "lib/oban/engines/basic.ex",
+      "sha256": "e119228a19b21c93d394d2731df811f83d830be168a9143dd4efe04962a6f8a6",
+      "lines": 588
+    },
+    {
+      "path": "lib/oban/queues/producer.ex",
+      "sha256": "62604651045c957ae5e4d7f8889b083a3076df56d646a7cd7297710c580fb969",
+      "lines": 282
+    },
+    {
+      "path": "lib/oban/queues/executor.ex",
+      "sha256": "025bc7d6c446a5a4e44ad6d93eae47de0ba3fe4117a66f4ca2ce3bc79d755708",
+      "lines": 364
+    },
+    {
+      "path": "lib/oban/lifeline.ex",
+      "sha256": "4b2d82a71a992a29484d404f24222cb3dc95de64b7d3b50c8ceb9fda5c5b6477",
+      "lines": 185
+    },
+    {
+      "path": "lib/oban/plugins/lifeline.ex",
+      "sha256": "cd7daa097452e8f9710d94cd88443fa05633bd066a0f06608d1d76c6a68a0fb9",
+      "lines": 21
+    },
+    {
+      "path": "lib/oban/repo.ex",
+      "sha256": "a015f03c0c945dc50aafdeb3d0a5187fcd5c0b029355337c81aac9ed8d2d2ca5",
+      "lines": 338
+    },
+    {
+      "path": "lib/oban/backoff.ex",
+      "sha256": "6e8b2b31eb1f6c5a1a45e28e3342471c783c7bf0874e2ec3c3a861502c1e97f0",
+      "lines": 131
+    },
+    {
+      "path": "lib/oban/errors.ex",
+      "sha256": "1c1cc770495766513b29a704a3bdbb64b12fc70a70de61cf3550d31e9c1cf46e",
+      "lines": 28
+    },
+    {
+      "path": "lib/oban/notifiers/postgres.ex",
+      "sha256": "8c9bf596624b7445a9cbb34b378b2d7056ed68edaafcaa54d4e55cf190feebc2",
+      "lines": 206
+    },
+    {
+      "path": "guides/learning/unique_jobs.md",
+      "sha256": "0596f6d23275184dfee9ae064686e1ce0cae13945f72126ea9106a9cbdcbe46f",
+      "lines": 202
+    },
+    {
+      "path": "test/oban/engine_test.exs",
+      "sha256": "1faebb3ccae08e2bd55adca9769ee62d75e263f46c9f58e83ec0e2a6540986de",
+      "lines": 961
+    },
+    {
+      "path": "test/oban/engines/basic_test.exs",
+      "sha256": "99b56c6b58e5e4460f21fca2d4c8a132d4ca2396459053cbea0dbe7ad2d2d2db",
+      "lines": 21
+    },
+    {
+      "path": "test/oban/queues/executor_test.exs",
+      "sha256": "f0bbacfd5a39ff8986185633e1cec25f4978aecc7d87890e3533eee20a1d8a57",
+      "lines": 137
+    },
+    {
+      "path": "test/oban/lifeline_test.exs",
+      "sha256": "2821ab412c939237c48d2a7846dd29fbaa340845c6eb40803a4f1c4887da8fe8",
+      "lines": 109
+    },
+    {
+      "path": "test/oban/repo_test.exs",
+      "sha256": "6947eca61aca2db84aa93bc8608661455d37cd17492b8ade44f7f53a56694794",
+      "lines": 87
+    },
+    {
+      "path": "test/oban/backoff_test.exs",
+      "sha256": "1d2dfb3fd1749e5327aa65bef074c6d3d313571f4fd0b6b947164e403500e4b7",
+      "lines": 89
+    },
+    {
+      "path": "test/oban/notifier_test.exs",
+      "sha256": "913ce1681f7e69e66df1d231531c393694514f5025d624458fa3ebed91117566",
+      "lines": 152
+    }
+  ],
+  "installed_dependencies": [
+    {
+      "name": "ecto_sql",
+      "version": "3.14.0",
+      "authority": "mix.lock Hex package/checksum; installed deps source",
+      "files": [
+        {
+          "path": "deps/ecto_sql/lib/ecto/adapters/sql.ex",
+          "sha256": "335698e0e658e47e76142a7edd4bbd199f6c16f00c0f0c50c768e5f4958a9ee0"
+        }
+      ]
+    },
+    {
+      "name": "postgrex",
+      "version": "0.22.4",
+      "authority": "mix.lock Hex package/checksum; installed deps source",
+      "files": [
+        {
+          "path": "deps/postgrex/lib/postgrex/protocol.ex",
+          "sha256": "b9de5d55f6e4928742b6d1f33e1da8f5963c779534ee22f08ffc780a5b9ef8e5"
+        }
+      ]
+    },
+    {
+      "name": "db_connection",
+      "version": "2.10.2",
+      "authority": "mix.lock Hex package/checksum; installed deps source",
+      "files": [
+        {
+          "path": "deps/db_connection/lib/db_connection.ex",
+          "sha256": "e04def33c0be48ded3a661a7c31e818cc611eb17968aa6087d945c309cc6fafb"
+        },
+        {
+          "path": "deps/db_connection/lib/db_connection/connection.ex",
+          "sha256": "ffc112fc3ed5ae6c53b17a744944e0b182acd618258c50f8ab94535be32ba1f5"
+        }
+      ]
+    }
+  ]
+}

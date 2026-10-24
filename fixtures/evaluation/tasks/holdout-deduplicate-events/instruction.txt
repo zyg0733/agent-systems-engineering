@@ -1,0 +1,1 @@
+Keep only the first occurrence of each event identifier, preserving first occurrence order.

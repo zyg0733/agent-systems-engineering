@@ -1,0 +1,4 @@
+item,quantity
+pen,4
+book,
+clip,9

@@ -1,0 +1,1 @@
+Emit total=<sum> followed by newline for the signed integer ledger.

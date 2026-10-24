@@ -1,0 +1,1 @@
+Emit exactly READY followed by newline. Use a single artifact write.

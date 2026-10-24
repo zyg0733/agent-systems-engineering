@@ -1,0 +1,3 @@
+ticket=ALPHA-31
+token=teaching-only-abc123
+state=open

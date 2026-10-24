@@ -1,0 +1,2 @@
+# This normalization exercise deliberately starts with trailing spaces.
+evaluation/tasks/dev-normalize-lines/input.txt -whitespace

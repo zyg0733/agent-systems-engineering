@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "suite_id": "agent-systems-lab-fixed-v1",
+  "version": 1,
+  "pricing": {
+    "model_attempt_units": 1000,
+    "output_byte_units": 1,
+    "tool_attempt_units": 250,
+    "currency": null
+  },
+  "tasks": [
+    {
+      "id": "dev-normalize-lines",
+      "split": "dev",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/dev-normalize-lines/instruction.txt",
+      "input_file": "tasks/dev-normalize-lines/input.txt",
+      "expected_file": "tasks/dev-normalize-lines/expected.txt",
+      "reference_file": "tasks/dev-normalize-lines/reference.txt",
+      "regressed_file": "tasks/dev-normalize-lines/regressed.txt"
+    },
+    {
+      "id": "dev-sort-inventory",
+      "split": "dev",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/dev-sort-inventory/instruction.txt",
+      "input_file": "tasks/dev-sort-inventory/input.txt",
+      "expected_file": "tasks/dev-sort-inventory/expected.txt",
+      "reference_file": "tasks/dev-sort-inventory/reference.txt",
+      "regressed_file": "tasks/dev-sort-inventory/regressed.txt"
+    },
+    {
+      "id": "dev-total-ledger",
+      "split": "dev",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/dev-total-ledger/instruction.txt",
+      "input_file": "tasks/dev-total-ledger/input.txt",
+      "expected_file": "tasks/dev-total-ledger/expected.txt",
+      "reference_file": "tasks/dev-total-ledger/reference.txt",
+      "regressed_file": "tasks/dev-total-ledger/regressed.txt"
+    },
+    {
+      "id": "dev-repair-csv",
+      "split": "dev",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/dev-repair-csv/instruction.txt",
+      "input_file": "tasks/dev-repair-csv/input.txt",
+      "expected_file": "tasks/dev-repair-csv/expected.txt",
+      "reference_file": "tasks/dev-repair-csv/reference.txt",
+      "regressed_file": "tasks/dev-repair-csv/regressed.txt"
+    },
+    {
+      "id": "dev-redact-ticket",
+      "split": "dev",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/dev-redact-ticket/instruction.txt",
+      "input_file": "tasks/dev-redact-ticket/input.txt",
+      "expected_file": "tasks/dev-redact-ticket/expected.txt",
+      "reference_file": "tasks/dev-redact-ticket/reference.txt",
+      "regressed_file": "tasks/dev-redact-ticket/regressed.txt"
+    },
+    {
+      "id": "dev-bounded-response",
+      "split": "dev",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "budget_exhaustion",
+      "instruction_file": "tasks/dev-bounded-response/instruction.txt",
+      "input_file": "tasks/dev-bounded-response/input.txt",
+      "expected_file": "tasks/dev-bounded-response/expected.txt",
+      "reference_file": "tasks/dev-bounded-response/reference.txt",
+      "regressed_file": "tasks/dev-bounded-response/regressed.txt"
+    },
+    {
+      "id": "holdout-merge-labels",
+      "split": "holdout",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/holdout-merge-labels/instruction.txt",
+      "input_file": "tasks/holdout-merge-labels/input.txt",
+      "expected_file": "tasks/holdout-merge-labels/expected.txt",
+      "reference_file": "tasks/holdout-merge-labels/reference.txt",
+      "regressed_file": "tasks/holdout-merge-labels/regressed.txt"
+    },
+    {
+      "id": "holdout-format-config",
+      "split": "holdout",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/holdout-format-config/instruction.txt",
+      "input_file": "tasks/holdout-format-config/input.txt",
+      "expected_file": "tasks/holdout-format-config/expected.txt",
+      "reference_file": "tasks/holdout-format-config/reference.txt",
+      "regressed_file": "tasks/holdout-format-config/regressed.txt"
+    },
+    {
+      "id": "holdout-deduplicate-events",
+      "split": "holdout",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/holdout-deduplicate-events/instruction.txt",
+      "input_file": "tasks/holdout-deduplicate-events/input.txt",
+      "expected_file": "tasks/holdout-deduplicate-events/expected.txt",
+      "reference_file": "tasks/holdout-deduplicate-events/reference.txt",
+      "regressed_file": "tasks/holdout-deduplicate-events/regressed.txt"
+    },
+    {
+      "id": "holdout-extract-summary",
+      "split": "holdout",
+      "artifact_path": "artifact.txt",
+      "oracle": "exact_bytes_v1",
+      "regressed_mode": "artifact",
+      "instruction_file": "tasks/holdout-extract-summary/instruction.txt",
+      "input_file": "tasks/holdout-extract-summary/input.txt",
+      "expected_file": "tasks/holdout-extract-summary/expected.txt",
+      "reference_file": "tasks/holdout-extract-summary/reference.txt",
+      "regressed_file": "tasks/holdout-extract-summary/regressed.txt"
+    }
+  ]
+}

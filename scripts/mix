@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+lab_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+lab_elixir_bin="$lab_root/.runtime/elixir/1.20.4-otp-28/bin"
+lab_otp_bin="$lab_root/.runtime/otp/28.4/bin"
+
+if [ -x "$lab_elixir_bin/mix" ] && [ -x "$lab_otp_bin/erl" ]; then
+  PATH="$lab_elixir_bin:$lab_otp_bin:$PATH"
+  export PATH
+elif ! command -v mix >/dev/null 2>&1; then
+  echo 'Elixir is missing. On macOS run: sh scripts/bootstrap_runtime.sh' >&2
+  exit 1
+fi
+
+cd "$lab_root"
+MIX_HOME="$lab_root/.runtime/mix"
+HEX_HOME="$lab_root/.runtime/hex"
+export MIX_HOME HEX_HOME
+exec mix "$@"

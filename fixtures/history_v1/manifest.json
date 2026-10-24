@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "provenance": "Unmodified Week 20 source freeze, used by the 906-pass acceptance run; four trusted runtime modules only.",
+  "legacy_last_migration": 20261024020000,
+  "business_schema_version": 1,
+  "codec_version": 1,
+  "history_format": 1,
+  "files": {
+    "run.ex": {
+      "source": "lib/agent_systems_lab/storage/run.ex",
+      "sha256": "39063764f7fc4556710e697e27585931f3dad87a6bf63d361e7b3724e87d8a26",
+      "bytes": 1578
+    },
+    "event.ex": {
+      "source": "lib/agent_systems_lab/storage/event.ex",
+      "sha256": "61d0f65f54f4ec152e557aa0c0c9cccdae93a1fbde6e608ffa25e094158b4b10",
+      "bytes": 1083
+    },
+    "storage.ex": {
+      "source": "lib/agent_systems_lab/storage.ex",
+      "sha256": "5e63d27bace911612f7bb140dd12a87d330f2569f6874d4701d743cf8714ded9",
+      "bytes": 24629
+    },
+    "model_result_store.ex": {
+      "source": "lib/agent_systems_lab/model_result_store.ex",
+      "sha256": "b956cd630a67589297c2d1461d9169904a4114f7168e75dec7291410772fa918",
+      "bytes": 6864
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "week": 22,
+  "minimum_external_readers": 3,
+  "maximum_external_readers": 5,
+  "chapters": [
+    {"id":"ch02","path":"book/ch02-agent-state-machine.md","labs":["labs/L01-state-machine.md"]},
+    {"id":"ch05","path":"book/ch05-agent-loop-and-tools.md","labs":["labs/L03-streaming-control.md","labs/L04-controlled-tools.md"]},
+    {"id":"ch08","path":"book/ch08-session-context.md","labs":["labs/L05-session-context.md"]},
+    {"id":"ch14","path":"book/ch14-history-checkpoints-and-replay.md","labs":["labs/L06-history-checkpoints.md","labs/L20-history-migration-backup-restore.md"]},
+    {"id":"ch16","path":"book/ch16-durable-effects-and-reconciliation.md","labs":["labs/L07-recovery.md","labs/L08-retries-and-reconciliation.md"]},
+    {"id":"ch20","path":"book/ch20-scheduling-and-recovery.md","labs":["labs/L11-leases-heartbeats-fencing.md","labs/L13-database-outages-p3.md"]}
+  ],
+  "command_ids": ["verify","p1","history","recover","fence","upgrade"],
+  "protected_facts": ["host_permissions","spent_budget","absolute_deadline","operation_receipts","unknown_reconciliation","approval_subject","current_claim_generation"],
+  "human_feedback_policy": "self_reported_and_host_supplied; agents, templates and automated checks do not count as external humans"
+}

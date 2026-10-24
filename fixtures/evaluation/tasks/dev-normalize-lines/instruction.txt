@@ -1,0 +1,1 @@
+Trim surrounding spaces and emit one lowercase word per line, preserving input order.

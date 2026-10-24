@@ -1,0 +1,2 @@
+# Preserve the unmodified upstream CC license, including its final blank line.
+LICENSE-DOCS whitespace=-blank-at-eof

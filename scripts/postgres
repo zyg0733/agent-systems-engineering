@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+lab_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+pg_bin="$lab_root/.runtime/postgres/18.6/bin"
+pg_data="$lab_root/.runtime/pgdata"
+pg_socket="$lab_root/.runtime/pgsocket"
+pg_port=${PGPORT:-55432}
+
+if [ ! -x "$pg_bin/pg_ctl" ]; then
+  echo 'PostgreSQL is missing. Run: sh scripts/bootstrap_postgres.sh' >&2
+  exit 1
+fi
+
+case "${1:-status}" in
+  start)
+    mkdir -p "$pg_socket"
+    chmod 700 "$pg_socket"
+    if [ ! -f "$pg_data/PG_VERSION" ]; then
+      "$pg_bin/initdb" -D "$pg_data" -U postgres --auth-local=trust --auth-host=trust --encoding=UTF8 --locale=C
+    fi
+    if "$pg_bin/pg_ctl" -D "$pg_data" status >/dev/null 2>&1; then
+      "$pg_bin/pg_ctl" -D "$pg_data" status
+    else
+      "$pg_bin/pg_ctl" -D "$pg_data" -l "$lab_root/.runtime/postgres.log" \
+        -o "-h 127.0.0.1 -p $pg_port -k '$pg_socket' -c fsync=on -c synchronous_commit=on -c full_page_writes=on" -w start
+    fi
+    ;;
+  stop) "$pg_bin/pg_ctl" -D "$pg_data" -m fast -w stop ;;
+  status) "$pg_bin/pg_ctl" -D "$pg_data" status ;;
+  *) echo 'Usage: ./scripts/postgres {start|stop|status}' >&2; exit 1 ;;
+esac

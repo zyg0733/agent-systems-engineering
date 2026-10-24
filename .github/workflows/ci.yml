@@ -1,0 +1,182 @@
+name: Lab checks
+on: [push, pull_request]
+permissions:
+  contents: read
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+defaults:
+  run:
+    shell: bash
+jobs:
+  python-runner:
+    name: Python environment runner
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check repository source before import
+        id: source_check
+        run: |
+          mkdir -p artifacts/ci/python-runner
+          set +e
+          python3 scripts/repository_check.py --json > artifacts/ci/python-runner/source-check.json 2> artifacts/ci/python-runner/source-check.log
+          ci_status=$?
+          printf '%s\n' "$ci_status" > artifacts/ci/python-runner/source-check.exit
+          cat artifacts/ci/python-runner/source-check.json
+          cat artifacts/ci/python-runner/source-check.log >&2
+          exit "$ci_status"
+      - name: Run stdlib executor tests
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p artifacts/ci/python-runner
+          python3 --version > artifacts/ci/python-runner/python-version.log 2>&1
+          set +e
+          python3 -m unittest discover -s scripts/tests -p '*_test.py' -v 2>&1 | tee artifacts/ci/python-runner/tests.log
+          ci_status=${PIPESTATUS[0]}
+          printf '%s\n' "$ci_status" > artifacts/ci/python-runner/tests.exit
+          exit "$ci_status"
+      - name: Upload executor logs on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-runner-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/ci/python-runner/
+          if-no-files-found: warn
+          retention-days: 14
+  check:
+    name: Linux core (Seatbelt excluded)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      MIX_ENV: test
+      LAB_DATABASE_ENABLED: 'true'
+      LAB_SCHEDULER_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Record CI scope and host
+        run: |
+          mkdir -p artifacts/ci/linux-core
+          {
+            printf 'scope=linux-core\nexcluded_tags=seatbelt\nfull_linux_isolation_passed=false\n'
+            printf 'run_id=%s\nrun_attempt=%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
+            printf 'checked_out_commit='; git rev-parse HEAD
+            date -u '+observed_at=%Y-%m-%dT%H:%M:%SZ'
+            uname -a
+            cat /etc/os-release
+          } | tee artifacts/ci/linux-core/environment.log
+      - uses: erlef/setup-beam@v1
+        id: beam
+        with:
+          otp-version: '28.4'
+          elixir-version: '1.20.4'
+          version-type: strict
+      - name: Build pinned native PostgreSQL tools
+        id: postgres_tools
+        run: |
+          set +e
+          (
+            set -e
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y build-essential bison flex perl bzip2 curl ca-certificates
+            ./scripts/bootstrap_postgres.sh
+            .runtime/postgres/18.6/bin/pg_dump --version
+            .runtime/postgres/18.6/bin/pg_restore --version
+          ) 2>&1 | tee artifacts/ci/linux-core/postgres-tools.log
+          ci_status=${PIPESTATUS[0]}
+          printf '%s\n' "$ci_status" > artifacts/ci/linux-core/postgres-tools.exit
+          exit "$ci_status"
+      - name: Fetch locked test dependencies
+        id: dependencies
+        run: |
+          set +e
+          mix deps.get --only test --check-locked 2>&1 | tee artifacts/ci/linux-core/dependencies.log
+          ci_status=${PIPESTATUS[0]}
+          printf '%s\n' "$ci_status" > artifacts/ci/linux-core/dependencies.exit
+          exit "$ci_status"
+      - name: Check source readiness
+        id: readiness
+        run: |
+          set +e
+          HEX_OFFLINE=1 mix lab.release check 2>&1 | tee artifacts/ci/linux-core/source-readiness.log
+          ci_status=${PIPESTATUS[0]}
+          printf '%s\n' "$ci_status" > artifacts/ci/linux-core/source-readiness.exit
+          exit "$ci_status"
+      - name: Run applicable Linux database regression
+        id: full
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.postgres_tools.outcome == 'success' }}
+        run: |
+          set +e
+          HEX_OFFLINE=1 mix check 2>&1 | tee artifacts/ci/linux-core/full.log
+          ci_status=${PIPESTATUS[0]}
+          printf '%s\n' "$ci_status" > artifacts/ci/linux-core/full.exit
+          exit "$ci_status"
+      - name: Run applicable Linux memory regression
+        id: memory
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' && steps.postgres_tools.outcome == 'success' }}
+        run: |
+          set +e
+          HEX_OFFLINE=1 LAB_DATABASE_ENABLED=false mix test 2>&1 | tee artifacts/ci/linux-core/memory.log
+          ci_status=${PIPESTATUS[0]}
+          printf '%s\n' "$ci_status" > artifacts/ci/linux-core/memory.exit
+          exit "$ci_status"
+      - name: Preserve setup and service diagnostics
+        if: always()
+        env:
+          CI_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+          CI_BEAM_OUTCOME: ${{ steps.beam.outcome }}
+          CI_POSTGRES_TOOLS_OUTCOME: ${{ steps.postgres_tools.outcome }}
+          CI_DEPENDENCIES_OUTCOME: ${{ steps.dependencies.outcome }}
+          CI_READINESS_OUTCOME: ${{ steps.readiness.outcome }}
+          CI_FULL_OUTCOME: ${{ steps.full.outcome }}
+          CI_MEMORY_OUTCOME: ${{ steps.memory.outcome }}
+        run: |
+          mkdir -p artifacts/ci/linux-core
+          for ci_log in configure build install; do
+            ci_file=".runtime/downloads/postgres-${ci_log}.log"
+            if [ -f "$ci_file" ]; then cp "$ci_file" artifacts/ci/linux-core/; fi
+          done
+          docker logs "$CI_POSTGRES_CONTAINER" > artifacts/ci/linux-core/postgres-service.log 2>&1 || true
+          docker inspect "$CI_POSTGRES_CONTAINER" --format '{{.Image}}' > artifacts/ci/linux-core/postgres-image-id.log 2>&1 || true
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          names = ("beam", "postgres_tools", "dependencies", "readiness", "full", "memory")
+          value = {"scope": "linux-core", "excluded_tags": ["seatbelt"], "full_linux_isolation_passed": False,
+                   "steps": {name: os.environ.get("CI_" + name.upper() + "_OUTCOME", "") for name in names}}
+          Path("artifacts/ci/linux-core/step-outcomes.json").write_text(json.dumps(value, indent=2) + "\n")
+          PY
+          {
+            printf '### Linux core CI\n\n'
+            printf 'Seatbelt tests are excluded on Linux; memory tests also exclude database tests.\n\n'
+            printf 'Inspect raw logs, exit codes, and step-outcomes.json in the artifact. Skipped tests are not passed tests.\n\n'
+            printf 'This run does not satisfy the full Linux isolation, cold macOS, or human reader release gates.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload Linux logs on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-core-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/ci/linux-core/
+          if-no-files-found: error
+          retention-days: 14

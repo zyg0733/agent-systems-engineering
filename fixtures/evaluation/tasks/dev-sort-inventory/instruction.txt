@@ -1,0 +1,1 @@
+Sort inventory records by item name ascending. Preserve the CSV header and quantities.
