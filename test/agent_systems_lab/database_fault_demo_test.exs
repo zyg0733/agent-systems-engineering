@@ -2,6 +2,7 @@ defmodule AgentSystemsLab.DatabaseFaultDemoTest do
   use ExUnit.Case, async: false
 
   alias AgentSystemsLab.{DatabaseFaultDemo, Repo}
+  alias AgentSystemsLab.Faults.DatabaseProxy
   alias AgentSystemsLab.Storage.Codec
 
   test "validates bounded fault options before creating output or starting a child" do
@@ -71,6 +72,35 @@ defmodule AgentSystemsLab.DatabaseFaultDemoTest do
     directory = output("sockets")
     on_exit(fn -> cleanup(directory) end)
     parent = self()
+    config = Application.fetch_env!(:agent_systems_lab, Repo)
+    backend = Repo.config()
+    {:ok, forwarding} = DatabaseProxy.start_link(backend[:hostname], backend[:port])
+    userinfo = URI.encode(backend[:username], &URI.char_unreserved?/1)
+
+    userinfo =
+      if password = backend[:password],
+        do: userinfo <> ":" <> URI.encode(password, &URI.char_unreserved?/1),
+        else: userinfo
+
+    url =
+      "postgres://#{userinfo}@127.0.0.1:#{DatabaseProxy.port(forwarding)}/" <>
+        URI.encode(backend[:database], &URI.char_unreserved?/1)
+
+    # Model a published database endpoint whose listening port differs from
+    # inet_server_port(). Existing parent connections remain independent, while
+    # every isolated child must use this configured forwarding endpoint.
+    Application.put_env(
+      :agent_systems_lab,
+      Repo,
+      config
+      |> Keyword.drop([:url, :socket, :socket_dir])
+      |> Keyword.merge(hostname: "unreachable.invalid", port: 1, url: url)
+    )
+
+    on_exit(fn ->
+      Application.put_env(:agent_systems_lab, Repo, config)
+      if Process.alive?(forwarding), do: DatabaseProxy.stop(forwarding)
+    end)
 
     assert {:ok, result} =
              DatabaseFaultDemo.run(
@@ -86,6 +116,7 @@ defmodule AgentSystemsLab.DatabaseFaultDemoTest do
     assert report["stale_generation_overwrites"] == 0
     assert report["duplicate_mock_effects"] == 0
     assert report["failed_probe"] == nil
+    assert DatabaseProxy.status(forwarding).accepted >= report["fault_probe_count"]
     assert_receive {:progress, %{status: :disconnected, completed: 0, total: 5}}
     assert_receive {:progress, %{status: :passed, completed: 5, total: 5}}
 
@@ -175,6 +206,40 @@ defmodule AgentSystemsLab.DatabaseFaultDemoTest do
     end
 
     assert read_json(directory, "report") == report
+  end
+
+  @tag :database
+  test "early child failure retains diagnostics and closes the owned proxy" do
+    directory = output("child-exit")
+    runtime = output("failed-runtime")
+    File.mkdir_p!(runtime)
+    executable = Path.join(runtime, "elixir")
+    File.write!(executable, "#!/bin/sh\nprintf 'injected child startup failure\\n'\nexit 23\n")
+    File.chmod!(executable, 0o755)
+    previous_path = System.fetch_env!("PATH")
+    System.put_env("PATH", runtime <> ":" <> previous_path)
+
+    on_exit(fn ->
+      System.put_env("PATH", previous_path)
+      cleanup(directory)
+      File.rm_rf!(runtime)
+    end)
+
+    assert {:error, {:database_verification_failed, result}} =
+             DatabaseFaultDemo.run(output: directory, repetitions: 1)
+
+    assert result.report["fault_probe_count"] == 0
+    reason = result.report["failed_probe"]["reason"]
+    assert reason =~ "child exited 23"
+    assert reason =~ "proxy status:"
+    assert reason =~ "injected child startup failure"
+    root = Path.join(directory, "before_commit_rollback/1")
+    assert File.read!(Path.join(root, "child.log")) =~ "injected child startup failure"
+    cleanup = read_json(root, "cleanup")
+    refute cleanup["kill_sent"]
+    assert cleanup["exit_observed"]
+    assert cleanup["proxy_stopped"]
+    assert cleanup["exit_status"] == 23
   end
 
   @tag :database

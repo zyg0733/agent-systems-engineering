@@ -149,11 +149,20 @@ defmodule AgentSystemsLab.WorkflowsCoordinatorTest do
       )
 
     create(c.id, definition)
-    first = coordinator(c.id, recovery_options: [tool_hook: gate(self(), :after_effect)])
+    # This case verifies retirement with a known live claim. An in-flight
+    # heartbeat has an uncertain ACK and must retain its claim until expiry.
+    first =
+      coordinator(c.id,
+        lease_ms: 30_000,
+        renew_interval_ms: 15_000,
+        recovery_options: [tool_hook: gate(self(), :after_effect)]
+      )
+
     executor = next_gate()
     scheduler = Workflows.status(first).scheduler
     worker = entry(first, executor).worker
     claim = entry(first, executor).claim
+    assert entry(first, executor).renewals == 0
     refs = for pid <- [scheduler, worker, executor], do: {Process.monitor(pid), pid}
     run_id = Definition.run_id(c.id, "root")
     assert %{effects: 1} = DurableTools.stats(run_id)

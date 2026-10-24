@@ -11,6 +11,7 @@ defmodule AgentSystemsLab.ReadonlyRestoreTest do
     Storage
   }
 
+  alias AgentSystemsLab.Backup.Command
   alias AgentSystemsLab.History.{Compatibility, ReadonlyProof, RestoreGuard}
   @moduletag :database
   @moduletag timeout: 120_000
@@ -191,13 +192,33 @@ defmodule AgentSystemsLab.ReadonlyRestoreTest do
         assert :ok = IntentStore.release(fresh)
         assert {:ok, env} = Backup.child_env(target)
 
-        code =
-          "{:ok, done} = AgentSystemsLab.Recovery.resume(\"pending\"); if done.state.status != :succeeded, do: raise(\"resume failed\")"
+        code = """
+        Config.Reader.read!("config/config.exs", env: :test, target: :host)
+        |> Application.put_all_env()
+        {:ok, _} = Application.ensure_all_started(:agent_systems_lab)
+        {:ok, done} = AgentSystemsLab.Recovery.resume("pending")
+        if done.state.status != :succeeded, do: raise("resume failed")
+        """
 
-        assert {_output, 0} =
-                 System.cmd(Path.expand("scripts/mix"), ["run", "--no-compile", "-e", code],
-                   env: [{"MIX_ENV", "test"} | env],
-                   stderr_to_stdout: true
+        # The child consumes the already compiled application, independent of a
+        # developer's Hex installation or Mix home. A nested Mix invocation can
+        # otherwise wait for interactive Hex installation on a fresh CI runner.
+        paths =
+          :code.get_path()
+          |> Enum.filter(&String.contains?(List.to_string(&1), "/_build/"))
+          |> Enum.flat_map(fn path -> ["-pa", List.to_string(path)] end)
+
+        assert {:ok, _output} =
+                 Command.run(
+                   System.find_executable("elixir"),
+                   paths ++ ["-e", code],
+                   env ++
+                     [
+                       {"MIX_HOME", Path.join(c.root, "empty-mix-home")},
+                       {"HEX_HOME", Path.join(c.root, "empty-hex-home")},
+                       {"ERL_FLAGS", "+S 2:2"}
+                     ],
+                   timeout_ms: 30_000
                  )
 
         assert {:ok, %{state: %{status: :succeeded}}} = Storage.load("pending")

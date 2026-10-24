@@ -42,6 +42,36 @@ defmodule AgentSystemsLab.Evaluation.ScorerTest do
     assert result["reason"] == "artifact_mismatch"
   end
 
+  test "grader uses UTF-8 filenames when its launcher defaults to latin1", %{
+    suite: suite,
+    task: task,
+    path: path
+  } do
+    real_elixir = System.find_executable("elixir")
+    old_path = System.get_env("PATH")
+    launcher = Path.join([Path.dirname(path), "latin1-default", "elixir"])
+    File.mkdir_p!(Path.dirname(launcher))
+    quoted_elixir = "'" <> String.replace(real_elixir, "'", "'\\''") <> "'"
+    File.write!(launcher, "#!/bin/sh\nexec #{quoted_elixir} --erl '+fnl' \"$@\"\n")
+    File.chmod!(launcher, 0o755)
+
+    try do
+      System.put_env("PATH", Path.dirname(launcher) <> ":" <> old_path)
+      assert {:ok, probe} = Scorer.probe(:environment)
+      assert JSON.decode!(probe["output"])["native_name_encoding"] == "utf8"
+      assert_gone(probe["os_pid"])
+
+      unicode_path = Path.join(Path.dirname(path), "评测结果.txt")
+      File.write!(unicode_path, task["profiles"]["reference"]["artifact"])
+      assert {:ok, result} = Scorer.score(suite, task, "utf8:1", unicode_path)
+      assert result["passed"]
+      assert result["artifact_sha256"] == task["oracle"]["expected_sha256"]
+      assert_gone(result["os_pid"])
+    after
+      System.put_env("PATH", old_path)
+    end
+  end
+
   test "altered oracle or stale task identity cannot be submitted as the fixed corpus", %{
     suite: suite,
     task: task,
@@ -105,6 +135,12 @@ defmodule AgentSystemsLab.Evaluation.ScorerTest do
 
     assert {:ok, ^result} = Scorer.validate_result(JSON.encode!(result), request)
 
+    assert {:error, "malformed_result"} =
+             Scorer.validate_result(
+               "warning: invalid transport prefix\n" <> JSON.encode!(result),
+               request
+             )
+
     for {key, value} <- [
           {"sample_id", "pair:2"},
           {"task_hash", String.duplicate("f", 64)},
@@ -131,6 +167,7 @@ defmodule AgentSystemsLab.Evaluation.ScorerTest do
       {:ok, result} = Scorer.probe(:environment)
       decoded = JSON.decode!(result["output"])
       assert Enum.all?(names, &(&1 not in decoded["keys"]))
+      assert decoded["native_name_encoding"] == "utf8"
       refute decoded["project_app_started"]
       refute result["output"] =~ "PRIVATE_SCORER_CANARY_20"
       assert_gone(result["os_pid"])

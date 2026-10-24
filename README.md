@@ -6,6 +6,8 @@
 
 当前版本为 **`0.1.0-dev`**。W26 技术交付已完成；`v0.1.0-rc.1` 是历史候选包的清单标签，正式 `0.1.0` 尚未发布。
 
+源码仓库：[zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)（私有仓库，需获得访问权限）。远程检查见 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)，结果以具体提交对应的运行记录为准。
+
 ## 快速开始
 
 以下命令在克隆或下载后的**项目根目录**执行。实际验收组合为 macOS arm64、Elixir **1.20.4**、Erlang/OTP **28.4**、PostgreSQL **18.6**；精确依赖见 [mix.lock](mix.lock)。macOS 安装脚本也提供 x86_64 下载路径，该架构尚未取得本项目实际验收证据。
@@ -56,7 +58,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 | 导出源码、复现并采集环境证据 | [跨环境执行](docs/cross-environment-validation.md)、[L25](labs/L25-cross-environment-validation.md) |
 | 核对候选、试读与发行门槛 | [发行评估](docs/release-assessment.md)、[发布操作](docs/release-operations.md) |
 | 查看实际验收与剩余工作 | [W26 验收](docs/validation-week26.md)、[结果索引](docs/results-index.md)、[证据阅读说明](docs/evidence-guide.md)、[下一阶段计划](docs/next-stage-plan.md) |
-| 准备首次 GitHub 提交与检查 CI | [首次入库说明](docs/github-onboarding.md)、[GitHub CI](docs/github-ci.md) |
+| 查看 GitHub 接入记录与检查 CI | [首次入库说明](docs/github-onboarding.md)、[GitHub CI](docs/github-ci.md) |
 
 ## 已验收基线与当前限制
 

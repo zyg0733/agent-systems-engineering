@@ -126,7 +126,7 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
 
     try do
       write_json(Path.join(directory, "process.json"), %{"pid" => pid, "nonce" => nonce})
-      ready = await_json(port, Path.join(directory, "ready.json"))
+      ready = await_json(port, Path.join(directory, "ready.json"), proxy)
       true = ready["nonce"] == nonce and ready["pid"] == pid
       true = ready["connection"]["database"] == target.database
       true = ready["connection"]["backend_pid"] != target.backend_pid
@@ -138,7 +138,7 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
         else: :ok = DatabaseProxy.disconnect(proxy)
 
       write_json(Path.join(directory, "release.json"), %{"nonce" => nonce})
-      result = await_json(port, Path.join(directory, "result.json"))
+      result = await_json(port, Path.join(directory, "result.json"), proxy)
       true = result["nonce"] == nonce and result["pid"] == pid
       true = result["database_error_observed"]
       proxy_fault = DatabaseProxy.status(proxy)
@@ -210,7 +210,7 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
         "old_claim" => if(old, do: dto(old))
       })
 
-      healed = await_json(port, Path.join(directory, "healed.json"))
+      healed = await_json(port, Path.join(directory, "healed.json"), proxy)
       true = healed["nonce"] == nonce and healed["query_succeeded"]
       true = healed["connection"]["backend_pid"] != ready["connection"]["backend_pid"]
       if old, do: true = healed["stale_claim_rejected"]
@@ -600,12 +600,17 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
   end
 
   defp target do
-    %{rows: [[host, port, pid, database]]} =
-      Repo.query!(
-        "SELECT host(inet_server_addr()), inet_server_port(), pg_backend_pid(), current_database()"
-      )
+    %{rows: [[pid, database]]} = Repo.query!("SELECT pg_backend_pid(), current_database()")
+    config = Repo.config()
 
-    %{hostname: host, port: port, backend_pid: pid, database: database}
+    # Repo.config/0 includes Ecto's parsed URL overrides. A server's physical
+    # inet_server_addr/port may differ from the reachable published endpoint.
+    %{
+      hostname: Keyword.fetch!(config, :hostname),
+      port: Keyword.fetch!(config, :port),
+      backend_pid: pid,
+      database: database
+    }
   end
 
   defp child_credentials do
@@ -715,7 +720,7 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
     end
   end
 
-  defp await_json(port, path) do
+  defp await_json(port, path, proxy) do
     await_value(
       fn ->
         drain_port(port)
@@ -733,6 +738,19 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
       end,
       "child evidence #{path}"
     )
+  rescue
+    exception in RuntimeError ->
+      drain_port(port)
+      output = Process.get({__MODULE__, port}, "")
+
+      output =
+        binary_part(output, max(byte_size(output) - 8_192, 0), min(byte_size(output), 8_192))
+
+      reraise RuntimeError,
+              Exception.message(exception) <>
+                "\nproxy status: #{inspect(DatabaseProxy.status(proxy))}" <>
+                "\nchild output (last 8192 bytes): #{output}",
+              __STACKTRACE__
   end
 
   defp await_command(path, nonce) do

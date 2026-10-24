@@ -80,7 +80,7 @@ defmodule AgentSystemsLab.Evaluation.Scorer do
     Application.ensure_all_started(:crypto)
 
     result =
-      with line when is_binary(line) <- IO.read(:stdio, :line),
+      with line when is_binary(line) <- IO.binread(:stdio, :line),
            true <- byte_size(line) <= 8192,
            {:ok, request} <- JSON.decode(line),
            :ok <- validate_child_request(request),
@@ -125,6 +125,7 @@ defmodule AgentSystemsLab.Evaluation.Scorer do
     IO.write(
       JSON.encode!(%{
         "keys" => System.get_env() |> Map.keys() |> Enum.sort(),
+        "native_name_encoding" => :file.native_name_encoding() |> Atom.to_string(),
         "project_app_started" =>
           Enum.any?(Application.started_applications(), &(elem(&1, 0) == :agent_systems_lab))
       })
@@ -270,7 +271,9 @@ defmodule AgentSystemsLab.Evaluation.Scorer do
         :exit_status,
         :use_stdio,
         :stderr_to_stdout,
-        {:args, ["--erl", "+S 1:1 +A 1 +SDcpu 1 +SDio 1", "-pa", ebin, "-e", expression]},
+        # Clearing locale variables can make Linux default to latin1. Pin UTF-8
+        # before Elixir boots so its encoding warning cannot prefix the JSON.
+        {:args, ["--erl", "+fnu +S 1:1 +A 1 +SDcpu 1 +SDio 1", "-pa", ebin, "-e", expression]},
         {:env, env}
       ])
 
