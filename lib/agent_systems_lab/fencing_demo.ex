@@ -187,6 +187,9 @@ defmodule AgentSystemsLab.FencingDemo do
           "paused_os_state" => paused_state,
           "whole_beam_paused" => true,
           "controller_fixture_gate" => true,
+          "renewal_quiescent_at_pause" => ready["renewal_quiescent_at_pause"],
+          "overdue_renewal_before_executor_release" =>
+            child["overdue_renewal_before_executor_release"],
           "initial_heartbeat_renewals" => ready["heartbeat_renewals"],
           "old_generation" => old.generation,
           "successor_generation" => successor.generation,
@@ -269,10 +272,9 @@ defmodule AgentSystemsLab.FencingDemo do
         @wait_ms -> raise "child executor did not reach boundary"
       end
 
-    entry = await_heartbeat(scheduler, executor)
+    {entry, renewal_token} = suspend_quiescent_worker(scheduler, executor)
     # Fixture coordination only: retain the old executor until it really makes
     # its stale write. The following OS STOP still freezes the entire VM.
-    :ok = :sys.suspend(entry.worker)
     :erlang.trace(executor, true, [:send, {:tracer, self()}])
     {:ok, before} = Recovery.load(id)
 
@@ -281,6 +283,7 @@ defmodule AgentSystemsLab.FencingDemo do
       "nonce" => opts["nonce"],
       "claim" => encode_claim(entry.claim),
       "heartbeat_renewals" => entry.renewals,
+      "renewal_quiescent_at_pause" => true,
       "controller_fixture_gate" => true
     }
 
@@ -288,6 +291,7 @@ defmodule AgentSystemsLab.FencingDemo do
     command = await_file(Path.join(directory, "command.json"))
     true = command["nonce"] == opts["nonce"]
     successor = decode_claim(command["successor"])
+    await_due_renewal(entry.worker, renewal_token)
     probes = stale_probes(entry.claim, successor, before, command["same_seq"])
     send(executor, :release_gate)
 
@@ -313,6 +317,7 @@ defmodule AgentSystemsLab.FencingDemo do
       "original_executor_result" => inspect(original_result),
       "original_executor_fenced" => fenced?(original_result),
       "heartbeat_observed_lease_loss" => true,
+      "overdue_renewal_before_executor_release" => true,
       "worker_stopped" => not Process.alive?(entry.worker),
       "executor_stopped" => not Process.alive?(executor),
       "scheduler_errors" => dto(status.errors)
@@ -391,6 +396,53 @@ defmodule AgentSystemsLab.FencingDemo do
   defp fenced?({:error, :stale_claim}), do: true
   defp fenced?({:error, {:stale_sequence, _, _}}), do: true
   defp fenced?(_), do: false
+
+  @doc false
+  def suspend_quiescent_worker(scheduler, executor) do
+    entry = await_heartbeat(scheduler, executor)
+
+    suspend_quiescent_worker(
+      entry,
+      executor,
+      System.monotonic_time(:millisecond) + @wait_ms
+    )
+  end
+
+  defp suspend_quiescent_worker(entry, executor, deadline) do
+    if System.monotonic_time(:millisecond) >= deadline,
+      do: raise("heartbeat did not reach a quiescent pause boundary")
+
+    :ok = :sys.suspend(entry.worker)
+    state = :sys.get_state(entry.worker)
+
+    if state.executor != executor, do: raise("gated executor stopped before signal pause")
+
+    if is_nil(state.renewal) and not is_nil(state.renew_token) and state.renewals >= 1 do
+      # A successful renewal ACK already in flight must be consumed before STOP.
+      # Otherwise it can arrive ahead of the late executor's DOWN and let the
+      # Worker finish before its overdue heartbeat observes the successor.
+      {%{entry | claim: state.claim, renewals: state.renewals}, state.renew_token}
+    else
+      :ok = :sys.resume(entry.worker)
+      Process.sleep(1)
+      suspend_quiescent_worker(entry, executor, deadline)
+    end
+  end
+
+  defp await_due_renewal(worker, token),
+    do: await_due_renewal(worker, token, System.monotonic_time(:millisecond) + @wait_ms)
+
+  defp await_due_renewal(worker, token, deadline) do
+    {:messages, messages} = Process.info(worker, :messages)
+
+    unless Enum.member?(messages, {:renew, token}) do
+      if System.monotonic_time(:millisecond) >= deadline,
+        do: raise("overdue heartbeat did not reach the suspended Worker")
+
+      Process.sleep(1)
+      await_due_renewal(worker, token, deadline)
+    end
+  end
 
   defp await_heartbeat(scheduler, executor, left \\ @wait_ms)
 
@@ -549,7 +601,9 @@ defmodule AgentSystemsLab.FencingDemo do
   end
 
   defp await_json(port, path, left \\ @wait_ms)
-  defp await_json(_port, path, left) when left <= 0, do: raise("child evidence timeout: #{path}")
+
+  defp await_json(port, path, left) when left <= 0,
+    do: child_evidence_error(port, "child evidence timeout: #{path}")
 
   defp await_json(port, path, left) do
     drain_port(port)
@@ -559,12 +613,25 @@ defmodule AgentSystemsLab.FencingDemo do
         JSON.decode!(bytes)
 
       {:error, :enoent} ->
+        if status = Process.get({__MODULE__, port, :exit}),
+          do: child_evidence_error(port, "child exited #{status} before evidence: #{path}")
+
         Process.sleep(10)
         await_json(port, path, left - 10)
 
       error ->
         raise "child evidence read failed: #{inspect(error)}"
     end
+  end
+
+  defp child_evidence_error(port, reason) do
+    drain_port(port)
+    output = Process.get({__MODULE__, port}, "")
+    output = binary_part(output, max(byte_size(output) - 8_192, 0), min(byte_size(output), 8_192))
+
+    raise reason <>
+            "\nchild output (last 8192 bytes): " <>
+            inspect(output, limit: :infinity, printable_limit: :infinity)
   end
 
   defp await_file(path, left \\ @wait_ms)

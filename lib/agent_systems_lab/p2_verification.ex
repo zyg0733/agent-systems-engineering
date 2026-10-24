@@ -46,7 +46,10 @@ defmodule AgentSystemsLab.P2Verification do
     {"query_after_commit", :commit_hook, :after_commit, :query},
     {"manual_after_receipt", :tool_hook, :after_receipt, :manual}
   ]
-  @lease_ms 200
+  # Claim validation and budget reservation both commit before :after_claim.
+  # Leave room for those real transactions before reaching the crash barrier;
+  # recovery below still waits for the persisted lease to expire naturally.
+  @lease_ms 1_000
 
   @doc "Returns the acceptance matrix without invoking any runtime boundary."
   def cases, do: Enum.map(@cases, fn {name, _, _, _} -> name end)
@@ -343,6 +346,9 @@ defmodule AgentSystemsLab.P2Verification do
         receive do
           {^ref, :claim, claim} ->
             claim
+
+          {^ref, :ack, result} ->
+            raise "caller acknowledged before claim barrier: #{inspect(result)}"
 
           {:DOWN, ^monitor, :process, ^pid, reason} ->
             raise "caller exited before claim: #{inspect(reason)}"

@@ -146,10 +146,24 @@ defmodule AgentSystemsLab.SchedulerDatabaseTest do
       )
 
     assert_receive {:execution_gate, executor}, 2000
-    [%{worker: worker, claim: old}] = Scheduler.status(scheduler).active
+    [%{worker: worker, claim: observed}] = Scheduler.status(scheduler).active
     executor_ref = Process.monitor(executor)
     worker_ref = Process.monitor(worker)
     locker = lock("lab_runs", "id", id)
+
+    # A heartbeat can commit between the Scheduler observation and acquiring
+    # this lock. Freeze the authority actually persisted at the lock barrier;
+    # all subsequent renewals are blocked behind this same Run lock.
+    %{rows: [[token, generation, expires_at]]} =
+      Repo.query!(
+        "SELECT claim_token::text, claim_generation, claim_expires_at FROM lab_intents WHERE run_id=$1 AND status='pending'",
+        [id]
+      )
+
+    assert token == observed.token
+    assert generation == observed.generation
+    old = %{observed | expires_at: DateTime.from_naive!(expires_at, "Etc/UTC")}
+
     renewal = eventually(fn -> if Process.alive?(worker), do: :sys.get_state(worker).renewal end)
     renewal_ref = Process.monitor(renewal.pid)
     assert_receive {:DOWN, ^executor_ref, :process, ^executor, :killed}, 1000
@@ -160,6 +174,8 @@ defmodule AgentSystemsLab.SchedulerDatabaseTest do
     assert failed.active == []
     release(locker)
     assert {:ok, saved} = Recovery.load(id)
+    assert saved.intent.claim_token == old.token
+    assert saved.intent.claim_generation == old.generation
     assert saved.intent.claim_expires_at == old.expires_at
     # A successor is permitted only after the original DB lease naturally expires.
     assert_receive {:execution_gate, successor}, 3000

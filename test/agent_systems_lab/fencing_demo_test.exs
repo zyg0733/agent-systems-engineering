@@ -1,6 +1,6 @@
 defmodule AgentSystemsLab.FencingDemoTest do
   use ExUnit.Case, async: false
-  alias AgentSystemsLab.{FencingDemo, Repo}
+  alias AgentSystemsLab.{FencingDemo, Recovery, Repo, Scheduler}
   alias AgentSystemsLab.Storage.Codec
 
   test "validates the bounded signal fixture before creating evidence or starting a child" do
@@ -85,6 +85,8 @@ defmodule AgentSystemsLab.FencingDemoTest do
       assert probe["paused_os_state"] =~ "T"
       assert probe["whole_beam_paused"]
       assert probe["controller_fixture_gate"]
+      assert probe["renewal_quiescent_at_pause"]
+      assert probe["overdue_renewal_before_executor_release"]
       assert probe["initial_heartbeat_renewals"] >= 1
       assert probe["successor_generation"] == probe["old_generation"] + 1
       assert probe["original_executor_fenced"]
@@ -126,6 +128,118 @@ defmodule AgentSystemsLab.FencingDemoTest do
         assert retained["result"] == confirmed["result"]
       end
     end
+  end
+
+  @tag :database
+  test "the pause barrier consumes an in-flight renewal ACK before suspending the Worker" do
+    id = "fencing-renewal-barrier-" <> Ecto.UUID.generate()
+    parent = self()
+
+    {:ok, _} =
+      Recovery.create_run(id, "pause at a quiescent heartbeat", script: [{:final, "done"}])
+
+    hook = fn
+      :after_model ->
+        send(parent, {:barrier_executor, self()})
+        receive do: (:release_gate -> :ok)
+
+      _ ->
+        :ok
+    end
+
+    {:ok, scheduler} =
+      Scheduler.start_link(
+        workers: 1,
+        run_ids: [id],
+        lease_ms: 400,
+        renew_interval_ms: 80,
+        poll_interval_ms: 20,
+        recovery_options: [hook: hook]
+      )
+
+    on_exit(fn ->
+      if Process.alive?(scheduler) do
+        try do
+          for entry <- Scheduler.status(scheduler).active,
+              Process.alive?(entry.worker),
+              do: :sys.resume(entry.worker)
+
+          Scheduler.stop(scheduler)
+        catch
+          :exit, _ -> :ok
+        end
+      end
+
+      Repo.query!("DELETE FROM lab_runs WHERE id=$1", [id])
+    end)
+
+    assert_receive {:barrier_executor, executor}, 5_000
+
+    entry =
+      await(fn ->
+        Enum.find(
+          Scheduler.status(scheduler).active,
+          &(&1.executor == executor and &1.renewals >= 1)
+        )
+      end)
+
+    holder =
+      Task.async(fn ->
+        Repo.transaction(fn ->
+          Repo.query!("SELECT id FROM lab_runs WHERE id=$1 FOR UPDATE", [id])
+          send(parent, :barrier_row_locked)
+          receive do: (:release_lock -> :ok)
+        end)
+      end)
+
+    on_exit(fn -> send(holder.pid, :release_lock) end)
+    assert_receive :barrier_row_locked, 5_000
+    await(fn -> :sys.get_state(entry.worker).renewal end)
+    barrier = Task.async(fn -> FencingDemo.suspend_quiescent_worker(scheduler, executor) end)
+    assert Task.yield(barrier, 20) == nil
+    send(holder.pid, :release_lock)
+    assert {:ok, :ok} = Task.await(holder)
+    {paused, token} = Task.await(barrier)
+    state = :sys.get_state(paused.worker)
+    assert state.renewal == nil
+    assert state.renewals >= 2
+    assert state.renew_token == token
+    assert state.claim == paused.claim
+    assert state.executor == executor
+    :ok = :sys.resume(paused.worker)
+    :ok = Scheduler.stop(scheduler)
+  end
+
+  @tag :database
+  test "an early child exit reports its output and cleans up without waiting for evidence timeout" do
+    directory = output("early-exit")
+    runtime = output("failed-runtime")
+    File.mkdir_p!(runtime)
+    executable = Path.join(runtime, "elixir")
+    File.write!(executable, "#!/bin/sh\nprintf 'injected fencing startup failure\\n'\nexit 23\n")
+    File.chmod!(executable, 0o755)
+    previous_path = System.fetch_env!("PATH")
+    System.put_env("PATH", runtime <> ":" <> previous_path)
+
+    on_exit(fn ->
+      System.put_env("PATH", previous_path)
+      cleanup(directory)
+      File.rm_rf!(runtime)
+    end)
+
+    started = System.monotonic_time(:millisecond)
+
+    assert {:error, {:fencing_verification_failed, result}} =
+             FencingDemo.run(output: directory, repetitions: 1)
+
+    assert System.monotonic_time(:millisecond) - started < 5_000
+    assert result.report["failed_probe"]["reason"] =~ "child exited 23 before evidence"
+    assert result.report["failed_probe"]["reason"] =~ "injected fencing startup failure"
+    root = Path.join(directory, "model_before_accept_same_seq/1")
+    cleanup = read_json(root, "cleanup")
+    assert cleanup["exit_observed"]
+    assert cleanup["exit_status"] == 23
+    refute cleanup["kill_sent"]
   end
 
   @tag :database
@@ -190,6 +304,20 @@ defmodule AgentSystemsLab.FencingDemoTest do
   end
 
   defp read_json(root, name), do: JSON.decode!(File.read!(Path.join(root, name <> ".json")))
+
+  defp await(fun), do: await(fun, System.monotonic_time(:millisecond) + 5_000)
+
+  defp await(fun, deadline) do
+    case fun.() do
+      value when value not in [nil, false] ->
+        value
+
+      _ ->
+        assert System.monotonic_time(:millisecond) < deadline, "controlled barrier timed out"
+        Process.sleep(1)
+        await(fun, deadline)
+    end
+  end
 
   defp output(label),
     do:

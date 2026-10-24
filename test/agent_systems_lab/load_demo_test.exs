@@ -51,10 +51,33 @@ defmodule AgentSystemsLab.LoadDemoTest do
     end)
 
     parent = self()
+    preparation_delay = :atomics.new(1, [])
+    handler = "load-manual-preparation-#{System.unique_integer([:positive])}"
+
+    assert :ok =
+             :telemetry.attach(
+               handler,
+               [:agent_systems_lab, :repo, :query],
+               fn _event, _measurements, metadata, delayed ->
+                 query = Map.get(metadata, :query, "")
+                 params = Map.get(metadata, :params, [])
+
+                 if String.contains?(query, "INSERT INTO \"lab_model_results\"") and
+                      Enum.any?(params, fn value ->
+                        is_binary(value) and String.ends_with?(value, "-manual-timeout")
+                      end) and :atomics.compare_exchange(delayed, 1, 0, 1) == :ok do
+                   Process.sleep(250)
+                 end
+               end,
+               preparation_delay
+             )
+
+    on_exit(fn -> :telemetry.detach(handler) end)
 
     assert {:ok, %{report: report}} =
              LoadDemo.run(output: output, jobs: 6, on_progress: &send(parent, {:load_phase, &1}))
 
+    assert :atomics.get(preparation_delay, 1) == 1
     assert report["all_passed"]
     assert report["saturation"]["admitted"] == 6
     assert report["saturation"]["rejected"] == 6

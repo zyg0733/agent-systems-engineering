@@ -248,6 +248,10 @@ defmodule AgentSystemsLab.LoadDemo do
   end
 
   defp budgets(prefix) do
+    # SQL preparation must reach the observed model/effect boundary before the
+    # experiment deliberately exhausts the same persisted execution budget.
+    probe_execution_ms = 1_000
+    probe_stall_ms = 5_000
     cap_queue = queue(prefix <> "-budget", capacity: 2, max_inflight: 1)
     capped = prefix <> "-capped"
     create(capped, cap_queue, task_budget: [max_dispatches: 1], script: tool_script())
@@ -269,9 +273,10 @@ defmodule AgentSystemsLab.LoadDemo do
     follower = prefix <> "-slow-follower"
 
     create(slow, slow_queue,
-      task_budget: [execution_timeout_ms: 150],
+      task_budget: [execution_timeout_ms: probe_execution_ms],
       script: [
-        {:stream, [{:text_delta, "started"}, {:sleep, 1_000}, {:text_delta, "too late"}, :done]}
+        {:stream,
+         [{:text_delta, "started"}, {:sleep, probe_stall_ms}, {:text_delta, "too late"}, :done]}
       ]
     )
 
@@ -306,7 +311,7 @@ defmodule AgentSystemsLab.LoadDemo do
     manual_follower = prefix <> "-manual-follower"
 
     create(manual, manual_queue,
-      task_budget: [execution_timeout_ms: 150],
+      task_budget: [execution_timeout_ms: probe_execution_ms],
       mock_mode: :unqueryable,
       script: tool_script()
     )
@@ -318,7 +323,7 @@ defmodule AgentSystemsLab.LoadDemo do
     hook = fn
       :after_effect ->
         send(parent, {tool_ref, :observed, self()})
-        Process.sleep(1_000)
+        Process.sleep(probe_stall_ms)
 
       _ ->
         :ok

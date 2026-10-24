@@ -196,7 +196,13 @@ defmodule AgentSystemsLab.WorkflowsCoordinatorTest do
       )
     )
 
-    controller = coordinator(c.id, recovery_options: [tool_hook: gate(self(), :after_effect)])
+    controller =
+      coordinator(c.id,
+        lease_ms: 300,
+        renew_interval_ms: 40,
+        recovery_options: [tool_hook: gate(self(), :after_effect)]
+      )
+
     executor = next_gate()
     %{worker: worker, claim: old_claim} = entry(controller, executor)
     Process.exit(worker, :kill)
@@ -462,8 +468,10 @@ defmodule AgentSystemsLab.WorkflowsCoordinatorTest do
       Workflows.start_link(
         workflow_id: id,
         poll_interval_ms: 10,
+        # Functional graph gates must not race a 300ms fault-injection lease.
+        # The killed-Worker case supplies that short lease explicitly.
         scheduler_options:
-          Keyword.merge([poll_interval_ms: 10, lease_ms: 300, renew_interval_ms: 40], opts)
+          Keyword.merge([poll_interval_ms: 10, lease_ms: 5_000, renew_interval_ms: 1_000], opts)
       )
 
     Process.unlink(pid)

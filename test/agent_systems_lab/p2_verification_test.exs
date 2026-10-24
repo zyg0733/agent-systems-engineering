@@ -1,6 +1,6 @@
 defmodule AgentSystemsLab.P2VerificationTest do
   use ExUnit.Case, async: false
-  alias AgentSystemsLab.{P2Verification, Repo}
+  alias AgentSystemsLab.{DurableTools, IntentStore, P2Verification, Recovery, Repo}
   alias AgentSystemsLab.Storage.Codec
 
   test "rejects invalid options before creating output or touching the database" do
@@ -99,6 +99,68 @@ defmodule AgentSystemsLab.P2VerificationTest do
     assert result.report["failed_probe"]["reason"] =~ "injected consumer failure"
     assert {:ok, report} = JSON.decode(File.read!(Path.join(root, "report.json")))
     assert report == result.report
+  end
+
+  @tag :database
+  test "pre-execution delay expires a tiny lease before the crash hooks, not a live fixture lease" do
+    prefix = "p2-pre-execution-#{Ecto.UUID.generate()}"
+    ids = for label <- ["expired", "live"], do: prefix <> "-" <> label
+    on_exit(fn -> Enum.each(ids, &Repo.query!("DELETE FROM lab_runs WHERE id=$1", [&1])) end)
+    parent = self()
+
+    for {id, lease_ms} <- Enum.zip(ids, [200, 1_000]) do
+      assert {:ok, _} =
+               Recovery.create_run(id, "reach the intended crash window",
+                 script: [
+                   {:call,
+                    %{operation_id: "once", tool: "mock_write", arguments: %{"value" => 7}}},
+                   {:final, "done"}
+                 ]
+               )
+
+      assert {:ok, %{state: %{status: :waiting_tool}}} = Recovery.step(id)
+      assert {:ok, claim} = IntentStore.claim(id, "pre-execution-delay", lease_ms: lease_ms)
+      Process.sleep(250)
+
+      {caller, monitor} =
+        spawn_monitor(fn ->
+          result =
+            Recovery.execute_claim(claim,
+              hook: fn stage -> if stage == :after_claim, do: send(parent, {id, :after_claim}) end,
+              commit_hook: fn
+                :after_commit ->
+                  send(parent, {id, :after_commit})
+                  receive do: (:release -> :ok)
+
+                _ ->
+                  :ok
+              end
+            )
+
+          send(parent, {id, :ack, result})
+        end)
+
+      try do
+        if lease_ms == 200 do
+          assert_receive {^id, :ack, {:error, :claim_expired}}, 2_000
+          assert_receive {:DOWN, ^monitor, :process, ^caller, :normal}, 2_000
+          refute_received {^id, :after_claim}
+          refute_received {^id, :after_commit}
+          assert %{effects: 0} = DurableTools.stats(id)
+        else
+          assert_receive {^id, :after_claim}, 2_000
+          assert_receive {^id, :after_commit}, 2_000
+          Process.exit(caller, :kill)
+          assert_receive {:DOWN, ^monitor, :process, ^caller, :killed}, 2_000
+          refute_received {^id, :ack, _}
+          assert {:ok, %{state: %{seq: 3, status: :running}}} = Recovery.load(id)
+          assert %{effects: 1} = DurableTools.stats(id)
+        end
+      after
+        if Process.alive?(caller), do: Process.exit(caller, :kill)
+        Process.demonitor(monitor, [:flush])
+      end
+    end
   end
 
   defp output(label),
