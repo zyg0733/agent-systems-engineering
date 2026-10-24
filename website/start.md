@@ -1,0 +1,68 @@
+---
+title: 开始学习
+description: 选择阅读、实验或授课路线，从第一个状态机进入 Agent Systems Engineering。
+---
+
+# 开始学习
+
+先读一章，再完成一个能解释清楚的实验。你不需要准备模型密钥；当前实现使用固定 Scripted/Recorded Provider、Mock 与受控工具。
+
+## 选择你的入口
+
+| 你现在想做什么 | 从这里开始 |
+| --- | --- |
+| 先理解系统设计 | [第 2 章：状态机、命令、事件与系统不变量](../book/ch02-agent-state-machine.md)，随后按[六章阅读路线](reading.md)推进 |
+| 直接动手运行 | [L01 状态机实验](../labs/L01-state-machine.md)，先预测转换，再核对实际事件与重建结果 |
+| 系统学习全部主题 | [C01—C12 课程地图](../docs/course-map.md)，按课程依赖组织 25 份实验手册 |
+| 组织课程或读书会 | [教师与授课说明](teaching.md)，先确定范围、独立练习副本和证据要求 |
+
+## 跑通第一个演示
+
+运行实验需要源码。仓库目前为[私有仓库](https://github.com/zyg0733/agent-systems-engineering)，克隆前需获得访问权限。
+
+以下是已验收的 macOS 路线，在克隆后的**项目根目录**执行。首次安装需要下载运行时和依赖；安装脚本会将它们放入项目的 `.runtime/`。详细平台和工具要求见[跨环境执行说明](../docs/cross-environment-validation.md)。
+
+```sh
+git clone https://github.com/zyg0733/agent-systems-engineering.git
+cd agent-systems-engineering
+sh scripts/bootstrap_runtime.sh
+./scripts/mix local.hex --force
+./scripts/mix deps.get
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix lab.demo
+```
+
+成功输出的末两行为：
+
+```text
+status=succeeded turns=2 requests=1 effects=1
+rebuild_matches=true (in-memory history; no durable storage)
+```
+
+这一步只运行内存演示。接着打开 [L01](../labs/L01-state-machine.md)，解释 `commands → events → state` 的关系，尝试非法转换，并核对重放前后的状态。
+
+## 再进入持久化与恢复
+
+后续实验使用真实 PostgreSQL。共同验收版本为 Elixir **1.20.4**、Erlang/OTP **28.4**、PostgreSQL **18.6**；精确依赖以源码的 `mix.lock` 为准。
+
+```sh
+sh scripts/bootstrap_postgres.sh
+./scripts/postgres start
+./scripts/mix setup
+LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+```
+
+请使用自己的实验数据库。默认本地端口为 `55432`，开发库与测试库分别为 `agent_systems_lab_dev`、`agent_systems_lab_test`；具体连接、输出目录及故障注入要求按每份实验手册执行。
+
+Linux 的适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整隔离实验使用 macOS Seatbelt 教学后端，Linux 隔离后端尚未实现。按[已知限制](../docs/known-limitations.md)判断哪些实验适合当前环境。
+
+## 每次实验留下三样东西
+
+1. **预测**：写出应保持的不变量，以及这个故障窗口可能留下的状态。
+2. **证据**：保存实际命令、退出码、原始输出和新生成的报告，不覆盖旧产物。
+3. **解释**：比较预测与结果，说明下一步执行凭什么安全。
+
+遇到问题时，先查[命令与实现参考](../docs/command-reference.md)和[恢复运行手册](../docs/recovery-runbook.md)，再沿对应实验回到源码与测试。课程的具体任务、评分与成功标准以[课程地图](../docs/course-map.md)为准。
+
+::: info 当前内容状态
+本站对应 `0.1.0-dev`：6 章试读正文、25 份实验手册、12 个课程单元与 30 张章节设计卡。设计卡用于说明写作计划与依赖，正式 `0.1.0` 尚未发布。
+:::

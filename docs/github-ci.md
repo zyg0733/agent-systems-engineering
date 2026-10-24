@@ -1,5 +1,9 @@
 # GitHub 首次推送与 CI 验证
 
+## 已取得的执行记录
+
+提交 [`285f242a75f1c62a034e5bb870c6e5384daf21fa`](https://github.com/zyg0733/agent-systems-engineering/commit/285f242a75f1c62a034e5bb870c6e5384daf21fa)的 [Lab checks 运行 40078168626](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40078168626)中，两个 job 均已通过。Python 专项 **48 项通过**；Linux 数据库回归 **1040 项通过、0 失败、62 项 Seatbelt 排除**；内存回归 **585 项通过、0 失败、517 项排除**。此记录只覆盖该提交及下述适用范围，不继承为后续源码、冷 macOS、完整 Linux 隔离或真人试读的通过证明。
+
 工作流为 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)，由 `push` 和 `pull_request` 触发，不需要模型 API key 或仓库 Secrets。课程使用固定脚本与本地 fixture；安装 Action、BEAM、系统构建前置、PostgreSQL 和锁定依赖仍需联网。取得依赖后，Mix 检查设置 `HEX_OFFLINE=1`，避免在测试阶段重新解析远端包；这不是宿主网络隔离承诺。
 
 ## 检查范围

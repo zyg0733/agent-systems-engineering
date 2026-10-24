@@ -21,11 +21,10 @@
 先按照 README 准备 Elixir/OTP，在仓库根目录运行。项目的 `scripts/mix` 优先使用 `.runtime/` 中的项目运行时，也兼容已安装的全局 Mix：
 
 ```sh
-export LAB_DATABASE_ENABLED=false
-./scripts/mix test
-./scripts/mix lab.verify
-./scripts/mix lab.demo
-./scripts/mix lab.demo --lost-response
+LAB_DATABASE_ENABLED=false ./scripts/mix test
+LAB_DATABASE_ENABLED=false ./scripts/mix lab.verify
+LAB_DATABASE_ENABLED=false ./scripts/mix lab.demo
+LAB_DATABASE_ENABLED=false ./scripts/mix lab.demo --lost-response
 ```
 
 把 Elixir/OTP 版本、测试结果和任务集结果保存到实验记录。演示用于认识调用链；只运行这些命令不算完成本实验。
@@ -50,7 +49,7 @@ export LAB_DATABASE_ENABLED=false
 使用项目交互入口，它同时设置运行时、Hex 与 Mix 缓存路径：
 
 ```sh
-./scripts/iex
+LAB_DATABASE_ENABLED=false ./scripts/iex
 ```
 
 进入 IEx 后逐段粘贴：
@@ -229,8 +228,8 @@ u5.status
 
 ```sh
 ./scripts/mix format --check-formatted
-./scripts/mix test
-./scripts/mix lab.verify
+LAB_DATABASE_ENABLED=false ./scripts/mix test
+LAB_DATABASE_ENABLED=false ./scripts/mix lab.verify
 ```
 
 提交内容包括自己的测试、状态图、命令与事件轨迹、故障表、破坏再修复记录，以及包含结论的 `notes/L01-report.md`。不要仅提交命令输出。

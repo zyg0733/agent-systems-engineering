@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
+  <title>Agent Systems Engineering</title>
+  <desc>打开的书页上，状态节点沿着事件轨迹连接，并由一条弧线返回。</desc>
+  <circle cx="160" cy="160" r="144" fill="#E8EEE7"/>
+  <circle cx="160" cy="160" r="112" stroke="#B8C9BE" stroke-dasharray="2 9"/>
+  <path d="M53 100c41-16 74-15 107 6 33-21 66-22 107-6v145c-41-16-74-15-107 6-33-21-66-22-107-6V100Z" fill="#FFFCF5" stroke="#244B42" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M160 107v143" stroke="#244B42" stroke-width="4"/>
+  <path d="m74 124 36-3m-36 15 52-3m-52 15 29-2m87-12 53-6m-53 19 36-4m-36 18 53-5" stroke="#8EA99C" stroke-width="4" stroke-linecap="round"/>
+  <path d="m84 203 39-25 38 34 43-30 33 22" stroke="#244B42" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="84" cy="203" r="7" fill="#FFFCF5" stroke="#244B42" stroke-width="4"/>
+  <circle cx="123" cy="178" r="7" fill="#D7814F" stroke="#244B42" stroke-width="4"/>
+  <circle cx="161" cy="212" r="7" fill="#FFFCF5" stroke="#244B42" stroke-width="4"/>
+  <circle cx="204" cy="182" r="7" fill="#FFFCF5" stroke="#244B42" stroke-width="4"/>
+  <circle cx="237" cy="204" r="7" fill="#D7814F" stroke="#244B42" stroke-width="4"/>
+  <path d="M245 70c-16-19-48-26-71-15m0 0 12 3m-12-3 4-12" stroke="#B76335" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m77 66 5 8m-27 5 8 4m191 183 9 4" stroke="#B76335" stroke-width="4" stroke-linecap="round"/>
+</svg>

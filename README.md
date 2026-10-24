@@ -8,6 +8,16 @@
 
 源码仓库：[zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)（私有仓库，需获得访问权限）。远程检查见 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)，结果以具体提交对应的运行记录为准。
 
+## 在线阅读
+
+面向教材与实验的 VitePress 阅读站正在本地准备，尚未公开。阅读站提供课程、实验、六章试读稿与参考文档的统一入口；维护和发布说明见[阅读站维护文档](docs/reading-site.md)。在项目根目录启动本地预览：
+
+```sh
+cd website
+npm ci
+npm run dev
+```
+
 ## 快速开始
 
 以下命令在克隆或下载后的**项目根目录**执行。实际验收组合为 macOS arm64、Elixir **1.20.4**、Erlang/OTP **28.4**、PostgreSQL **18.6**；精确依赖见 [mix.lock](mix.lock)。macOS 安装脚本也提供 x86_64 下载路径，该架构尚未取得本项目实际验收证据。
@@ -59,6 +69,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 | 核对候选、试读与发行门槛 | [发行评估](docs/release-assessment.md)、[发布操作](docs/release-operations.md) |
 | 查看实际验收与剩余工作 | [W26 验收](docs/validation-week26.md)、[结果索引](docs/results-index.md)、[证据阅读说明](docs/evidence-guide.md)、[下一阶段计划](docs/next-stage-plan.md) |
 | 查看 GitHub 接入记录与检查 CI | [首次入库说明](docs/github-onboarding.md)、[GitHub CI](docs/github-ci.md) |
+| 评估何时公开教材、如何验证学习体验 | [对外试读质量计划](docs/public-reading-quality-plan.md) |
 
 ## 已验收基线与当前限制
 
@@ -73,7 +84,9 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 
 这些数字绑定 W26 冻结源码与对应原始报告；后续源码或文档整理需重新核对，不能继承为新版本的执行证明。历史 `artifacts/` 默认不进入 Git，源码仓库保留验收叙述与操作说明，原始材料由维护者另行保存和移交。
 
-当前待验收项包括：**真实新 macOS 主机冷安装、实际 Linux 适用回归、完整 Linux 隔离/冻结矩阵，以及 3—5 名独立真人试读**（当前 0 名）。CI 配置或 Linux 计划不构成已执行证据；Linux 核心回归排除 Seatbelt，不能满足完整 Linux 门槛。旧候选一次隔离失败的根因仍未定位，原失败记录保留。
+GitHub 首次入库后的 Linux 核心回归已在提交 [`285f242a75f1c62a034e5bb870c6e5384daf21fa`](https://github.com/zyg0733/agent-systems-engineering/commit/285f242a75f1c62a034e5bb870c6e5384daf21fa)取得[实际 Actions 通过记录](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40078168626)：两个 job 通过，Python **48 项**、Linux 数据库回归 **1040 项**（排除 62 项 Seatbelt）、内存回归 **585 项**（排除 517 项）。该记录绑定上述提交，后续修改需另行验证，详情见 [GitHub CI](docs/github-ci.md)。
+
+当前待验收项包括：**真实新 macOS 主机冷安装、完整 Linux 隔离/冻结矩阵，以及 3—5 名独立真人试读**（当前 0 名）。Linux 核心回归排除 Seatbelt，不能满足完整 Linux 门槛。旧候选一次隔离失败的根因仍未定位，原失败记录保留。
 
 运行时目前使用 Scripted/Recorded Provider，尚未接入真实厂商模型；隔离是 macOS Seatbelt 教学后端，Linux 后端未实现。外部效果不确定时进入 unknown/manual 核对，取消不会撤销已有效果。项目面向单可信宿主与单 PostgreSQL；完整边界见[已知限制](docs/known-limitations.md)。
 

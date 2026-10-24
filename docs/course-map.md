@@ -1,6 +1,6 @@
 # 十二单元课程地图：原计划与实际实验入口
 
-原[研究计划第 8 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#08-十二个实验与故障验收)的 **L01–L12 是主题编号**。实施中加入 Streaming、重试、故障验收等分册，实际手册连续编号为 **L01–L22**。本地图用 C01–C12 固定课程单元对应原十二主题，保留所有已交付文件名，不把实际 L12 误称为评估实验。30 章的七篇依赖与正文状态见[章节设计卡](../book/chapter-cards.md)。
+原[研究计划第 8 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#08-十二个实验与故障验收)的 **L01–L12 是主题编号**。实施中加入 Streaming、重试、故障验收等分册，实际已交付 **25 份手册，连续编号为 L01–L25**。本地图用 C01–C12 固定课程单元对应原十二主题；L23–L25 是 C12 之后的发行与跨环境进阶实验。保留所有已交付文件名，不把实际 L12 误称为评估实验。30 章的七篇依赖与正文状态见[章节设计卡](../book/chapter-cards.md)。
 
 所有单元均从同一 [mix.exs](../mix.exs) `0.1.0-dev` 完整源码开始，通过 [Reproduction](../lib/agent_systems_lab/reproduction.ex) 的 source manifest 冻结文件字节、大小、模式和目录。独立练习时导出到自己拥有的新目录，可在副本中改变实现再与参考解答对照。仓库没有历史 Git 标签；本课程不声称存在逐实验的 start/solution 标签，也不伪造逐周缺功能的起始版本。教师应保存学生修改与冻结源的 diff，禁止覆盖正式试读包。
 
@@ -255,4 +255,16 @@
 
 平台要求：完整路径需 macOS arm64、固定 Elixir/OTP/PG、clang、PG dump/restore；干净复现使用新目录、新 runtime/deps/PGDATA，并声明可信缓存来源。
 
-课程材料的状态分别记录：30 张设计卡不代表全书完成；六章稿不代表真人试读通过；同宿主新目录复现不代表另一 OS/机器验证。[W22 验收记录](validation-week22.md)保留真实外部读者 **0 人**、P5 外部 gate **false**，本地图保持该结论。W24 冻结验收和候选发布仍为后续任务。故障处置沿用[运行手册](recovery-runbook.md)，发布前检查参照 [L22](../labs/L22-release-readiness.md)。
+课程材料的状态分别记录：30 张设计卡不代表全书完成；六章稿不代表真人试读通过；同宿主新目录复现不代表另一 OS/机器验证。[W22 验收记录](validation-week22.md)保留真实外部读者 **0 人**、P5 外部 gate **false**，本地图保持该结论。[W24 冻结验收](validation-week24.md)已有历史候选证据，正式发行仍待验收。故障处置沿用[运行手册](recovery-runbook.md)，发布前检查参照 [L22](../labs/L22-release-readiness.md)。
+
+## C12 之后：发行与跨环境进阶
+
+完成 C12 后，按以下顺序继续 L23–L25。它们使用同一项目的冻结、证据与评估机制，把综合实验延伸到候选交付和外部复现，不新增课程单元编号。
+
+| 进阶实验 | 学习重点 | 前置与结果边界 |
+| --- | --- | --- |
+| [L23 冻结候选发行](../labs/L23-frozen-candidate-release.md) | 冻结源码与证据、候选打包、解压校验及失败记录 | 完成 C12；候选验证通过不表示正式发布已获批准 |
+| [L24 版本化发行评估](../labs/L24-versioned-release-assessment.md) | 绑定政策、源码、试读协议、环境报告与问题复验，分别判断证据和批准 | 完成 L23；工具与 fixture 不能替代独立真人试读 |
+| [L25 跨环境验证](../labs/L25-cross-environment-validation.md) | 执行 macOS warm/cold 与 Linux core 合同，采集原始日志并核验来源 | 完成 L24；同宿主新目录不计冷主机，Linux core 不能替代完整 Linux 隔离 |
+
+参考解答分别见 [L23](../labs/solutions/L23.md)、[L24](../labs/solutions/L24.md)、[L25](../labs/solutions/L25.md)。实际历史结果见 [W24](validation-week24.md)、[W25](validation-week25.md)、[W26](validation-week26.md)；首次 GitHub 托管后的 Linux 核心回归见 [GitHub CI](github-ci.md)，各记录保持各自的源码身份。

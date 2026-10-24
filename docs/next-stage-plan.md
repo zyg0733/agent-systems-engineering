@@ -4,7 +4,9 @@
 
 下一阶段主目标是让外部读者能够独立复现 v0.1，并开始补齐其余 24 章正文。建议先投入 W25—W28 四个工作周完成发行收口，再用 W29—W52 完成 24 章初稿。真实 Provider 等运行时扩展作为独立工程任务，按教学需要和可用工时启动。
 
-本计划不改变现有候选或发布门槛。W25 已完成[发行评估与试读工具](validation-week25.md)，W26 的[跨环境执行与采集](cross-environment-validation.md)技术交付和本机验收也已完成，实际结果见 [W26 验收](validation-week26.md)。现接续[GitHub 本地入库准备](github-onboarding.md)，真实外部环境和读者记录另行取得。`v0.1.0-rc.1` 归档、W24 证据和 W22 旧试读包继续保留原样；招募、批准和发布分别处理。
+本计划不改变现有候选或发布门槛。W25 已完成[发行评估与试读工具](validation-week25.md)，W26 的[跨环境执行与采集](cross-environment-validation.md)技术交付和本机验收也已完成，实际结果见 [W26 验收](validation-week26.md)。[GitHub 首次入库](github-onboarding.md)和一轮真实 [Linux 核心 CI](github-ci.md)已完成；现接续阅读站体验与 W27 试读闭环，冷主机、完整隔离和读者记录另行取得。`v0.1.0-rc.1` 归档、W24 证据和 W22 旧试读包继续保留原样；招募、批准和发布分别处理。
+
+对外公布的近期工作以[教材质量与学习体验计划](public-reading-quality-plan.md)为具体执行依据：先修订六章的先修、学习依赖、首个任务与高风险技术叙述，再取得独立审校和真人试读证据，评估公开六章试读版。无需先写完 30 章，但阅读站构建通过不等于可学性通过；公开阅读预览与正式软件发行分别决策，当前不公开。
 
 ## 1 当前起点与优先级
 
@@ -14,11 +16,11 @@
 | 故障恢复 | 12 类各 20 轮、240 个行级 observation；520 个组件探针；11 项核心演练通过 | 新候选继续绑定同一源码身份，新增边界补充故障窗口 |
 | 候选交付 | 502 个源码文件、6740 份证据文件；原包与解压后验证通过 | 保留 rc.1；新修订生成新身份和新包 |
 | 真实可读性 | 0 名外部真人，P5 外部 gate 未通过 | P0：3—5 名真实读者、六章反馈、至少一次新工作区主实验 |
-| 安装和平台 | W26 同宿主 warm-cache、新源码/deps/build/PGDATA 验收通过；Linux CI 未执行 | P1：首次推送运行 CI；新主机冷安装与完整 Linux 隔离分别取得实证 |
+| 安装和平台 | W26 同宿主 warm-cache、新源码/deps/build/PGDATA 验收通过；提交 `285f242a75f1c62a034e5bb870c6e5384daf21fa` 的 Linux 核心 CI 两个 job 通过，见 [实际运行](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40078168626) | P1：后续源码继续执行适用 CI；新主机冷安装与完整 Linux 隔离分别取得实证 |
 | 教材 | 12 单元、25 个实验、30 张章节卡、6 章正文初稿 | P1：修订六章，再分批写其余 24 章 |
 | 扩展能力 | Scripted/Recorded、当前 BEAM 内备份授权、全前缀 checkpoint 校验 | P2：明确小范围合同后另排 Provider、备份和性能工作 |
 
-当前项目仍为 `0.1.0-dev`，目标 `0.1.0`；候选标签 `v0.1.0-rc.1` 是本地 manifest label。本地 Git 已初始化，目标仓库待定；原创代码采用 Apache-2.0、教材采用 CC BY 4.0，具体边界见[许可范围说明](licensing.md)。正式 `release_ready=false`，没有真实 tag。文件审计通过不计入真人读者人数。
+当前项目仍为 `0.1.0-dev`，目标 `0.1.0`；候选标签 `v0.1.0-rc.1` 是本地 manifest label。源码已提交到私有仓库 [zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)；原创代码采用 Apache-2.0、教材采用 CC BY 4.0，具体边界见[许可范围说明](licensing.md)。正式 `release_ready=false`，没有真实 tag。文件审计通过不计入真人读者人数。
 
 ## 2 发行范围必须先定清
 
@@ -42,7 +44,7 @@ W28 是评审点，不是承诺的发布日期。任何路线缺真人、机器�
 | W27 | 六章试读问题形成可复验闭环 | 收集 3—5 份真实六章记录，至少一人新工作区完成主实验；按 blocker/major/minor 修订；追加 finding→fix→复验记录，更新受影响章节/安装步骤 | 没有未解决 blocker；源码与反馈版本一致，改变的章节取得复验；旧失败和原始反馈保留 |
 | W28 | 新候选具备完整发行决策材料 | 按最终修订源码生成新候选；重新完整/内存回归、12×20 矩阵、11 项演练、包与解压校验；汇总外部门槛、版本、限制、变更和回退说明 | 证据均绑定最终源码；所选平台政策条件实证通过；所有者另行作发行决定。任何未通过项继续 pending |
 
-W25 工具通过完整 1073 项、内存 608 项的独立验收；W26 提供 `macos-warm/macos-cold/linux-core` 固定执行器、有界采集与校验，完成本机完整 1093 项、内存 628 项及 Python 36 项验证，详见 [W26 验收](validation-week26.md)。这不是新外部读者或新平台证据；真实冷主机、Linux runner 与真人仍 pending。Linux 适用排除不能解除完整门槛，W28 评审点不因工具完成而自动成为发布日期。
+W25 工具通过完整 1073 项、内存 608 项的独立验收；W26 提供 `macos-warm/macos-cold/linux-core` 固定执行器、有界采集与校验，完成本机完整 1093 项、内存 628 项及 Python 36 项验证，详见 [W26 验收](validation-week26.md)。这些 W26 数字保留其冻结源码身份。后续提交 `285f242a75f1c62a034e5bb870c6e5384daf21fa` 已在真实 Ubuntu runner 取得 [Actions 通过记录](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40078168626)：Python 48 项、Linux 数据库回归 1040 项（62 项 Seatbelt 排除）、内存回归 585 项（517 项排除）。真实冷 macOS、完整 Linux 隔离和真人仍 pending。Linux 适用排除不能解除完整门槛，W28 评审点不因工具完成而自动成为发布日期。
 
 新工作区主实验按协议覆盖 `verify/p1/history/recover/fence/upgrade` 六个固定 command ID，逐项保存退出码、结果和证据；具体 argv 来自锁定实验计划，不执行读者自由文本。`fresh_workspace` 自报只证明新目录，与新主机冷安装报告分别验收。
 
@@ -61,7 +63,7 @@ W26 环境报告和 W27 反馈不能直接改绑 W28 的新源码。最终版本
 - `CandidatePackage` 继续精确保留 `human_readers=0`、`linux_validation=pending`、rc.1 与 `release_ready=false` 历史合同。W25 新增固定版本 `ReleaseAssessment`，不把旧字段手工改绿；新候选打包与最终发行仍在 W28 另行验收。
 - 旧 `ReaderStudy.prepare/1` 仍保留原合同；W25 新 `ReleaseStudy` 显式选择冻结 source，避免从已补录文档的工作区导出另一版却声称仍是 rc.1。
 - W25 新流程按 finding→fix→原读者最近 fix 的 retest 追加计算问题现状，保留原始自报与修复前失败；真人身份仍由可信宿主核对，JSON 校验不认证人。
-- CI 仍只有配置，没有真实远端执行证据。W26 增加可交接的独立执行与受界证据采集；真实 Linux、新主机、Action/镜像不可变身份与上游来源认证继续按实际取得材料验收，不把 SHA 当成发布者签名。
+- CI 已在提交 `285f242a75f1c62a034e5bb870c6e5384daf21fa` 取得真实 Ubuntu runner 的适用通过记录，详见 [GitHub CI](github-ci.md)。W26 的独立执行与有界证据采集仍需按各环境合同取得报告；冷主机、完整 Linux 隔离、Action/镜像不可变身份与上游来源认证继续按实际材料验收，不把 SHA 当成发布者签名。
 
 W25 的 `lab.release.assess` 与 `lab.reading.frozen` 已实现；W26 新入口为 `lab.environment plan/collect/verify` 和 Python `scripts/environment_validate.py plan|run`，具体可执行命令见[跨环境手册](cross-environment-validation.md)。既有 `lab.release check` 继续保留其 source-readiness 范围；任一工具退出 0 都不能替代逐项发行 gate。
 
@@ -150,8 +152,8 @@ ch21/ch22 的复制、故障转移和多租户主题应区分概念、对照案�
 | --- | --- | --- |
 | 3—5 名独立真人与一名技术同行 | 六章可读性、独立主实验、每两周审阅 | 先交付新试读包、问题账本和教材初稿；人数仍为 0，外部 gate 不通过 |
 | 一台可无既有本地安装缓存复现的 macOS 主机 | 冷安装与输入来源实证 | 完成 runner/安装脚本和清单；不把本机新目录当冷主机 |
-| Ubuntu runner 与明确权限/联网条件 | Linux 适用测试或完整隔离专项 | 完成平台合同、离线测试、日志归档；Linux 继续 pending |
+| Ubuntu runner 与明确权限/联网条件 | 持续执行 Linux 适用测试；另排完整隔离专项 | 已取得一轮核心 CI，通过记录绑定具体提交；完整隔离及发行环境报告继续 pending |
 | 发行负责人、范围和目标 | 对最终版本作发布决定 | 提供具体可审阅候选和准入报告；不自动创建 tag、推送、上传或发布 |
 | 单一 Provider 账号、模型和费用上限 | 可选真实网络实验 | 先完成伪服务、装配、预算和录制测试；真实网络保持关闭 |
 
-后续执行从 **GitHub 首次入库、真实 CI 与 W27 试读闭环** 继续。W25/W26 技术准备已完成；先交接可安装的源码、真实日志采集入口和冻结试读流程，外部机器与真人未取得时继续保留待验收，不用本机工具通过代替。
+后续执行从 **阅读站体验、持续 CI 与 W27 试读闭环** 继续。GitHub 首次入库和上述提交的 Linux 核心 CI 已完成，W25/W26 技术准备已完成；继续交接可安装的源码、真实日志采集入口和冻结试读流程，冷主机、完整隔离与真人未取得时继续保留待验收。

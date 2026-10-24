@@ -1,0 +1,113 @@
+name: Reading site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'book/**'
+      - 'labs/**'
+      - 'docs/**'
+      - '*.md'
+      - 'LICENSE'
+      - 'LICENSE-DOCS'
+      - 'NOTICE'
+      - '.github/workflows/reading-site.yml'
+  pull_request:
+    paths:
+      - 'website/**'
+      - 'book/**'
+      - 'labs/**'
+      - 'docs/**'
+      - '*.md'
+      - 'LICENSE'
+      - 'LICENSE-DOCS'
+      - 'NOTICE'
+      - '.github/workflows/reading-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reading-site-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SITE_BASE: ${{ vars.READING_SITE_BASE || '/agent-systems-engineering/' }}
+
+jobs:
+  build:
+    name: Build and validate reading site
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked website dependencies
+        run: npm ci
+      - name: Check site preparation and navigation
+        run: npm run check
+      - name: Build and verify links, resources and anchors
+        run: npm run build
+      - name: Upload private preview artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: reading-site-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: website/.vitepress/dist/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+      - name: Record build scope
+        env:
+          CHECKED_COMMIT: ${{ github.sha }}
+          PUBLISH_ENABLED: ${{ vars.PUBLISH_READING_SITE == 'true' }}
+        run: |
+          {
+            printf '### Reading site build\n\n'
+            printf 'Commit: `%s`\n\n' "$CHECKED_COMMIT"
+            printf 'Base path: `%s`\n\n' "$SITE_BASE"
+            printf 'Validated static HTML is available in the authenticated preview artifact.\n\n'
+            printf 'Publication flag: `%s`. A successful build is not a successful Pages deployment.\n' "$PUBLISH_ENABLED"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: Publish approved reading site
+    needs: build
+    if: ${{ vars.PUBLISH_READING_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download the validated build from this run
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: reading-site-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reading-site-dist
+      - name: Read the approved Pages configuration
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        with:
+          enablement: false
+      - name: Package the validated build for Pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: reading-site-dist
+          retention-days: 1
+          include-hidden-files: true
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

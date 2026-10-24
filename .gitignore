@@ -3,6 +3,12 @@
 /cover/
 /.runtime/
 /artifacts/
+/website/node_modules/
+/website/.content/
+/website/.vitepress/cache/
+/website/.vitepress/.temp/
+/website/.vitepress/dist/
+/website/.vitepress/config.mts.timestamp-*
 /erl_crash.dump
 *.ez
 .DS_Store
