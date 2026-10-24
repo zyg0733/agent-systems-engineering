@@ -1,5 +1,7 @@
 defmodule AgentSystemsLab.ReleaseAssessmentTest do
-  use ExUnit.Case, async: true
+  # Each assessment rechecks every source and matrix file. Run these I/O-heavy
+  # mutation cases after async modules so their integrity walks do not contend.
+  use ExUnit.Case, async: false
 
   Code.require_file("../support/frozen_matrix_fixture.exs", __DIR__)
   Code.require_file("../support/release_candidate_fixture.ex", __DIR__)

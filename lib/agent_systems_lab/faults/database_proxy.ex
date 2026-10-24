@@ -21,7 +21,13 @@ defmodule AgentSystemsLab.Faults.DatabaseProxy do
   @impl true
   def init({host, port}) do
     {:ok, listener} =
-      :gen_tcp.listen(0, [:binary, active: false, ip: {127, 0, 0, 1}, reuseaddr: true])
+      :gen_tcp.listen(0, [
+        :binary,
+        active: false,
+        ip: {127, 0, 0, 1},
+        reuseaddr: true,
+        nodelay: true
+      ])
 
     {:ok, {{127, 0, 0, 1}, local_port}} = :inet.sockname(listener)
     parent = self()
@@ -75,7 +81,12 @@ defmodule AgentSystemsLab.Faults.DatabaseProxy do
   end
 
   def handle_info({:accepted, frontend}, state) do
-    case :gen_tcp.connect(state.host, state.backend_port, [:binary, active: false], 1_000) do
+    case :gen_tcp.connect(
+           state.host,
+           state.backend_port,
+           [:binary, active: false, nodelay: true],
+           1_000
+         ) do
       {:ok, backend} ->
         :inet.setopts(frontend, active: :once)
         :inet.setopts(backend, active: :once)
@@ -114,7 +125,9 @@ defmodule AgentSystemsLab.Faults.DatabaseProxy do
         commit? = Enum.any?(frames, &commit?/1)
         awaiting = pair.awaiting_ack or (state.mode == :armed and commit?)
         pair = %{pair | front_buffer: rest, startup: startup, awaiting_ack: awaiting}
-        Enum.each(frames, &:gen_tcp.send(pair.backend, &1))
+        # Forward a decoded batch in one write. Small PostgreSQL Parse/Describe/
+        # Flush frames must not wait for Nagle plus a peer's delayed ACK.
+        :gen_tcp.send(pair.backend, frames)
         :inet.setopts(socket, active: :once)
         state = %{state | pairs: Map.put(state.pairs, ref, pair)}
         {:noreply, if(commit? and awaiting, do: event(state, :commit_forwarded), else: state)}
@@ -129,7 +142,7 @@ defmodule AgentSystemsLab.Faults.DatabaseProxy do
           state = %{state | ack_dropped: state.ack_dropped + 1, mode: :blocked}
           {:noreply, state |> event(:commit_ack_dropped) |> close_all()}
         else
-          Enum.each(frames, &:gen_tcp.send(pair.frontend, &1))
+          :gen_tcp.send(pair.frontend, frames)
           :inet.setopts(socket, active: :once)
           {:noreply, %{state | pairs: Map.put(state.pairs, ref, %{pair | back_buffer: rest})}}
         end

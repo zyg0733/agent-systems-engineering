@@ -243,6 +243,57 @@ defmodule AgentSystemsLab.DatabaseFaultDemoTest do
   end
 
   @tag :database
+  test "a result before readiness fails promptly with its original error and cleans up" do
+    directory = output("early-result")
+    runtime = output("early-result-runtime")
+    child_directory = Path.join(directory, "before_commit_rollback/1")
+    File.mkdir_p!(runtime)
+
+    File.write!(Path.join(runtime, "elixir"), """
+    #!/usr/bin/env python3
+    import json, pathlib, time
+    root = pathlib.Path(#{JSON.encode!(child_directory)})
+    process = root / "process.json"
+    while not process.exists():
+        time.sleep(0.01)
+    identity = json.loads(process.read_text())
+    result = {**identity, "database_error_observed": False,
+              "database_errors": ["{:error, :intent_claimed}"]}
+    temporary = root / "result.json.tmp"
+    temporary.write_text(json.dumps(result))
+    temporary.rename(root / "result.json")
+    time.sleep(60)
+    """)
+
+    File.chmod!(Path.join(runtime, "elixir"), 0o755)
+    previous_path = System.fetch_env!("PATH")
+    System.put_env("PATH", runtime <> ":" <> previous_path)
+
+    on_exit(fn ->
+      System.put_env("PATH", previous_path)
+      cleanup(directory)
+      File.rm_rf!(runtime)
+    end)
+
+    started = System.monotonic_time(:millisecond)
+
+    assert {:error, {:database_verification_failed, result}} =
+             DatabaseFaultDemo.run(output: directory, repetitions: 1)
+
+    assert System.monotonic_time(:millisecond) - started < 5_000
+    reason = result.report["failed_probe"]["reason"]
+    assert reason =~ "child returned before readiness"
+    assert reason =~ "intent_claimed"
+    refute reason =~ "bounded wait expired"
+    refute File.exists?(Path.join(child_directory, "ready.json"))
+    assert File.exists?(Path.join(child_directory, "result.json"))
+    cleanup = read_json(child_directory, "cleanup")
+    assert cleanup["kill_sent"]
+    assert cleanup["exit_observed"]
+    assert cleanup["proxy_stopped"]
+  end
+
+  @tag :database
   @tag timeout: 30_000
   test "callback failure during an outage closes the owned proxy and awaits its child" do
     directory = output("failure")

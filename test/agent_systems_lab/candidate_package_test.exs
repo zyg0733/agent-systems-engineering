@@ -1,5 +1,7 @@
 defmodule AgentSystemsLab.CandidatePackageTest do
-  use ExUnit.Case, async: true
+  # Full source and matrix inventory checks share the VM's file server. Keep
+  # these repeated walks out of the parallel module phase on small CI runners.
+  use ExUnit.Case, async: false
 
   Code.require_file("../support/frozen_matrix_fixture.exs", __DIR__)
 

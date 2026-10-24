@@ -71,6 +71,12 @@ defmodule AgentSystemsLab.LoadDemoTest do
     assert report["fairness"]["starvation_cleared_after_service"]
     assert report["fairness"]["low_priority_service_rank_after_incumbent"] == 1
     assert report["fairness"]["low_priority_original_wait_ms"] >= 90
+    low = report["fairness"]["low_priority_run_id"]
+
+    assert Enum.any?(report["fairness"]["starvation_before_service"], fn entry ->
+             entry["run_id"] == low and entry["effective_priority"] == 9
+           end)
+
     assert report["budgets"]["dispatch_cap_tool_effects"] == 0
     assert report["budgets"]["slow_model_accepted_results"] == 0
     assert report["budgets"]["slow_provider_stopped_and_awaited"]

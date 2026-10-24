@@ -29,6 +29,9 @@ defmodule AgentSystemsLab.DatabaseProxyTest do
     :ok = :gen_tcp.send(client, <<8::32>>)
     :ok = :gen_tcp.send(client, <<196_608::32>>)
     assert_receive :startup_seen
+    [pair] = proxy |> :sys.get_state() |> Map.fetch!(:pairs) |> Map.values()
+    assert {:ok, [nodelay: true]} = :inet.getopts(pair.frontend, [:nodelay])
+    assert {:ok, [nodelay: true]} = :inet.getopts(pair.backend, [:nodelay])
     :ok = DatabaseProxy.trap_commit_ack(proxy)
     :ok = :gen_tcp.send(client, <<?Q, 11::32, "COM">>)
     :ok = :gen_tcp.send(client, <<"MIT", 0>>)

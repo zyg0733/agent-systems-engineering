@@ -126,7 +126,13 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
 
     try do
       write_json(Path.join(directory, "process.json"), %{"pid" => pid, "nonce" => nonce})
-      ready = await_json(port, Path.join(directory, "ready.json"), proxy)
+
+      ready =
+        await_json(port, Path.join(directory, "ready.json"), proxy, %{
+          "pid" => pid,
+          "nonce" => nonce
+        })
+
       true = ready["nonce"] == nonce and ready["pid"] == pid
       true = ready["connection"]["database"] == target.database
       true = ready["connection"]["backend_pid"] != target.backend_pid
@@ -720,7 +726,7 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
     end
   end
 
-  defp await_json(port, path, proxy) do
+  defp await_json(port, path, proxy, readiness_identity \\ nil) do
     await_value(
       fn ->
         drain_port(port)
@@ -730,6 +736,8 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
             JSON.decode!(bytes)
 
           {:error, :enoent} ->
+            if readiness_identity, do: reject_early_result(Path.dirname(path), readiness_identity)
+
             if status = Process.get({__MODULE__, port, :exit}),
               do: raise("child exited #{status}: #{Process.get({__MODULE__, port})}")
 
@@ -751,6 +759,21 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
                 "\nproxy status: #{inspect(DatabaseProxy.status(proxy))}" <>
                 "\nchild output (last 8192 bytes): #{output}",
               __STACKTRACE__
+  end
+
+  defp reject_early_result(directory, identity) do
+    case File.read(Path.join(directory, "result.json")) do
+      {:ok, bytes} ->
+        result = JSON.decode!(bytes)
+
+        unless Map.take(result, ["pid", "nonce"]) == identity,
+          do: raise("child identity mismatch in result before readiness")
+
+        raise "child returned before readiness: #{inspect(result)}"
+
+      {:error, :enoent} ->
+        :ok
+    end
   end
 
   defp await_command(path, nonce) do

@@ -5,6 +5,7 @@ defmodule AgentSystemsLab.TaskBudgetStoreTest do
     DurableTools,
     IntentStore,
     Recovery,
+    RecoveryStore,
     Repo,
     Scheduler,
     Storage,
@@ -156,20 +157,27 @@ defmodule AgentSystemsLab.TaskBudgetStoreTest do
   end
 
   test "late model acceptance and new tool effects are transactionally fenced", c do
+    parent = self()
+
     assert {:ok, _} =
              Recovery.create_run(c.id, "late",
                script: [{:final, "late"}],
-               task_budget: [execution_timeout_ms: 30]
+               task_budget: []
              )
 
     assert {:ok, claim} = IntentStore.claim(c.id, "manual")
 
     hook = fn
-      :after_model -> Process.sleep(45)
-      _ -> :ok
+      :after_model ->
+        wait_execution_expiry(c.id)
+        send(parent, {:late_model_gate, c.id})
+
+      _ ->
+        :ok
     end
 
     assert {:ok, final} = Recovery.execute_claim(claim, hook: hook)
+    assert_received {:late_model_gate, id} when id == c.id
     assert final.state.status == :failed
     assert final.state.terminal_reason == {:budget_exceeded, :execution_timeout}
     assert {:ok, []} = AgentSystemsLab.ModelResultStore.list(c.id)
@@ -181,19 +189,25 @@ defmodule AgentSystemsLab.TaskBudgetStoreTest do
                script: [
                  {:call, %{operation_id: "once", tool: "mock_write", arguments: %{"amount" => 1}}}
                ],
-               task_budget: [execution_timeout_ms: 30]
+               task_budget: []
              )
 
-    assert {:ok, _} = Recovery.step(other)
+    assert {:ok, %{state: %{status: :waiting_tool}}} = Recovery.step(other)
     assert {:ok, claim} = IntentStore.claim(other, "tool")
 
     hook = fn
-      :before_effect -> Process.sleep(45)
-      _ -> :ok
+      :before_effect ->
+        wait_execution_expiry(other)
+        send(parent, {:late_effect_gate, other})
+
+      _ ->
+        :ok
     end
 
     assert {:ok, final} = Recovery.execute_claim(claim, tool_hook: hook)
+    assert_received {:late_effect_gate, ^other}
     assert final.state.status == :failed
+    assert final.state.terminal_reason == {:budget_exceeded, :execution_timeout}
     assert %{effects: 0} = DurableTools.stats(other)
   end
 
@@ -230,6 +244,22 @@ defmodule AgentSystemsLab.TaskBudgetStoreTest do
     end
 
     assert Scheduler.status(scheduler).wake_requests == 10_000
+  end
+
+  defp wait_execution_expiry(id) do
+    assert {:ok, %{progress: %{execution_deadline_at_ms: deadline}}} = TaskBudgetStore.load(id)
+    assert is_integer(deadline)
+    wait_database_time(deadline)
+    assert {:error, {:budget_exceeded, :execution_timeout}} = TaskBudgetStore.check_deadline(id)
+  end
+
+  defp wait_database_time(deadline) do
+    remaining = deadline - RecoveryStore.now_ms()
+
+    if remaining > 0 do
+      Process.sleep(remaining)
+      wait_database_time(deadline)
+    end
   end
 
   defp scheduler(id, opts \\ []) do

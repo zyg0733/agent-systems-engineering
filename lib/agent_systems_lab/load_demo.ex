@@ -198,11 +198,29 @@ defmodule AgentSystemsLab.LoadDemo do
         create(id, queue, priority: 9, script: [{:final, "new high priority"}])
       end
 
-      {:ok, starved} = QueueStore.starvation(queue)
-      true = Enum.any?(starved, &(&1.run_id == low))
+      starved =
+        await(fn ->
+          {:ok, entries} = QueueStore.starvation(queue)
+          if Enum.any?(entries, &(&1.run_id == low and &1.effective_priority == 9)), do: entries
+        end)
+
       {:ok, before_stats} = QueueStore.stats(queue)
       send(executor, {ref, :release})
       ids = [blocker, low | high_ids]
+
+      # Recovery.load/1 takes FOR SHARE. Polling it while dispatch uses SKIP
+      # LOCKED can cause the observer itself to defer the oldest ready Run.
+      # Observe completion without locks, then validate each durable snapshot.
+      await(fn ->
+        %{rows: [[completed]]} =
+          Repo.query!(
+            "SELECT count(*) FROM lab_runs WHERE id=ANY($1) AND status='succeeded'",
+            [ids]
+          )
+
+        completed == length(ids)
+      end)
+
       Enum.each(ids, &await_status(&1, :succeeded))
       order = completion_order(ids)
       [^blocker, ^low | _] = Enum.map(order, & &1["run_id"])

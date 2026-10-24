@@ -71,7 +71,19 @@ defmodule AgentSystemsLab.LeaseHeartbeatTest do
     [%{worker: worker, claim: old}] = Scheduler.status(scheduler).active
     assert :ok = :sys.suspend(worker)
     on_exit(fn -> if Process.alive?(worker), do: :sys.resume(worker) end)
-    wait_expiry(old)
+
+    # Suspension stops the Worker mailbox, but a renewal already dispatched to
+    # its database helper can still commit a later expiry. Observe that outcome
+    # before waiting for the persisted lease, retaining the old token/generation.
+    if renewal = :sys.get_state(worker).renewal do
+      renewal_monitor = Process.monitor(renewal.pid)
+      assert_receive {:DOWN, ^renewal_monitor, :process, _, _}, 2_000
+    end
+
+    assert {:ok, paused} = Recovery.load(c.id)
+    assert paused.intent.claim_token == old.token
+    assert paused.intent.claim_generation == old.generation
+    wait_expiry(%{old | expires_at: paused.intent.claim_expires_at})
     assert {:ok, replacement} = IntentStore.claim(c.id, "replacement", lease_ms: 5_000)
     assert replacement.seq == old.seq
     assert {:ok, protected} = Recovery.load(c.id)
@@ -120,7 +132,11 @@ defmodule AgentSystemsLab.LeaseHeartbeatTest do
 
   defp wait_expiry(claim) do
     remaining = DateTime.to_unix(claim.expires_at, :millisecond) - RecoveryStore.now_ms() + 5
-    if remaining > 0, do: Process.sleep(remaining)
+
+    if remaining > 0 do
+      Process.sleep(remaining)
+      wait_expiry(claim)
+    end
   end
 
   defp eventually(fun), do: eventually(fun, System.monotonic_time(:millisecond) + 2_000)
