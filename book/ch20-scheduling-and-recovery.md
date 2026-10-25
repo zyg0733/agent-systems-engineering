@@ -83,6 +83,8 @@ sequenceDiagram
 
 命名队列领取按 Queue → Run → Intent 的顺序取得权威；未入队 Run 没有 Queue 锁。renew/release 在 Run 锁内验证 intent，不能把不同入口描述成一个会随意交换的锁序。`available_at` 是扫描提示，真正 retry due 仍从原 journal 验证。claim 返回只是领取成功，不等于工具已经执行。
 
+扫描命中也只是候选：`FOR UPDATE OF Run SKIP LOCKED` 不会同时锁住 JOIN 中的 intent。另一个领取事务可能在本次查询快照之后提交，所以取得 Run 锁后仍须重读当前 intent；若它已有有效 lease，就跳过并继续寻找后续候选。不能覆盖新 token，也不能提前把整次扫描当作无任务。这个窗口由 [intent_dispatch_test](../test/agent_systems_lab/intent_dispatch_test.exs) 的旧快照屏障测试覆盖；PostgreSQL 的 [SELECT 锁定说明](https://www.postgresql.org/docs/18/sql-select.html#SQL-FOR-UPDATE-SHARE)解释了只锁指定表的范围。
+
 `Recovery.execute_claim/2` 再次在 Run 行锁中校验当前事实，然后预留原任务的调度预算。这个第二次检查防止领取与真正执行之间发生取消、接管或状态变化。`Storage.dispatch/4` 在结果提交时继续检查同一权威；执行前检查不能替代提交时检查。
 
 核心不变量是：一个已失效的执行代次，不能通过任何业务入口提交新事实。模型输出、工具准备、效果授权、receipt、人工确认、retry 完成和状态转换都需要对应检查，不能只保护最后的 Run.status。

@@ -32,7 +32,73 @@ defmodule AgentSystemsLab.IntentDispatchTest do
     assert Enum.sort(Enum.map(claims, & &1.run_id)) == Enum.sort(ids)
     assert length(Enum.uniq_by(claims, & &1.token)) == 6
     assert Enum.all?(claims, &(&1.generation == 1))
-    assert Enum.count(results, &(&1 == {:ok, nil})) == 6
+    assert Enum.count(results, &(&1 == {:ok, nil})) == 6, inspect(results, limit: :infinity)
+  end
+
+  test "a stale scan skips a newly claimed intent and claims the next ready Run", c do
+    expired = create(c, "-stale-scan", priority: 9)
+    ready = create(c, "-next-ready")
+    assert {:ok, old} = IntentStore.claim(expired, "expired-owner", lease_ms: 50)
+    wait_due(DateTime.to_unix(old.expires_at, :millisecond) + 1)
+
+    schema = "dispatch_scan_" <> String.replace(Ecto.UUID.generate(), "-", "")
+    advisory_namespace = 42_865_541
+    advisory_key = rem(System.unique_integer([:positive]), 2_000_000_000)
+    parent = self()
+    gate = make_ref()
+
+    Repo.query!("CREATE SCHEMA #{schema}")
+    on_exit(fn -> Repo.query!("DROP SCHEMA IF EXISTS #{schema} CASCADE") end)
+
+    Repo.query!("""
+    CREATE FUNCTION #{schema}.clock_timestamp() RETURNS timestamptz
+    LANGUAGE plpgsql VOLATILE AS $gate$
+    BEGIN
+      PERFORM pg_catalog.pg_advisory_lock(#{advisory_namespace}, #{advisory_key});
+      PERFORM pg_catalog.pg_advisory_unlock(#{advisory_namespace}, #{advisory_key});
+      RETURN pg_catalog.clock_timestamp();
+    END;
+    $gate$
+    """)
+
+    Repo.checkout(fn ->
+      Repo.query!("SELECT pg_advisory_lock($1, $2)", [advisory_namespace, advisory_key])
+
+      slow =
+        Task.async(fn ->
+          gated_dispatch_scan(schema, parent, gate, [expired, ready])
+        end)
+
+      Process.unlink(slow.pid)
+
+      try do
+        assert_receive {^gate, :backend, backend_pid}, 5_000
+        await_advisory_wait(backend_pid, System.monotonic_time(:millisecond) + 4_000)
+
+        # The slow SELECT already owns its statement snapshot, but is paused in
+        # its expiry predicate before the LockRows node can lock the Run.
+        assert {:ok, winner} = IntentStore.claim_next("winner", run_ids: [expired])
+        assert winner.run_id == expired
+        assert winner.seq == old.seq
+        assert winner.generation == old.generation + 1
+        refute winner.token == old.token
+        assert token(expired) == [winner.token, winner.generation]
+
+        Repo.query!("SELECT pg_advisory_unlock($1, $2)", [advisory_namespace, advisory_key])
+
+        assert {:ok, second} = Task.await(slow, 5_000)
+        assert second.run_id == ready
+        assert second.generation == 1
+        refute second.token == winner.token
+        assert token(expired) == [winner.token, winner.generation]
+        assert token(ready) == [second.token, 1]
+        assert {:ok, nil} = IntentStore.claim_next("no-preemption", run_ids: [expired])
+      after
+        Repo.query!("SELECT pg_advisory_unlock($1, $2)", [advisory_namespace, advisory_key])
+        stop_gated_dispatch(slow, schema)
+        Repo.query!("DROP SCHEMA IF EXISTS #{schema} CASCADE")
+      end
+    end)
   end
 
   test "SKIP LOCKED skips a busy Run without waiting for its transaction", c do
@@ -318,6 +384,80 @@ defmodule AgentSystemsLab.IntentDispatchTest do
 
     assert token(id) == [nil, 0]
     assert {:ok, nil} = IntentStore.claim_next("missing", run_ids: [id <> "-missing"])
+  end
+
+  defp gated_dispatch_scan(schema, parent, gate, ids) do
+    Repo.checkout(fn ->
+      %{rows: [[search_path, statement_timeout, application_name, backend_pid]]} =
+        Repo.query!("""
+        SELECT current_setting('search_path'), current_setting('statement_timeout'),
+               current_setting('application_name'), pg_backend_pid()
+        """)
+
+      try do
+        Repo.query!(
+          """
+          SELECT set_config('search_path', $1, false),
+                 set_config('statement_timeout', '5000', false),
+                 set_config('application_name', $2, false)
+          """,
+          [schema <> ", pg_catalog, public", schema]
+        )
+
+        send(parent, {gate, :backend, backend_pid})
+        IntentStore.claim_next("stale-scan", run_ids: ids)
+      after
+        Repo.query!(
+          """
+          SELECT set_config('search_path', $1, false),
+                 set_config('statement_timeout', $2, false),
+                 set_config('application_name', $3, false)
+          """,
+          [search_path, statement_timeout, application_name]
+        )
+      end
+    end)
+  end
+
+  defp await_advisory_wait(backend_pid, deadline) do
+    %{rows: rows} =
+      Repo.query!("SELECT wait_event_type, wait_event FROM pg_stat_activity WHERE pid = $1", [
+        backend_pid
+      ])
+
+    cond do
+      rows == [["Lock", "advisory"]] ->
+        :ok
+
+      System.monotonic_time(:millisecond) >= deadline ->
+        flunk("scan backend did not reach the advisory gate: #{inspect(rows)}")
+
+      true ->
+        Process.sleep(10)
+        await_advisory_wait(backend_pid, deadline)
+    end
+  end
+
+  defp stop_gated_dispatch(task, application_name) do
+    if Process.alive?(task.pid) do
+      case Task.yield(task, 1_000) do
+        nil ->
+          # This uniquely named connection belongs to the test. Terminating a
+          # stuck backend also discards any session settings before pool reuse.
+          Repo.query!(
+            """
+            SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+            WHERE application_name = $1 AND pid <> pg_backend_pid()
+            """,
+            [application_name]
+          )
+
+          Task.shutdown(task, :brutal_kill)
+
+        _ ->
+          :ok
+      end
+    end
   end
 
   defp create(c, suffix, opts \\ []) do

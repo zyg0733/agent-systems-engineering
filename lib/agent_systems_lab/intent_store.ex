@@ -197,8 +197,12 @@ defmodule AgentSystemsLab.IntentStore do
       {:ok, intent, :ready} ->
         with {:ok, now} <- database_now(Repo),
              :ok <- available(intent, now),
-             {:ok, claim} <- write_claim(intent, owner, now, opts),
-             do: {:ok, {claim, rejected}}
+             {:ok, claim} <- write_claim(intent, owner, now, opts) do
+          {:ok, {claim, rejected}}
+        else
+          {:error, :intent_claimed} -> claim_page(rest, owner, opts, rejected)
+          error -> error
+        end
 
       {:ok, _intent, {:waiting, _}} ->
         claim_page(rest, owner, opts, rejected)
@@ -243,6 +247,15 @@ defmodule AgentSystemsLab.IntentStore do
                  :ok <- available(intent, now),
                  {:ok, claim} <- write_claim(intent, owner, now, opts) do
               {:ok, {claim, rejected}}
+            else
+              # The JOIN read the intent at the statement snapshot, while only
+              # the Run was locked. A contender may have committed a claim
+              # before that lock was acquired. Recheck and keep scanning.
+              {:error, :intent_claimed} ->
+                next_candidate(owner, opts, [run.id | seen], rejected)
+
+              error ->
+                error
             end
 
           {:ok, _intent, {:waiting, _due}} ->

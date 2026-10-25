@@ -1,6 +1,6 @@
 # 六章首批高风险技术主张核查
 
-2026-10-25。基准代码提交为 `7ab3bac02a93f93fd9be0ca23ea011fb8006cd1c`，本轮修订不改变运行时代码、迁移、冻结验收清单或测试策略。本页核对本仓库的教学契约，不能推广为任意 Agent 系统或外部服务的保证。
+2026-10-25。基准代码提交为 `7ab3bac02a93f93fd9be0ca23ea011fb8006cd1c`。六章首个修订提交 `2a3ee3d` 未改变运行时代码；随后针对其 Actions 暴露的领取竞争补充 T13 与最小实现修复。迁移、冻结验收清单和测试排除策略不变。本页核对本仓库的教学契约，不能推广为任意 Agent 系统或外部服务的保证。
 
 本轮采用多代理模拟评审，记录见[首批学习修订审查](learning-revision-review.md)。下面的“代理静态核查”表示读取实现和对应测试定义；它不表示本轮已经重新运行该数据库故障实验，更不是专家或真人试读结果。“纯值实测”仅表示列明的代码段和断言已实际执行。未来源码或章节变更后，应按主张 ID 复查对应边界。
 
@@ -111,6 +111,14 @@
 **依据**：[Recovery](../lib/agent_systems_lab/recovery.ex) 的 `execute_claim/2`（第 156—183 行）；[DurableTools](../lib/agent_systems_lab/durable_tools.ex) 的效果分支、`confirm_result/5` 和 `authorize/2`（第 360—445、515、584 行）；[RecoveryStore](../lib/agent_systems_lab/recovery_store.ex) 的 `begin_model_attempt/2`、`charge_frame/3`、`check_effect_deadline/2`；[TaskBudgetStore](../lib/agent_systems_lab/task_budget_store.ex) 的 `reserve/1`；[fencing_safety_test](../test/agent_systems_lab/fencing_safety_test.exs) 的 stale receipt/manual/timeout/工具入口测试（第 196、213、243、262 行）；[scheduler_deadline_test](../test/agent_systems_lab/scheduler_deadline_test.exs) 的期限后 unknown 与已确认回执（第 24、50 行）；[recovery_test](../test/agent_systems_lab/recovery_test.exs) 的已扣输出与效果门 deadline（第 236、342 行）。
 
 **反例与边界**：停止本地 executor 不证明远端停止，fencing 拒绝本地迟到写入不撤销已经发生的效果。换 Run/operation、清 cursor/attempt 或延长任务 deadline 来“恢复”，是在改变原契约。**状态：代理静态核查；本轮未重跑各数据库故障窗口。**
+
+## T13：扫描候选不等于当前领取资格
+
+**修正后的表述**：第 20 章的候选 JOIN 使用语句快照，`FOR UPDATE OF Run SKIP LOCKED` 只锁 Run。已在快照中满足条件的 intent，可能在取得 Run 锁之前被另一事务领取。锁下重读发现当前有效 lease 时，应跳过该候选并继续扫描；这不属于损坏的恢复配置，也不意味着可以替换原 token。
+
+**依据**：[IntentStore](../lib/agent_systems_lab/intent_store.ex) 的 `next_candidate/4`、`claim_page/4` 和 `available/2`；[intent_dispatch_test](../test/agent_systems_lab/intent_dispatch_test.exs) 的并行领取与旧候选快照测试。PostgreSQL 官方说明指定 `OF` 只锁相应表，其余 JOIN 表按普通查询读取：[PostgreSQL 18 SELECT 锁定说明](https://www.postgresql.org/docs/18/sql-select.html#SQL-FOR-UPDATE-SHARE)。2026-10-25 核对。
+
+**反例与边界**：不能在最外层把 `:intent_claimed` 一律改成空结果，否则会漏掉后续可领取 Run；显式 `claim(run_id)` 仍拒绝当前有效 lease。正常并行领取的六个唯一 Run、六个唯一 token、generation=1 及六个空结果断言均保留。首次 CI 的单项失败与本地重复复现记录见[修订审查](learning-revision-review.md)，不能用后续固定夹具或崩溃核验的成功覆盖该失败。
 
 ## 继续维护本台账
 
