@@ -128,12 +128,18 @@ defmodule AgentSystemsLab.P3VerificationTest do
     on_exit(fn -> cleanup(directory) end)
     parent = self()
 
-    assert {:ok, %{report: report}} =
-             P3Verification.run(
-               output: directory,
-               repetitions: 1,
-               on_progress: &send(parent, {:p3_progress, &1})
-             )
+    result =
+      P3Verification.run(
+        output: directory,
+        repetitions: 1,
+        on_progress: &send(parent, {:p3_progress, &1})
+      )
+
+    unless match?({:ok, %{report: _}}, result) do
+      IO.puts(:stderr, p3_failure_message(result, directory))
+    end
+
+    assert {:ok, %{report: report}} = result
 
     assert report["phase"] == "P3"
     assert report["all_passed"]
@@ -223,6 +229,59 @@ defmodule AgentSystemsLab.P3VerificationTest do
              report["history_audits"]
 
     assert JSON.decode!(File.read!(Path.join(directory, "report.json"))) == report
+  end
+
+  defp p3_failure_message({:error, {:p3_verification_failed, %{report: report}}}, directory) do
+    failed = report["failed_component"] || %{}
+    component_report = failed["report"] || %{}
+
+    summary = %{
+      "component_count" => report["component_count"],
+      "expected_component_count" => report["expected_component_count"],
+      "audit_complete" => report["audit_complete"],
+      "completed_components" => Enum.map(report["components"] || [], & &1["component"]),
+      "outcomes" => report["outcomes"],
+      "run_ids_count" => length(report["run_ids"] || []),
+      "failed_component" => Map.take(failed, ["component", "reason", "evidence"]),
+      "component_probe_counts" =>
+        Map.take(component_report, ["all_passed", "fault_probe_count", "expected_probe_count"]),
+      "failed_probe" =>
+        Map.take(component_report["failed_probe"] || %{}, [
+          "case",
+          "fault",
+          "window",
+          "repetition",
+          "run_id",
+          "reason",
+          "error"
+        ]),
+      "preserved_evidence" => preserve_p3_failure(directory)
+    }
+
+    "P3 failure summary: " <>
+      inspect(summary, pretty: true, limit: :infinity, printable_limit: 4_000)
+  end
+
+  defp p3_failure_message(result, _directory),
+    do: "Unexpected P3 result: " <> inspect(result, limit: 20, printable_limit: 4_000)
+
+  defp preserve_p3_failure(directory) do
+    if System.get_env("GITHUB_ACTIONS") == "true" do
+      parent = Path.join(File.cwd!(), "artifacts/ci/linux-core")
+      destination = Path.join(parent, "p3-failure-" <> Path.basename(directory))
+      evidence = Path.join(destination, "evidence")
+
+      # Reserve a fresh destination; keep partial copies if preservation fails.
+      with :ok <- File.mkdir_p(parent),
+           :ok <- File.mkdir(destination),
+           {:ok, _} <- File.cp_r(directory, evidence) do
+        evidence
+      else
+        error -> %{path: destination, copy_error: inspect(error, limit: 20)}
+      end
+    else
+      "CI evidence copy disabled outside GitHub Actions"
+    end
   end
 
   defp output(label),
