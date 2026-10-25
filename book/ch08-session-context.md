@@ -1,8 +1,22 @@
 # 第 8 章：Session、Turn、Message 与状态演化
 
-本章是第 22 周补齐的试读初稿，主题沿用原计划第 8 章。对应现行 [L05](../labs/L05-session-context.md) 和 P1：Streaming 与受控工具先行交付后，Session 实验从原计划编号顺延。章节代码入口是 [Session](../lib/agent_systems_lab/session.ex)、[Context](../lib/agent_systems_lab/context.ex)、[SessionStore](../lib/agent_systems_lab/session_store.ex) 与 [ContextStore](../lib/agent_systems_lab/context_store.ex)。独立读者反馈仍需单独取得。
+本章始写于第 22 周，主题沿用原计划第 8 章。对应现行 [L05](../labs/L05-session-context.md) 和 P1：Streaming 与受控工具先行交付后，Session 实验从原计划编号顺延。章节代码入口是 [Session](../lib/agent_systems_lab/session.ex)、[Context](../lib/agent_systems_lab/context.ex)、[SessionStore](../lib/agent_systems_lab/session_store.ex) 与 [ContextStore](../lib/agent_systems_lab/context_store.ex)。本轮的多代理模拟评审与实际执行范围见[修订评审记录](../docs/learning-revision-review.md)。
 
 读完后，你应能指出“规范会话、本轮模型输入、业务状态”各自的权威来源，并在裁剪后证明任务事实、工具回执和宿主权限仍完整保留。上下文不是把所有字符串拼在一起；不同来源的内容有不同的身份、可信度和生命周期。
+
+## 阅读准备与路线
+
+先完成[第 2 章](ch02-agent-state-machine.md)的操作与结果配对，以及[第 5 章](ch05-agent-loop-and-tools.md)的一次三步循环。动手需会读取嵌套 Map、使用 `Enum.reduce/3` 累积不可变值，并区分“进程当前状态”和“某次请求的固定输入”；[先修桥接](prerequisites.md)提供最小示例。不要求先写数据库事务，8.3—8.6 都可在内存完成。
+
+第一遍完成 8.3 的 Session 小练习，再用 8.4—8.6 证明来源、权限与完整操作台账没有被摘要替代；8.7—8.8 的持久化和 P1 是第二层实验。随后进入[第 14 章](ch14-history-checkpoints-and-replay.md)，把“重建某次输入”与“重放业务历史”连接起来。现有路线是 **2 → 5 → 8 → 14 → 16 → 20**，参见[课程地图](../docs/course-map.md)。
+
+| 本章词语 | 容易混淆的边界 |
+| --- | --- |
+| Session / Context | 规范会话来源 / 一次请求的输入投影，不是同一份可随意改写的历史 |
+| message / operation receipt | 叙述 / 配对操作结果；消息声称成功不能生成回执 |
+| manifest / authority | 核验来源与构造过程的记录 / 宿主真正信任的源输入，hash 不会自行授予权限 |
+
+字节、token、轮数和费用分别记录，定义见[统一术语表](glossary.md)。
 
 ## 8.1 四个容易混淆的计数
 
@@ -42,6 +56,8 @@ LAB_DATABASE_ENABLED=false ./scripts/iex
 ```
 
 在同一个会话执行：
+
+**第一次小练习：把“说过”与“获准”分开。** 只执行下一段 Session 代码。先预测 8 条 note 会改变哪些字段：`version`、`messages`、`facts`，还是宿主权限？提示：此时尚未构造 permissions，也没有请求 Provider。可验证结果是版本和消息数均为 8，facts 不变，`system` 角色被拒绝；这些消息不能创造工具效果或授权。先取得这四个断言，再进入 8.4。
 
 ```elixir
 alias AgentSystemsLab.{Context, Session}
@@ -118,6 +134,8 @@ true = limit == minimum - 1
 ```
 
 `max_context_bytes` 统计确定性 ETF 编码后的整个 Provider payload，包含 schema 和工具回执，不是 JSON 文件大小、token 数或 API 费用。保护内容本身超限时请求必须被拒绝，不能通过删减权限和回执“修好”输入。
+
+检查理解：如果这个 payload 为 5,000 ETF 字节，能否据此声称只花了 5,000 tokens？不能；ETF 是本项目的本地序列化度量，真实 Provider 的 token 规则和账单需要另行测量。这里证明的是本地 payload 边界与保留规则，不是某种模型上下文窗口适配已经完成。
 
 ## 8.6 manifest 要从源输入重新核验
 

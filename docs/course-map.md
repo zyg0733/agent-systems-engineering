@@ -2,6 +2,8 @@
 
 原[研究计划第 8 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#08-十二个实验与故障验收)的 **L01–L12 是主题编号**。实施中加入 Streaming、重试、故障验收等分册，实际已交付 **25 份手册，连续编号为 L01–L25**。本地图用 C01–C12 固定课程单元对应原十二主题；L23–L25 是 C12 之后的发行与跨环境进阶实验。保留所有已交付文件名，不把实际 L12 误称为评估实验。30 章的七篇依赖与正文状态见[章节设计卡](../book/chapter-cards.md)。
 
+首次进入先看[先修自测与桥接](../book/prerequisites.md)，用[术语表](../book/glossary.md)统一概念。只读六章请按[阅读路线](../book/reading-route.md)走；本地图用于完成实验。设计卡中的未成稿章节是写作计划，不是本地图的必读前置；以下起点均指向已有正文、ADR 或手册。
+
 所有单元均从同一 [mix.exs](../mix.exs) `0.1.0-dev` 完整源码开始，通过 [Reproduction](../lib/agent_systems_lab/reproduction.ex) 的 source manifest 冻结文件字节、大小、模式和目录。独立练习时导出到自己拥有的新目录，可在副本中改变实现再与参考解答对照。仓库没有历史 Git 标签；本课程不声称存在逐实验的 start/solution 标签，也不伪造逐周缺功能的起始版本。教师应保存学生修改与冻结源的 diff，禁止覆盖正式试读包。
 
 共同环境：已验收 macOS arm64、Elixir **1.20.4** / OTP **28.4**、PostgreSQL **18.6**；精确依赖以 [mix.lock](../mix.lock) 为准。按 [README](../README.md) 安装、启动自有实验 PG 并运行 `./scripts/mix setup`；完整 `./scripts/mix check` 包含格式、warnings-as-errors、测试、固定场景和数据库故障验收。`LAB_DATABASE_ENABLED=false ./scripts/mix test` 是另报排除数的内存回归，不能替代数据库用例。完整隔离/MCP 实验还需 clang、Seatbelt 和 Unix 信号；平台不支持时明确阻断，不跳过后声称完整通过。
@@ -30,7 +32,7 @@
 <!-- course:C01 -->
 ## C01 状态机与 reducer（原计划 L01）
 
-起点：统一 `0.1.0-dev` 冻结源码；先读 ch01/ch02，了解纯函数和模式匹配，从当前完整实现阅读 Kernel 与 Mock。实验入口：[L01](../labs/L01-state-machine.md)。
+起点：统一 `0.1.0-dev` 冻结源码；先读[示例语法与纯转换桥接](../book/prerequisites.md#读懂示例语法)和[第 2 章](../book/ch02-agent-state-machine.md)，从当前完整实现阅读 Kernel 与 Mock。实验入口：[L01 首次小练习](../labs/L01-state-machine.md#first-exercise)，再完成该手册的完整任务。
 
 学生任务：画出七种状态及非法命令；独立构造合法事件序列并重建；提交错 ID、重复 ID 和终态迟到结果。
 
@@ -49,7 +51,7 @@
 <!-- course:C02 -->
 ## C02 事务与持久化（原计划 L02）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C01，理解 SQL 事务、Ecto Repo、monitor；从当前 Storage 入口开始。实验入口：[L02](../labs/L02-transactions.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C01，读[进程与事务桥接](../book/prerequisites.md#纯转换与事务)及[事务 ADR](adr/0002-transactional-storage.md)，理解 SQL 事务、Ecto Repo、monitor；从当前 Storage 入口开始。实验入口：[L02](../labs/L02-transactions.md)。
 
 学生任务：画出 Run/Event/intent 同一事务；预测并执行首次创建和已有 Run 转换的 COMMIT 前后四个 kill 点；新进程对比持久投影与历史重建。
 
@@ -68,7 +70,7 @@
 <!-- course:C03 -->
 ## C03 Agent Loop 与工具调用（原计划 L03）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C01/C02，理解异步 Task、完整响应、schema、SHA-256；阅读 ch05/ch06/ch07。入口：[L03](../labs/L03-streaming-control.md)、[L04](../labs/L04-controlled-tools.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C01/C02，理解异步 Task、完整响应、schema、SHA-256；阅读[第 5 章](../book/ch05-agent-loop-and-tools.md)、[流控制 ADR](adr/0003-streaming-cancellation-and-budgets.md)与[受控工具 ADR](adr/0004-controlled-tools-and-call-pairing.md)。入口：[L03](../labs/L03-streaming-control.md)、[L04](../labs/L04-controlled-tools.md)。
 
 学生任务：用 Scripted 屏障在半截参数时取消并触发预算限制；完成受控文件读取、补丁、写入与调用配对；运行固定离线修复并解释 diff。
 
@@ -87,7 +89,7 @@
 <!-- course:C04 -->
 ## C04 Session 与 Context（原计划 L04）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C03，理解完整 Session 不等于模型输入；读 ch08/ch09/ch10。入口：[L05](../labs/L05-session-context.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C03，理解完整 Session 不等于模型输入；读[第 8 章](../book/ch08-session-context.md)与[输入清单 ADR](adr/0005-session-context-and-manifests.md)。入口：[L05](../labs/L05-session-context.md)。
 
 学生任务：构造含叙述、回执和宿主约束的 Session；缩小叙述预算生成 manifest；篡改 snapshot 或 manifest 并核验拒绝。
 
@@ -106,7 +108,7 @@
 <!-- course:C05 -->
 ## C05 历史与 checkpoint（原计划 L05）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C04，理解 Event schema、Codec 与 checkpoint 前缀；阅读 ch13/ch14。入口：[L06](../labs/L06-history-checkpoints.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C04，理解 Event schema、Codec 与 checkpoint 前缀；阅读[第 14 章](../book/ch14-history-checkpoints-and-replay.md)与[历史及检查点 ADR](adr/0006-history-checkpoints-and-recorded-results.md)。入口：[L06](../labs/L06-history-checkpoints.md)。
 
 学生任务：保存完整历史和检查点；新 BEAM 比较全量/检查点重建与原状态；分别注入 seq、版本、payload 或 checkpoint 不一致。
 
@@ -125,7 +127,7 @@
 <!-- course:C06 -->
 ## C06 工具幂等与不确定结果（原计划 L06）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C05，理解 Operation/Attempt、稳定幂等 key、unknown 和绝对 deadline；读 ch15–ch17。入口：[L07](../labs/L07-recovery.md)、[L08](../labs/L08-retries-and-reconciliation.md)、[L09](../labs/L09-p2-fault-acceptance.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C05，理解 Operation/Attempt、稳定幂等 key、unknown 和绝对 deadline；读[第 16 章](../book/ch16-durable-effects-and-reconciliation.md)、[恢复 ADR](adr/0007-recovery-and-operation-attempts.md)与[重试及核对 ADR](adr/0008-bounded-retries-and-reconciliation.md)。入口：[L07](../labs/L07-recovery.md)、[L08](../labs/L08-retries-and-reconciliation.md)、[L09](../labs/L09-p2-fault-acceptance.md)。
 
 学生任务：注入工具成功后回执提交前崩溃和恢复中再次崩溃；分类有限重试并等待 due_at；把非幂等模糊结果送入可见核对队列。
 
@@ -144,7 +146,7 @@
 <!-- course:C07 -->
 ## C07 Queue 与 Worker（原计划 L07）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C06，理解原子 claim、有限并发和数据库错误；读 ch18/ch19 并先了解 lease 术语。入口：[L10](../labs/L10-background-scheduling.md)、[L12](../labs/L12-backpressure-budgets-fairness.md)、[L13](../labs/L13-database-outages-p3.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C06，读[并发领取桥接](../book/prerequisites.md#并发领取)、[调度 ADR](adr/0010-background-scheduling.md)与[第 20 章](../book/ch20-scheduling-and-recovery.md)的资格概念。**先只完成 L10，再进入 C08 完成 L11，之后回到本单元做 L12/L13**。入口：[L10](../labs/L10-background-scheduling.md)、[L12](../labs/L12-backpressure-budgets-fairness.md)、[L13](../labs/L13-database-outages-p3.md)。
 
 学生任务：并发 Worker 领取与重复投递同组 intent；测量饱和时队列/进程上界、aging 与饥饿；使用 owned loopback 代理断开并恢复 PG 连接。
 
@@ -163,7 +165,7 @@
 <!-- course:C08 -->
 ## C08 Lease 与 fencing（原计划 L08）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C07，理解 expiry、heartbeat 与 generation；阅读 ch20。入口：[L11](../labs/L11-leases-heartbeats-fencing.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C01—C06 和 **C07 的 L10** 即可，尚不要求完成 L12/L13；理解 expiry、heartbeat 与 generation，阅读[第 20 章](../book/ch20-scheduling-and-recovery.md)与[租约 ADR](adr/0011-leases-heartbeats-fencing.md)。入口：[L11](../labs/L11-leases-heartbeats-fencing.md)。
 
 学生任务：SIGSTOP 暂停真实 owned 旧 Worker；等待租约到期后由新 Worker 接管；SIGCONT 恢复后用旧 token 尝试关键提交和受控效果。
 
@@ -182,7 +184,7 @@
 <!-- course:C09 -->
 ## C09 Sandbox 与权限（原计划 L09）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C08，理解 OS PID、权限错误与进程树；阅读 ch25 和后端限制。入口：[L14](../labs/L14-isolated-execution.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C08 并回到 C07 完成 L12/L13，理解 OS PID、权限错误与进程树；阅读[隔离 ADR](adr/0014-isolated-execution.md)和[后端限制](known-limitations.md)。入口：[L14](../labs/L14-isolated-execution.md)。
 
 学生任务：固定 C 探针直接越界读写、connect 和 fork；触发 CPU、输出、文件及 wall-clock 限制；取消、超时及调用者崩溃后核对 owned 进程退出。
 
@@ -201,7 +203,7 @@
 <!-- course:C10 -->
 ## C10 MCP 工具适配（原计划 L10）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C09，理解 JSON-RPC、有限 schema 子集与 allowlist；阅读 ch11。入口：[L15](../labs/L15-mcp-stdio.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C09，理解 JSON-RPC、有限 schema 子集与 allowlist；阅读[MCP ADR](adr/0015-mcp-stdio.md)与手册中的协议边界。入口：[L15](../labs/L15-mcp-stdio.md)。
 
 学生任务：固定 MCP server 完成 stdio 握手、分页发现和调用；制造协议、ID、schema 错误与超时取消；验证授权和 unknown/reconcile 仍经过网关。
 
@@ -220,7 +222,7 @@
 <!-- course:C11 -->
 ## C11 DAG 与人工审批（原计划 L11）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C10，理解静态 DAG、预算分配和产物 hash；阅读 ch23/ch24。入口：[L16](../labs/L16-dag-workflows.md)、[L17](../labs/L17-human-approvals.md)。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C10，理解静态 DAG、预算分配和产物 hash；阅读[DAG ADR](adr/0016-static-dag-workflows.md)与[审批 ADR](adr/0017-human-approvals-and-rework.md)。入口：[L16](../labs/L16-dag-workflows.md)、[L17](../labs/L17-human-approvals.md)。
 
 学生任务：构造 fork/join 并验证失败传播、取消与恢复；对照单/双固定角色与独立 workspace；暂停、审批、改变产物、受控返工并重启核验。
 
@@ -239,7 +241,7 @@
 <!-- course:C12 -->
 ## C12 评估与回归（原计划 L12）
 
-起点：统一 `0.1.0-dev` 冻结源码；完成 C01–C11，阅读 ch12/ch17/ch26–ch30。入口：[L18](../labs/L18-observability.md)、[L19](../labs/L19-repeatable-evaluation.md)、[L20](../labs/L20-history-migration-backup-restore.md)、[L21](../labs/L21-reader-study-and-clean-reproduction.md)、[L22](../labs/L22-release-readiness.md)。L19 是核心，其余为综合补充。
+起点：统一 `0.1.0-dev` 冻结源码；完成 C01–C11，阅读[观测 ADR](adr/0018-observability-and-diagnostic-evidence.md)、[评测 ADR](adr/0019-repeatable-evaluation-and-regression.md)、[迁移 ADR](adr/0020-history-migration-backup-restore.md)及各手册列出的材料契约。入口：[L18](../labs/L18-observability.md)、[L19](../labs/L19-repeatable-evaluation.md)、[L20](../labs/L20-history-migration-backup-restore.md)、[L21](../labs/L21-reader-study-and-clean-reproduction.md)、[L22](../labs/L22-release-readiness.md)。L19 是核心，其余为综合补充。
 
 学生任务：关联观测并注入 exporter 失败；冻结 dev/holdout 完成独立 scorer 和回归比较；演练旧历史、只读还原、fence；最后核验试读包与发布材料入口。
 
@@ -255,7 +257,7 @@
 
 平台要求：完整路径需 macOS arm64、固定 Elixir/OTP/PG、clang、PG dump/restore；干净复现使用新目录、新 runtime/deps/PGDATA，并声明可信缓存来源。
 
-课程材料的状态分别记录：30 张设计卡不代表全书完成；六章稿不代表真人试读通过；同宿主新目录复现不代表另一 OS/机器验证。[W22 验收记录](validation-week22.md)保留真实外部读者 **0 人**、P5 外部 gate **false**，本地图保持该结论。[W24 冻结验收](validation-week24.md)已有历史候选证据，正式发行仍待验收。故障处置沿用[运行手册](recovery-runbook.md)，发布前检查参照 [L22](../labs/L22-release-readiness.md)。
+课程材料的状态分别记录：30 张设计卡不代表全书完成；六章稿不代表学习效果已经验证；同宿主新目录复现不代表另一 OS/机器验证。当前教材修订采用多个 subagent 模拟评审，不安排真人试读，也不公开发布；模拟记录不能填写为真人反馈。[W22 验收记录](validation-week22.md)保留真实外部读者 **0 人**、P5 外部 gate **false**；历史证据与发行工具契约保持原值，并不要求当前修订先招募真人。[W24 冻结验收](validation-week24.md)已有历史候选证据，正式发行仍待验收。故障处置沿用[运行手册](recovery-runbook.md)，发布前检查参照 [L22](../labs/L22-release-readiness.md)。
 
 ## C12 之后：发行与跨环境进阶
 

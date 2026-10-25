@@ -19,7 +19,8 @@ export async function markdownFiles(directory) {
 }
 
 export async function prepare() {
-  const files = (await Promise.all(['book', 'labs', 'docs'].map(markdownFiles))).flat()
+  // The portable book route is rendered at /reading rather than duplicated.
+  const files = (await Promise.all(['book', 'labs', 'docs'].map(markdownFiles))).flat().filter(relative => relative !== 'book/reading-route.md')
   await rm(contentRoot, { recursive: true, force: true })
   await mkdir(contentRoot, { recursive: true })
   for (const relative of files) {
@@ -32,7 +33,8 @@ export async function prepare() {
     await writeFile(target, source)
   }
   for (const name of ['index.md', 'start.md', 'reading.md', 'teaching.md']) {
-    const page = await readFile(path.join(siteRoot, name), 'utf8')
+    let page = await readFile(name === 'reading.md' ? path.join(repoRoot, 'book', 'reading-route.md') : path.join(siteRoot, name), 'utf8')
+    if (name === 'reading.md') page = page.replace('# 六章阅读路线\n', '# 六章阅读路线\n\n<ReadingProgress />\n')
     // These authored pages live one level below the repo in GitHub, but at
     // the website root after preparation. Preserve both sets of relative links.
     await writeFile(path.join(contentRoot, name), page.replace(/\]\(\.\.\/(book|labs|docs)\//g, ']($1/'))

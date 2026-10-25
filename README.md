@@ -10,7 +10,7 @@
 
 ## 在线阅读
 
-面向教材与实验的 VitePress 阅读站正在本地准备，尚未公开。阅读站提供课程、实验、六章试读稿与参考文档的统一入口；维护和发布说明见[阅读站维护文档](docs/reading-site.md)。在项目根目录启动本地预览：
+面向教材与实验的 VitePress 阅读站已具备本地构建和私有 Actions 预览，尚未公开。阅读站提供课程、实验、六章试读稿与参考文档的统一入口；维护和发布说明见[阅读站维护文档](docs/reading-site.md)。在项目根目录启动本地预览：
 
 ```sh
 cd website
@@ -57,9 +57,9 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 
 ## 学习路线与文档
 
-1. 从 [L01 状态机实验](labs/L01-state-machine.md)、[架构说明](docs/architecture.md)和 [Kernel 源码](lib/agent_systems_lab/kernel.ex)开始，理解纯状态转换、命令与事件。
+1. 先做[先修自测与概念桥接](book/prerequisites.md)，再运行 [L01 首次小练习](labs/L01-state-machine.md#first-exercise)；完整 L01 作业在小练习之后。遇到易混概念查[术语表](book/glossary.md)。
 2. 按 [C01—C12 课程地图](docs/course-map.md)推进事务、工具、历史恢复、调度、隔离与编排。实验分册保留 L01—L25 编号，课程单元与实验编号分别使用。
-3. 阅读[六章试读指南](book/reader-study/README.md)与[30 张章节设计卡](book/chapter-cards.md)。章节设计卡包含其余章节规划，六章正文仍需外部试读与技术审校。
+3. 按[六章阅读路线](book/reading-route.md)阅读现有正文，[30 张章节设计卡](book/chapter-cards.md)包含其余章节规划。本轮采用多个 subagent 模拟读者并交叉技术审查，见[修订报告](docs/learning-revision-review.md)，不安排真人验证或公开试读。
 4. 用[命令与实现参考](docs/command-reference.md)、[公开接口与扩展契约](docs/public-interfaces.md)查具体入口，按[恢复运行手册](docs/recovery-runbook.md)处理 unknown、回执、审批与恢复。
 
 | 需要做的事 | 文档入口 |
@@ -69,7 +69,8 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 | 核对候选、试读与发行门槛 | [发行评估](docs/release-assessment.md)、[发布操作](docs/release-operations.md) |
 | 查看实际验收与剩余工作 | [W26 验收](docs/validation-week26.md)、[结果索引](docs/results-index.md)、[证据阅读说明](docs/evidence-guide.md)、[下一阶段计划](docs/next-stage-plan.md) |
 | 查看 GitHub 接入记录与检查 CI | [首次入库说明](docs/github-onboarding.md)、[GitHub CI](docs/github-ci.md) |
-| 评估何时公开教材、如何验证学习体验 | [对外试读质量计划](docs/public-reading-quality-plan.md) |
+| 查看当前范围、教材修订和代理评审 | [当前状态](docs/current-status.md)、[质量计划](docs/public-reading-quality-plan.md)、[修订报告](docs/learning-revision-review.md) |
+| 查看高风险表述与优秀教材借鉴 | [技术主张核查](docs/technical-claims-review.md)、[公开教材借鉴](docs/learning-design-references.md) |
 
 ## 已验收基线与当前限制
 
@@ -86,9 +87,9 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 
 GitHub 首次入库后的 Linux 核心回归已在提交 [`285f242a75f1c62a034e5bb870c6e5384daf21fa`](https://github.com/zyg0733/agent-systems-engineering/commit/285f242a75f1c62a034e5bb870c6e5384daf21fa)取得[实际 Actions 通过记录](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40078168626)：两个 job 通过，Python **48 项**、Linux 数据库回归 **1040 项**（排除 62 项 Seatbelt）、内存回归 **585 项**（排除 517 项）。该记录绑定上述提交，后续修改需另行验证，详情见 [GitHub CI](docs/github-ci.md)。
 
-当前待验收项包括：**真实新 macOS 主机冷安装、完整 Linux 隔离/冻结矩阵，以及 3—5 名独立真人试读**（当前 0 名）。Linux 核心回归排除 Seatbelt，不能满足完整 Linux 门槛。旧候选一次隔离失败的根因仍未定位，原失败记录保留。
+平台待验收项包括真实新 macOS 主机冷安装、完整 Linux 隔离/冻结矩阵。Linux 核心回归排除 Seatbelt，不能满足完整 Linux 隔离范围；旧候选失败记录保留。本轮教材修订改用代理模拟评审，不以真人招募为前置；历史真人统计仍为 0，不将代理结果填入旧真人字段。
 
-运行时目前使用 Scripted/Recorded Provider，尚未接入真实厂商模型；隔离是 macOS Seatbelt 教学后端，Linux 后端未实现。外部效果不确定时进入 unknown/manual 核对，取消不会撤销已有效果。项目面向单可信宿主与单 PostgreSQL；完整边界见[已知限制](docs/known-limitations.md)。
+运行时目前使用 Scripted/Recorded Provider，尚未接入真实厂商模型；隔离是 macOS Seatbelt 教学后端，Linux 后端未实现。外部效果不确定时保留 unknown；直接取消不会撤销效果，终态后也不能经原 Run reconcile 续跑。项目面向单可信宿主与单 PostgreSQL；当前边界见[当前状态](docs/current-status.md)，[W24 限制](docs/known-limitations.md)保留历史时点。
 
 正式发布保持 `evidence_complete=false`、`approval_recorded=false`、`release_ready=false`。首次 GitHub 托管与正式版本发行分别验收。
 

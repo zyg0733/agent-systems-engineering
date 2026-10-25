@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useData } from 'vitepress'
 
-const props = defineProps<{ code: string }>()
+const props = defineProps<{ code: string; label?: string }>()
 const { isDark } = useData()
 const chart = computed(() => new TextDecoder().decode(Uint8Array.from(atob(props.code), character => character.charCodeAt(0))))
 const svg = ref('')
@@ -27,10 +27,10 @@ watch([() => props.code, isDark], render)
 </script>
 
 <template>
-  <figure class="reading-diagram" aria-label="系统流程图">
+  <figure class="reading-diagram" :aria-label="props.label || '系统流程图'">
     <div v-if="svg" class="reading-diagram-svg" v-html="svg" />
     <pre v-else><code>{{ chart }}</code></pre>
-    <figcaption v-if="failed">图示暂未渲染，以上为完整 Mermaid 源码。</figcaption>
+    <figcaption>{{ props.label || '系统流程图' }}<span v-if="failed">。图示暂未渲染，以上为完整 Mermaid 源码。</span></figcaption>
   </figure>
 </template>
 

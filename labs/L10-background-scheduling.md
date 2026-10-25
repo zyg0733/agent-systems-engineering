@@ -32,7 +32,7 @@ Run / Event / 下一调度意图在同一事务提交
   → 释放本次资格，再参加下一轮领取
 ```
 
-锁顺序始终为 Run 在先、当前 Intent 在后，避免扫描者与写入者采用相反顺序。`SKIP LOCKED` 允许另一个消费者先处理未被锁住的 Run；它不是吞掉错误或跳过校验。
+上图描述未入队 Run 的领取，锁序为 Run → 当前 Intent；命名队列先取得 Queue 锁，再按 Queue → Run → Intent 领取。renew/release 在 Run 锁内校验当前 Intent，不可把不同入口理解为可以交换锁序。队列范围和提交门见[第 20 章](../book/ch20-scheduling-and-recovery.md#203-先提交领取再执行效果)。`SKIP LOCKED` 允许另一个消费者先处理未被锁住的 Run；它不是吞掉错误或跳过校验。
 
 `IntentStore.claim_next/2` 返回与指定 Run 领取相同的七个字段：intent ID、Run ID、seq、owner、token、generation、expires_at。`{:ok, nil}` 表示本次没有符合条件的工作，不代表数据库已经永远清空。领取只有 COMMIT 后才返回成功。
 

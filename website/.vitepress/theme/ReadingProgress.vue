@@ -79,11 +79,11 @@ onBeforeUnmount(() => {
 <template>
   <section v-if="!trackOnly && lastChapter" class="reading-progress" aria-label="继续阅读">
     <div class="reading-progress-copy">
-      <span class="section-kicker">上次读到</span>
+      <span class="section-kicker">最近阅读的章节</span>
       <a :href="withBase(lastChapter.path)" class="reading-progress-link">
         {{ lastChapter.title }} <span aria-hidden="true">→</span>
       </a>
-      <span class="reading-progress-note">阅读位置仅保存在此浏览器。</span>
+      <span class="reading-progress-note">仅记录最近打开的章节，保存在此浏览器。</span>
     </div>
     <button class="reading-progress-clear" type="button" @click="clear">清除记录</button>
   </section>

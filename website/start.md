@@ -5,14 +5,16 @@ description: 选择阅读、实验或授课路线，从第一个状态机进入 
 
 # 开始学习
 
-先读一章，再完成一个能解释清楚的实验。你不需要准备模型密钥；当前实现使用固定 Scripted/Recorded Provider、Mock 与受控工具。
+先读一章，再完成一个能解释清楚的实验。本书适合写过程序、想理解 Agent 执行与恢复机制的读者；动手部分逐步需要 Elixir/OTP、进程与 SQL 事务知识。你不需要准备模型密钥；当前实现使用固定 Scripted/Recorded Provider、Mock 与受控工具。
+
+开始前用[阅读准备与先修桥接](../book/prerequisites.md)的五道自测找出需要补读的概念。只读设计无需立即安装环境；运行代码则需要仓库访问权和对应平台。
 
 ## 选择你的入口
 
 | 你现在想做什么 | 从这里开始 |
 | --- | --- |
-| 先理解系统设计 | [第 2 章：状态机、命令、事件与系统不变量](../book/ch02-agent-state-machine.md)，随后按[六章阅读路线](reading.md)推进 |
-| 直接动手运行 | [L01 状态机实验](../labs/L01-state-machine.md)，先预测转换，再核对实际事件与重建结果 |
+| 先理解系统设计 | [第 2 章：状态机、命令、事件与系统不变量](../book/ch02-agent-state-machine.md)，随后按[六章阅读路线](../book/reading-route.md)推进 |
+| 直接动手运行 | 先完成下方演示，再做 [L01 首次小练习](../labs/L01-state-machine.md#first-exercise)：预测状态、拒绝错 ID、核对重建前后的 Mock 计数 |
 | 系统学习全部主题 | [C01—C12 课程地图](../docs/course-map.md)，按课程依赖组织 25 份实验手册 |
 | 组织课程或读书会 | [教师与授课说明](teaching.md)，先确定范围、独立练习副本和证据要求 |
 
@@ -38,7 +40,9 @@ status=succeeded turns=2 requests=1 effects=1
 rebuild_matches=true (in-memory history; no durable storage)
 ```
 
-这一步只运行内存演示。接着打开 [L01](../labs/L01-state-machine.md)，解释 `commands → events → state` 的关系，尝试非法转换，并核对重放前后的状态。
+这一步只运行内存演示。接着完成 [L01 首次小练习](../labs/L01-state-machine.md#first-exercise)，亲自检查 `command → event → state` 的关系。小练习完成后再进入 L01 的完整任务，不需要先跑全仓库回归才能开始学习。
+
+遇到 `state/status`、`rebuild/resume` 或 `unknown/error` 时，先查[六章共用术语表](../book/glossary.md)。安装下载、阅读、执行和排错应分别记录；此处没有承诺固定的首次学习用时。
 
 ## 再进入持久化与恢复
 
@@ -53,7 +57,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 
 请使用自己的实验数据库。默认本地端口为 `55432`，开发库与测试库分别为 `agent_systems_lab_dev`、`agent_systems_lab_test`；具体连接、输出目录及故障注入要求按每份实验手册执行。
 
-Linux 的适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整隔离实验使用 macOS Seatbelt 教学后端，Linux 隔离后端尚未实现。按[已知限制](../docs/known-limitations.md)判断哪些实验适合当前环境。
+Linux 的适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整隔离实验使用 macOS Seatbelt 教学后端，Linux 隔离后端尚未实现。按[当前状态与边界](../docs/current-status.md)判断哪些实验适合当前环境。
 
 ## 每次实验留下三样东西
 
@@ -61,7 +65,7 @@ Linux 的适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整
 2. **证据**：保存实际命令、退出码、原始输出和新生成的报告，不覆盖旧产物。
 3. **解释**：比较预测与结果，说明下一步执行凭什么安全。
 
-遇到问题时，先查[命令与实现参考](../docs/command-reference.md)和[恢复运行手册](../docs/recovery-runbook.md)，再沿对应实验回到源码与测试。课程的具体任务、评分与成功标准以[课程地图](../docs/course-map.md)为准。
+遇到问题时，先查[术语表](../book/glossary.md)、[命令与实现参考](../docs/command-reference.md)和[恢复运行手册](../docs/recovery-runbook.md)，再沿对应实验回到源码与测试。课程的具体任务、评分与成功标准以[课程地图](../docs/course-map.md)为准。
 
 ::: info 当前内容状态
 本站对应 `0.1.0-dev`：6 章试读正文、25 份实验手册、12 个课程单元与 30 张章节设计卡。设计卡用于说明写作计划与依赖，正式 `0.1.0` 尚未发布。

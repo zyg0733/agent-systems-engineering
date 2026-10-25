@@ -1,10 +1,12 @@
 # 第 20 章：Lease、Heartbeat、超时与任务所有权
 
-试读修订版，2026-10-23。由第 14 周初稿按当前源码修订，核心证据仍对应 W11—W14；新增 L20 还原后 claim fencing 的关联说明。源码环境与既有实验结果见 [第 14 周验收记录](../docs/validation-week14.md)、[P3 报告](../docs/p3-report.md)及 [W21 验收](../docs/validation-week21.md)。本稿的自审不代表外部真人试读；尚无可核实的独立读者反馈。
+试读修订版，2026-10-25。由第 14 周初稿按当前源码修订，核心故障证据仍对应 W11—W14；L20 补充还原后 claim fencing。源码环境与既有实验结果见 [第 14 周验收记录](../docs/validation-week14.md)、[P3 报告](../docs/p3-report.md)及 [W21 验收](../docs/validation-week21.md)。本轮采用多代理模拟评审，范围见[首批学习修订审查](../docs/learning-revision-review.md)；旧故障报告没有因此变成本轮新测量。
 
 ## 本章目标
 
-读完本章，应能解释短期任务所有权为什么必须由数据库确认，设计不复活过期资格的 renew，区分本地 watchdog 与持久 fencing，并从真实故障记录判断哪些动作可以继续、哪些需要核对。前置知识是纯状态机、事务与行锁、OTP 监督树，以及 [第 14 章](ch14-history-checkpoints-and-replay.md)和 [第 16 章](ch16-durable-effects-and-reconciliation.md)的历史、prepare/effect/receipt。
+读完本章，应能解释短期任务所有权为什么必须由数据库确认，指出 renew SQL 中防止资格复活的条件，区分本地 watchdog 与持久 fencing，并从故障记录判断哪些动作可以继续、哪些需要核对。可检查的产物是：一张旧/新 claim 比较表和一项同 seq 下拒绝旧代次的证据，而不是只报告最终 succeeded。
+
+先修能力：能解释纯状态机、事务提交和行锁，理解 OTP 进程暂停不等于终结，已掌握 [第 14 章](ch14-history-checkpoints-and-replay.md)的历史与 [第 16 章](ch16-durable-effects-and-reconciliation.md)的 prepare/effect/receipt。读 SQL 有困难时先看[先修知识](prerequisites.md)；lease、heartbeat、fencing、deadline 的区别见[术语表](glossary.md)。首次概念阅读无需先运行 SIGSTOP 或数据库故障实验。
 
 本章学习顺序是领取资格 → 续期 → 暂停旧 Worker → 到期接管 → 拒绝迟到写入 → 按原业务事实恢复。先完成 [L10](../labs/L10-background-scheduling.md)的小批多 Worker，再做 [L11](../labs/L11-leases-heartbeats-fencing.md)的真实信号实验；背压与断连分别在 L12、L13 展开。章节按原计划编号，实验按当前仓库编号，二者不是同一序列。
 
@@ -15,6 +17,23 @@
 | 是否允许开始效果 | 原权限、有效 claim、预算与绝对 deadline |
 | 效果是否已经发生 | 配对 receipt 或工具能力允许的权威核对 |
 | 本地执行是否失控 | Worker watchdog、执行器退出和有界槽位 |
+
+### 第一次小练习：一份旧 claim 还有资格吗
+
+无需环境，先判断下面三种情形，再读提示。它们是推理题，表中的时间不是本次运行采样。
+
+| 情形 | 已知事实 | 能否仅凭这些信息接受旧 claim 的新结果 |
+| --- | --- | --- |
+| A | 本地缓存 expiry 在未来，数据库当前同代次已过期 | 先写预测 |
+| B | 原 Worker 还活着，但数据库已是新的 token/generation，seq 恰好未变 | 先写预测 |
+| C | 本地缓存 expiry 已过，数据库中同一 token/generation 已成功续期且仍有效 | 先写预测 |
+
+<details>
+<summary>提示与自检</summary>
+
+A 拒绝：资格取数据库当前时间和持久 expiry。B 拒绝：相同 seq 不能代替 token/generation 检查。C 不能仅凭旧缓存拒绝；仍须在事务中读取并验证数据库的当前身份、expiry 与业务门，全部满足才可提交。三种情况都不能由 Worker 是否存活来决定。
+
+</details>
 
 ## 20.1 一个没有死亡的旧 Worker
 
@@ -74,7 +93,7 @@ sequenceDiagram
 
 因此 renew 的写 SQL 同时要求数据库中的原 expiry 仍大于 PostgreSQL 当前时间，新的 expiry 也由数据库时间计算；0 行更新意味着失去资格。内存 claim 中的 expires_at 只是观察值，后续真实续租可能已经改变数据库 deadline。提交授权应读取数据库中同一 token/generation 的当前有效 deadline，不能要求内存时间戳与它永久相等。
 
-本地测试分别覆盖“旧观察值不阻止仍活着的当前代次”“伪造未来时间不能复活过期 claim”“在检查之后暂停仍不能越过 UPDATE 条件”。数据库时间必须使用明确 UTC 表达，避免 session timezone 改变资格比较。[IntentStore renew/verify](../lib/agent_systems_lab/intent_store.ex)、[fencing_safety_test](../test/agent_systems_lab/fencing_safety_test.exs)
+本地测试分别覆盖“旧观察值不阻止仍活着的当前代次”“伪造未来时间不能复活过期 claim”“在检查之后暂停仍不能越过 UPDATE 条件”。前两项见 [fencing_safety_test](../test/agent_systems_lab/fencing_safety_test.exs)，最后一项见 [lease_heartbeat_test](../test/agent_systems_lab/lease_heartbeat_test.exs) 的 `before_renew_write` 屏障。实现使用 `clock_timestamp() AT TIME ZONE 'UTC'`；这里需要语句执行中的当前时钟，不能替换成事务开始后保持不变的 `now()`。两种函数的差别见 [PostgreSQL 18 当前时间文档](https://www.postgresql.org/docs/18/functions-datetime.html#FUNCTIONS-DATETIME-CURRENT)。明确 UTC 避免 session timezone 改变资格比较；数据库墙钟仍有运维前提，不能据此宣称跨数据库全局同步或硬实时保证。[IntentStore renew/verify](../lib/agent_systems_lab/intent_store.ex)
 
 heartbeat 的成功只延长资格，不重置 dispatch、模型尝试、输出字节、turn 或绝对 Run deadline。为了防止活着但无进展的执行不断续租，第 13 周增加独立 watchdog；它先停止并等待 executor 退出，再按已提交 receipt 或 unknown 协议回收。
 
@@ -100,7 +119,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix lab.database --output artifacts/ch20-d
 
 检查提交前回滚、COMMIT ACK 丢失、heartbeat 断连、同一 Scheduler 自动重连、效果后待确认五条路径的逐次证据。[L13](../labs/L13-database-outages-p3.md) 定义观察项；本章不把协议代理故障扩大为数据库节点高可用验证。
 
-工具效果可能已经发生而 receipt 尚未提交。此时停止进程、释放槽位或耗尽预算，都不能撤销效果。可查询工具用原 operation ID 查证；无法确定的非幂等工具进入可见人工核对。系统宁可保留一个占位的 blocked Run，也不能为了让队列变短而丢失未知业务。
+工具效果可能已经发生而 receipt 尚未提交。此时停止进程、释放槽位或耗尽预算，都不能撤销效果。可查询工具用原 operation ID 查证；无法确定的非幂等工具进入 blocked 待核对。保持 blocked 时它占位并留在核对队列；直接取消则进入终态、退出该队列，未决 operation 仍保留，需由可信宿主另行交接调查，原 Run 不再接受 reconcile。Workflow 父取消会保留 ambiguous 子 Run 的核对入口，属于不同策略。详见[第 16 章的生命周期边界](ch16-durable-effects-and-reconciliation.md#blocked-队列有明确的生命周期边界)。队列变短不是效果已查明的证据。
 
 ## 20.7 读 Oban 时要比较相同的责任
 
@@ -128,7 +147,7 @@ Executor 对数据库完成回报的 retry 不再次 perform；Lifeline 则按�
 | task budget | 原 Run 的 dispatch 和单次执行时间 | 替代原模型字节、turn、工具调用或 retry 限额 |
 
 命名队列是显式 opt-in，省略 `queue` 的 Scheduler 只扫描未入队 Run；`run_ids` 不会把另一队列纳入范围。
-blocked 继续占准入容量，因为它代表尚未解决的业务。终态可以释放准入名额，但不能删除原 operation 去重身份来回收空间。
+blocked 继续占准入容量，因为它代表尚未解决的业务。直接取消可释放准入名额；这只关闭执行生命周期，不证明其中 unknown 已解决。终态不能删除原 operation 去重身份来回收空间。
 满载请求应明确拒绝。用无限 spawn 或无界内存列表接住所有拒绝，只是把队列搬到不可观察的地方。
 
 执行前预留 dispatch，崩溃不返还；新 Worker 接管也不清零。执行上限取本地 watchdog、任务预算和原 Run deadline 的更早边界。
@@ -174,7 +193,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix lab.upgrade --output artifacts/ch20-re
 | 新 Worker 最终 succeeded | 还需旧写入不覆盖状态、receipt、cursor、已扣预算和新 claim |
 | heartbeat 连续成功 | 还需独立 watchdog，避免永远无进展地续租 |
 | 数据库重连成功 | 还需读原提交事实；连接 error 不证明 COMMIT 回滚 |
-| 手动 unknown 仍在队列 | 若禁止自动重发且交接明确，这是正确保留事实 |
+| 手动 unknown 仍在队列 | 未取消的 blocked 项禁止自动重发且交接明确，这是正确保留事实 |
 
 同 seq 场景中 successor 先保持 claim 而不推进 seq，让旧调用真正跨过 token/generation 检查。
 SIGSTOP 会同时暂停 executor 和 heartbeat；只 gate executor 而让 heartbeat 正常续期，测试的是续期并行，不是旧代次接管。
@@ -184,7 +203,7 @@ CONT 后 runner 通过受控 gate 先观察迟到写入，再放开 heartbeat �
 针对性测试：`./scripts/mix test test/agent_systems_lab/fencing_safety_test.exs test/agent_systems_lab/scheduler_database_test.exs test/agent_systems_lab/scheduler_deadline_test.exs`。
 测试链接：[fencing_safety_test](../test/agent_systems_lab/fencing_safety_test.exs)、[scheduler_database_test](../test/agent_systems_lab/scheduler_database_test.exs)、[scheduler_deadline_test](../test/agent_systems_lab/scheduler_deadline_test.exs)。
 完整 P3 会再次运行真实子实验；需要阶段验收时使用新目录执行 `./scripts/mix lab.p3 --output artifacts/ch20-p3-reader-01 --repetitions 2`。
-记录自己执行的范围和次数；快速试读、已有验收、今后正式重复门槛分别报告，不把文档中的预期字段充当新一轮结果。
+首次阅读完成标准：能解释三情形小练习、renew 的实时钟条件与同 seq fencing 反例。完整实验另要求上述故障证据；记录自己执行的范围和次数，快速试读、已有验收、今后正式重复门槛分别报告，不把文档中的预期字段充当新一轮结果。
 
 ## 习题
 
@@ -196,10 +215,15 @@ CONT 后 runner 通过受控 gate 先观察迟到写入，再放开 heartbeat �
 
 ## 教师参考答案
 
+<details>
+<summary>先独立作答，再展开参考答案</summary>
+
 1. 读取与 UPDATE 之间存在时间窗口，旧 token 匹配不代表资格仍有效。UPDATE 必须比较数据库中的 expiry 与当前数据库时间，并由数据库计算新 deadline；过期后 0 行更新，不复活。
 2. error 只表明客户端没有获得成功确认，不能证明服务器回滚。claim 回报未知时不启动业务，重连后等待或读取原 lease，再以新确认的 claim 继续；结果回报未知时读原 seq/receipt/operation，复用已确认结果或进入查询/人工核对。
 3. 独立 watchdog 与绝对任务预算回收本地执行，先停止并等待 executor。unknown 描述效果不确定，预算描述资源，不可互相替代；重发可能重复非幂等效果。
 4. 尚缺原子 Run/Event/Job 提交、业务提交时旧代次检查、效果后回报丢失的核对、持久预算与 retry 映射等。反例可用暂停旧 Executor 后救援接管，再恢复旧执行；或远端效果已发生但 ack 丢失。unique 不会阻止这类同一 job 的重复 attempt，也不自动约束业务表。
 5. 将旧 BEAM SIGSTOP，等待真实 lease 过期并让新 Worker 提交，再 SIGCONT。保存 PID、OS 信号、故障 gate、原新 token/generation/seq/deadline、旧写入返回、最终投影与目标效果台账。只看旧 PID 最终退出无法证明数据库拒绝旧写入，必须展示它实际尝试的结果和新状态保持。
+
+</details>
 
 术语：lease 是短期资格，heartbeat 是续期请求，fencing 是对迟到权威的持久拒绝，receipt 是效果结果证据，reconcile 是基于原身份核对已发生结果。它们互相配合，但不能彼此代替。

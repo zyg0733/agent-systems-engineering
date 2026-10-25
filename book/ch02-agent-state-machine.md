@@ -1,8 +1,22 @@
 # 第 2 章：状态机、命令、事件与系统不变量
 
-本章是第 22 周补齐的试读初稿，主题沿用原计划第 2 章。对应当前仓库的 [L01](../labs/L01-state-machine.md)，代码入口是 [Kernel](../lib/agent_systems_lab/kernel.ex)、[State](../lib/agent_systems_lab/kernel/state.ex) 与 [Event](../lib/agent_systems_lab/kernel/event.ex)。本章可以完全离线完成；章节存在和自动化验证均不代表已经取得独立读者反馈。
+本章始写于第 22 周，主题沿用原计划第 2 章。对应当前仓库的 [L01](../labs/L01-state-machine.md)，代码入口是 [Kernel](../lib/agent_systems_lab/kernel.ex)、[State](../lib/agent_systems_lab/kernel/state.ex) 与 [Event](../lib/agent_systems_lab/kernel/event.ex)。本章可以完全离线完成；本轮采用多代理模拟评审，范围与实际执行证据见[修订评审记录](../docs/learning-revision-review.md)。模拟发现的问题和自动化结果不能换算为真人学习效果。
 
 读完后，你应能从一段合法命令轨迹推出状态和事件，解释为什么拒绝命令不能顺手修改状态，并指出重放与实际续跑之间缺少的边界。先读状态，再接触进程和数据库，有助于把业务规则与执行策略分开。
+
+## 阅读准备与路线
+
+本章是现有六章的起点，不要求先找到尚未写成正文的第 1 章。概念阅读只需知道“请求可能被拒绝、外部操作可能丢回执”；动手前应会打开仓库根目录的终端，分辨 shell 与 IEx，并读懂 Elixir 的 tuple、Map、模式匹配和不可变值。先完成[先修知识与最小桥接](prerequisites.md)的对应检查；环境安装耗时另计，不必一次完成整个 L01。
+
+先读 2.1—2.2，再做 2.3 的小练习和完整轨迹，最后用 2.4—2.6 检查反例。本章只推进内存中的值；下一站是[第 5 章](ch05-agent-loop-and-tools.md)中真正区分模型提议与工具效果的循环。当前完整路线为 **2 → 5 → 8 → 14 → 16 → 20**，各章依赖见[课程地图](../docs/course-map.md)。
+
+| 本章词语 | 先抓住的含义 |
+| --- | --- |
+| command / event | 待接受的请求 / 已获接受的业务事实；拒绝请求没有新事件 |
+| State / seq | 当前业务值 / 已接受事件的位置；不是进程与时钟 |
+| operation / unknown | 有稳定身份的逻辑操作 / 效果是否成立尚未查明 |
+
+随时查[统一术语表](glossary.md)；遇到 `replay`，先按“根据事件计算 State”理解，不按“重新执行工具”理解。
 
 ## 2.1 一个最小任务的七种状态
 
@@ -56,6 +70,20 @@ LAB_DATABASE_ENABLED=false ./scripts/iex
 ```
 
 在同一个 IEx 会话逐段执行。所有工具结果都由教学代码手动提供，尚未产生外部效果。
+
+**第一次小练习：先证明一次拒绝。** 先预测：尚未 `start` 时提交最终回答，`status`、`seq`、`turn_count` 会不会变化？只运行下面这段，再继续完整轨迹。提示：接收错误返回不等于接收一个失败事件。
+
+```elixir
+alias AgentSystemsLab.Kernel, as: LabKernel
+{:ok, first} = LabKernel.new("ch02-first")
+before_rejection = first
+{:error, {:invalid_transition, :queued, :model_response}} =
+  LabKernel.dispatch(first, {:model_response, {:final, "过早回答"}})
+true = first == before_rejection
+true = {first.status, first.seq, first.turn_count} == {:queued, 0, 0}
+```
+
+可验证结果是匹配错误原因成功，两个 `true` 断言都通过。不要把它改成 `{:fail, reason}` 来“修好”：后者是另一个合法命令，会产生新的失败事件。
 
 ```elixir
 alias AgentSystemsLab.Kernel, as: LabKernel
@@ -115,7 +143,20 @@ true = u4.status == :running
 true = u4.turn_count == u3.turn_count
 ```
 
-这里手写的核对结果只说明协议形状。实际系统必须凭原 operation ID 查询可信台账或经明确的人工核对，不能让模型凭叙述确认成功。无法查明的非幂等效果应继续可见地阻塞。
+这里手写的核对结果只说明协议形状。实际系统必须凭原 operation ID 查询可信台账或经明确的人工核对，不能让模型凭叙述确认成功。只要仍希望继续这个 Run，无法查明的非幂等效果就应保持 `blocked`，不能换 ID 盲重试。
+
+取消是另一种选择，但它结束任务推进，并不查清效果。下面从同一个 `u3` 值演示另一条分支；不接续上面的 `u4`：
+
+```elixir
+{:ok, cancelled_unknown, _} = LabKernel.dispatch(u3, {:cancel, :stop_task})
+true = cancelled_unknown.status == :cancelled
+true = cancelled_unknown.operations["report-1"].status == :unknown
+true = cancelled_unknown.turn_count == u3.turn_count
+{:error, {:terminal_run, :cancelled}} = LabKernel.dispatch(cancelled_unknown,
+  {:reconcile, "report-1", {:ok, %{saved: true}}})
+```
+
+因此，任务已取消不代表原操作已失败、已撤销或已核对；终态也不允许在这个 Run 中继续 `reconcile`。若业务需要后续调查，宿主必须保留原操作身份与审计证据并安排独立核对流程，不能仅靠一个 `cancelled` 标签关闭效果账目。
 
 普通 `{:error, reason}` 工具结果与 `unknown` 不同：前者是已知结果，Kernel 返回 `running` 让模型选择下一步；后者阻止继续推理。是否重试已知错误由后续重试策略决定，Kernel 不替调用者循环执行。
 
@@ -156,7 +197,7 @@ true = u4.turn_count == u3.turn_count
 | `Kernel` 与 Elixir 自带模块混淆 | 使用本章 `LabKernel` alias |
 | 非默认预算重放失败 | 将原 `max_turns` 传回 `rebuild/3` |
 | 手工输入回执被误认为效果证明 | 分别列出 Kernel 事实与 Mock 台账 |
-| 取消后仍有操作记录 | 检查效果是否已经发生，取消不退款也不撤销效果 |
+| 取消后仍有操作记录 | 检查效果是否已经发生；取消不回退已用轮数，也不撤销效果 |
 | 看到 unknown 就再执行一次 | 先按原操作身份核对，不能先换新 ID |
 
 练习：删除一条事件、交换两条事件、篡改业务 schema，各写一个拒绝断言；再解释为什么仅保存最终 State 无法提供同样的执行解释。参考 [ADR 0001](../docs/adr/0001-pure-kernel-and-explicit-effects.md) 与 [L01 解答](../labs/solutions/L01.md)。

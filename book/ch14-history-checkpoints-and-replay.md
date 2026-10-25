@@ -1,16 +1,18 @@
 # 第 14 章：Event History、Checkpoint 与纯重建
 
-试读修订版，2026-10-23。对应当前仓库 L06、L20；实现与实验编号以仓库为准，原研究计划的 L05 编号已顺延。
-本稿依据已实现源码和测试修订，尚无可核实的外部真人试读反馈。独立读者应记录自己的命令、卡点和原始输出。
+试读修订版，2026-10-25。对应当前仓库 L06、L20；实现与实验编号以仓库为准，原研究计划的 L05 编号已顺延。
+本轮采用多代理模拟评审与代码核查；范围和实测记录见[首批学习修订审查](../docs/learning-revision-review.md)。模拟发现的误解是待检验的学习风险，不能写成真人反馈或真实学习耗时。
 
 ## 14.1 学习路径：先恢复事实，再决定是否行动
 
-前置：[第 2 章状态机](ch02-agent-state-machine.md)、[第 8 章 Session](ch08-session-context.md)、L01—L05。
-本章先用纯值重建状态，再检查数据库 checkpoint 和模型录制，最后解释格式迁移与备份还原。
+先修能力：能读懂 `{:ok, value}` 的匹配，区分命令与已接受 Event，知道连续 seq 和原 `max_turns` 为什么不能猜；做数据库部分前还需理解事务提交与回滚。用[先修知识](prerequisites.md)检查缺项，遇到中英混用词可查[术语表](glossary.md)。
+主路线：[第 2 章状态机](ch02-agent-state-machine.md) → [第 8 章 Session](ch08-session-context.md) → 本章纯值练习 → [第 16 章](ch16-durable-effects-and-reconciliation.md)。只阅读六章不要求先完成 L01—L05；准备运行持久化实验时，再完成 [L04](../labs/L04-controlled-tools.md)、[L05](../labs/L05-session-context.md)和 [L06](../labs/L06-history-checkpoints.md)的环境与任务。
+本章先用纯值重建状态，再检查数据库 checkpoint 和模型录制；格式迁移与备份还原是第二遍进阶阅读，不是首次重建的前置条件。
 后续：[第 16 章](ch16-durable-effects-and-reconciliation.md)讨论安全续跑，[第 20 章](ch20-scheduling-and-recovery.md)讨论谁有资格推进。
 
 完成本章应能回答三个问题：历史里发生了什么，历史能否被当前代码解释，以及读取历史有没有偷偷重新执行效果。
 “最后状态相同”只是第一项；若一次重建又写了文件，即使最终 State 相同，也没有满足本章契约。
+可检查的学习产物是：一次完整 State 相等的断言、一条缺口历史的明确拒绝，以及对 rebuild 和 resume 差异的说明。
 
 | 入口 | 输入和输出 | 是否推进业务 |
 | --- | --- | --- |
@@ -22,6 +24,17 @@
 
 这里的 replay 是重新应用已经接受的事实。它不把过去的 `tool_requested` 解释成现在再发一次工具请求。
 读到 `unknown` 就保留 unknown；没有回执的历史不能靠重新执行补齐。
+
+### 第一次小练习：给读取和执行分组
+
+不启动数据库，先从上表选出“仅恢复已有事实”的三个入口，再判断：选择 `Providers.Recorded` 是否就能保证后续 Runtime 零效果？把答案写下后再读提示。
+
+<details>
+<summary>提示与自检</summary>
+
+前三个入口仅恢复已有事实。`Recorded.respond/2` 是显式适配器调用，不等同于 History 重建；宿主继续 Runtime 时仍可能执行工具。能 rebuild 只说明历史可解释，不能推出原配置、有效 claim、权限和预算都满足 resume。
+
+</details>
 
 ## 14.2 Event 是已经接受的事实
 
@@ -76,7 +89,7 @@ true = rebuilt_tail === rebuilt
 
 checkpoint 保存历史前缀的状态投影，同时绑定 Run、last seq、原选项、前缀 hash 和 State hash。
 尾部应用必须紧接前缀序号，不能跨 Run、跳过事件或继续一个已经终结的状态。
-但一个自洽的 hash 只能说明内容匹配：伪造 State 后重算 hash，不会让它成为权威历史。
+但一个自洽的 hash 只能说明内容匹配；它不是签名，也不证明记录来自获授权的写入者。伪造 State 后重算 hash，不会让它成为权威历史。纯值 `History.from_checkpoint/2` 要求调用者提供可信 checkpoint；它自身没有读取数据库权威前缀。
 
 因此数据库读取会用原始完整前缀核对 checkpoint。当前实现并不减少这段读取，也不承诺启动加速。
 先建立可验证边界，后续才有条件研究可信 checkpoint 和历史分段优化；不能先删历史再假设摘要可信。
@@ -177,7 +190,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix lab.upgrade --output artifacts/ch14-up
 3. 给出迁移 COMMIT 前后崩溃的读取结果；说明 caller error 为什么不能证明回滚。
 4. 区分布局 v2、Event schema v2 与新 SQL 列，写出每一项的当前支持范围。
 
-完成标准：保存纯值比较、新 BEAM 零执行报告、一次明确拒绝和解释；不要把预期字段当成本次实测结论。
+首次阅读完成标准：能完成分组小练习和纯值比较，解释一条明确拒绝。持久化实验完成标准另含新 BEAM 零执行报告；不要把预期字段当成本次实测结论。
 针对性测试可运行 `LAB_DATABASE_ENABLED=false ./scripts/mix test test/agent_systems_lab/history_test.exs test/agent_systems_lab/recording_test.exs`。
-持久化与迁移测试按 [L06](../labs/L06-history-checkpoints.md)、L20 执行，数量以自己的日志和 [W21 验收](../docs/validation-week21.md)分别记录。
+持久化与迁移测试按 [L06](../labs/L06-history-checkpoints.md)、L20 执行；尝试后查 [L06 参考解答](../labs/solutions/L06.md)和 [L20 参考解答](../labs/solutions/L20.md)。数量以自己的日志和 [W21 验收](../docs/validation-week21.md)分别记录。
 本章不提供可信签名、任意不可信 archive 导入、生产 PITR 或跨地域恢复保证。

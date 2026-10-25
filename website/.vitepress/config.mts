@@ -22,12 +22,12 @@ const labs = readdirSync(path.join(source, 'labs')).filter(file => /^L\d\d-.*\.m
   link: '/labs/' + file.replace(/\.md$/, '')
 }))
 const sidebar = [
-  { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '阅读路线与章节', link: '/reading' }, { text: '环境准备与项目说明', link: '/project' }] },
+  { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '先修自测与桥接', link: '/book/prerequisites' }, { text: '阅读路线与章节', link: '/reading' }, { text: '术语与易混概念', link: '/book/glossary' }, { text: '当前状态与边界', link: '/docs/current-status' }, { text: '环境准备与项目说明', link: '/project' }] },
   { text: '六章试读正文', items: chapters },
   { text: '动手实验 · L01—L25', collapsed: true, items: labs },
-  { text: '课程与教学', collapsed: true, items: [{ text: 'C01—C12 课程地图', link: '/docs/course-map' }, { text: '全书 30 章设计卡', link: '/book/chapter-cards' }, { text: '教师参考与使用方式', link: '/teaching' }, { text: '正式试读与反馈协议', link: '/book/reader-study/README' }] },
-  { text: '随手查阅', collapsed: true, items: [{ text: '架构与系统边界', link: '/docs/architecture' }, { text: '命令与实现参考', link: '/docs/command-reference' }, { text: '公开接口与扩展', link: '/docs/public-interfaces' }, { text: '恢复运行手册', link: '/docs/recovery-runbook' }, { text: '已知限制', link: '/docs/known-limitations' }] },
-  { text: '项目与维护', collapsed: true, items: [{ text: '源码检查与 CI', link: '/docs/github-ci' }, { text: '阅读站维护', link: '/docs/reading-site' }, { text: '教材质量与试读计划', link: '/docs/public-reading-quality-plan' }, { text: '结果与历史记录', link: '/docs/results-index' }, { text: '下一阶段计划', link: '/docs/next-stage-plan' }, { text: '许可与署名', link: '/docs/licensing' }] }
+  { text: '课程与教学', collapsed: true, items: [{ text: 'C01—C12 课程地图', link: '/docs/course-map' }, { text: '全书 30 章设计卡', link: '/book/chapter-cards' }, { text: '教师参考与使用方式', link: '/teaching' }, { text: '六章修订与代理评审', link: '/docs/learning-revision-review' }] },
+  { text: '随手查阅', collapsed: true, items: [{ text: '架构与系统边界', link: '/docs/architecture' }, { text: '命令与实现参考', link: '/docs/command-reference' }, { text: '公开接口与扩展', link: '/docs/public-interfaces' }, { text: '恢复运行手册', link: '/docs/recovery-runbook' }, { text: '技术主张核查', link: '/docs/technical-claims-review' }] },
+  { text: '项目与维护', collapsed: true, items: [{ text: '源码检查与 CI', link: '/docs/github-ci' }, { text: '阅读站维护', link: '/docs/reading-site' }, { text: '教材质量计划', link: '/docs/public-reading-quality-plan' }, { text: '公开教材借鉴', link: '/docs/learning-design-references' }, { text: '结果与历史记录', link: '/docs/results-index' }, { text: '下一阶段计划', link: '/docs/next-stage-plan' }, { text: '许可与署名', link: '/docs/licensing' }] }
 ]
 
 export default defineConfig({
@@ -54,7 +54,7 @@ export default defineConfig({
     skipToContentLabel: '跳到正文',
     externalLinkIcon: true,
     socialLinks: [{ icon: 'github', link: repo, ariaLabel: 'GitHub 源码仓库（需访问权限）' }],
-    editLink: { pattern: ({ relativePath }) => `https://github.com/zyg0733/agent-systems-engineering/edit/main/${relativePath === 'project.md' ? 'README.md' : /^(index|start|reading|teaching)\.md$/.test(relativePath) ? 'website/' + relativePath : relativePath}`, text: '在 GitHub 查看或改进本页' },
+    editLink: { pattern: ({ relativePath }) => `https://github.com/zyg0733/agent-systems-engineering/edit/main/${relativePath === 'project.md' ? 'README.md' : relativePath === 'reading.md' ? 'book/reading-route.md' : /^(index|start|teaching)\.md$/.test(relativePath) ? 'website/' + relativePath : relativePath}`, text: '在 GitHub 查看或改进本页' },
     footer: {
       message: `教材 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 代码 <a href="${base}licenses/LICENSE.txt">Apache-2.0</a> · <a href="${base}docs/licensing.html">许可范围与署名</a>`,
       copyright: 'Agent Systems Lab contributors · 0.1.0-dev'
@@ -91,6 +91,8 @@ export default defineConfig({
           const relative = path.posix.normalize(path.posix.join(path.posix.dirname(current), decoded))
           if (relative.startsWith('../')) throw new Error(`Link escapes repository: ${href} in ${current}`)
           if (relative === 'README.md') child.attrSet('href', '/' + 'project.md' + (fragment === undefined ? '' : '#' + fragment))
+          else if (relative === 'book/reading-route.md') child.attrSet('href', '/reading.md' + (fragment === undefined ? '' : '#' + fragment))
+          else if (/^website\/(?:index|start|reading|teaching)\.md$/.test(relative)) child.attrSet('href', '/' + relative.slice('website/'.length) + (fragment === undefined ? '' : '#' + fragment))
           else if (existsSync(path.join(source, relative)) && relative.endsWith('.md')) continue
           else if (['LICENSE', 'LICENSE-DOCS', 'NOTICE'].includes(relative)) child.attrSet('href', '/licenses/' + relative + '.txt')
           else if (relative.startsWith('artifacts/')) {
@@ -104,7 +106,12 @@ export default defineConfig({
       })
       const fence = md.renderer.rules.fence!
       md.renderer.rules.fence = (tokens, index, options, env, self) => {
-        if (tokens[index].info.trim() === 'mermaid') return `<MermaidDiagram code="${Buffer.from(tokens[index].content).toString('base64')}" />`
+        if (tokens[index].info.trim() === 'mermaid') {
+          let heading = '系统流程'
+          for (let i = 0; i < index; i++) if (tokens[i].type === 'heading_open' && tokens[i + 1]?.type === 'inline') heading = tokens[i + 1].content
+          const label = ('图示：' + heading).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!)
+          return `<MermaidDiagram code="${Buffer.from(tokens[index].content).toString('base64')}" label="${label}" />`
+        }
         return fence(tokens, index, options, env, self)
       }
     }

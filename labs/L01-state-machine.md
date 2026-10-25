@@ -1,8 +1,67 @@
 # L01：让 Agent 的每一次状态变化都可以解释
 
-对应计划第 1—2 周。建议实验时间 6—10 小时，分两次完成。实现、源码阅读和复盘时间另计。
+对应计划第 1—2 周。本手册包含源码阅读、测试、故障注入与复盘，可分段完成。第一次进入时先做第 0 节小练习；安装下载与实际学习、执行、排错用时分别记录。
 
 本实验使用 Scripted Provider 与 Mock Tool，完全离线运行。完成后，你应能解释：谁决定状态转换；模型提议何时成为工具请求；为什么回执丢失不能直接重试；重放事件和持久化恢复之间还缺什么。
+
+先修：能在终端进入项目目录，读懂 Elixir 的元组、map 和模式匹配。需要补读时先看[阅读准备](../book/prerequisites.md)与[术语表](../book/glossary.md)。首次安装和依赖下载需要网络；安装完成后的本实验不调用真实模型或远端工具。
+
+<a id="first-exercise"></a>
+
+## 0. 首次小练习：预测、运行与断言
+
+先按 [README](../README.md)准备运行时与依赖。此处不需要 PostgreSQL，也不需要先运行整套测试。在**项目根目录的终端**执行：
+
+```sh
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/iex
+```
+
+进入 IEx 后先预测三件事，写在纸上即可：
+
+1. Kernel 接受工具提议时，Mock 的请求数、效果数各是多少？
+2. 等待 `first-op` 时收到 `wrong-op` 的结果，seq 会增加吗？
+3. 完成后重建历史，会再执行一次 Mock 吗？
+
+下面是 **IEx 输入**。逐段粘贴，不把注释中的预期值当成终端命令。`true = ...` 和元组匹配是本练习的断言，预期不成立时会直接报错。
+
+```elixir
+alias AgentSystemsLab.Kernel, as: LabKernel
+alias AgentSystemsLab.Tools.Mock
+
+{:ok, tool} = Mock.start_link([])
+{:ok, s0} = LabKernel.new("l01-first")
+{:ok, s1, e1} = LabKernel.dispatch(s0, {:start, "保存一条模拟记录"})
+call = %{operation_id: "first-op", tool: "mock_write", arguments: %{value: "hello"}}
+{:ok, s2, e2} = LabKernel.dispatch(s1, {:model_response, {:call, call}})
+true = {s2.status, s2.seq} == {:waiting_tool, 2}
+true = Mock.stats(tool) == %{requests: 0, effects: 0}
+
+{:error, {:unexpected_operation_id, "first-op", "wrong-op"}} =
+  LabKernel.dispatch(s2, {:tool_result, "wrong-op", {:ok, :unexpected}})
+true = {s2.status, s2.seq} == {:waiting_tool, 2}
+```
+
+到这里工具还没有执行。接下来显式调用 Mock，再将匹配的回执交回 Kernel：
+
+```elixir
+{:ok, receipt} = Mock.execute(tool, "first-op", call.arguments)
+{:ok, s3, e3} = LabKernel.dispatch(s2, {:tool_result, "first-op", {:ok, receipt}})
+{:ok, s4, e4} = LabKernel.dispatch(s3, {:model_response, {:final, "已确认"}})
+true = {s4.status, s4.seq} == {:succeeded, 4}
+
+before_rebuild = Mock.stats(tool)
+true = before_rebuild == %{requests: 1, effects: 1}
+{:ok, rebuilt} = LabKernel.rebuild("l01-first", e1 ++ e2 ++ e3 ++ e4)
+true = rebuilt == s4
+true = Mock.stats(tool) == before_rebuild
+{rebuilt.status, rebuilt.seq, Mock.stats(tool)}
+# => {:succeeded, 4, %{effects: 1, requests: 1}}（map 显示顺序无关）
+GenServer.stop(tool)
+```
+
+用一句话核对每个预测：工具提议是接受的事实，不是工具执行；错 ID 没有产生新事件；重建只应用事件，Mock 的请求与效果都没有增加。这里直接调用 Kernel，没有调用 Provider；计数断言只观察本次 Mock 实例，不是所有效果边界的全局零调用审计。
+
+本练习只使用内存状态与事件列表，关闭 IEx 后不会保留它们。它也没有证明任意远端工具恰好执行一次。现在可以 `Ctrl+C` 两次退出 IEx，再进入下面的完整实验；后文第 4—7 节请新开一个 IEx 会话，按各节变量重新开始。
 
 ## 1. 先写下你要证明的事
 
@@ -11,7 +70,7 @@
 1. 终态不会被迟到的模型响应或工具结果覆盖。
 2. 一次只允许一个待处理操作，工具结果必须匹配操作编号。
 3. 同一任务不能重复申请一个已经使用过的操作编号。
-4. 工具结果未知时，任务会阻塞，查询核对后才能继续。
+4. 工具结果未知时，任务进入 `blocked`，正常继续执行须先核对；显式取消可以进入终态，但不能消除未知的外部事实。
 5. 拥有完整事件列表时，按原顺序重放会得到相同状态，而且不会再次产生工具效果。
 
 请先独立画一张状态图，再对照 [架构说明](../docs/architecture.md)。图中必须有 `queued`、`running`、`waiting_tool`、`blocked`、`succeeded`、`failed`、`cancelled`，并明确非法命令的处理方式。
@@ -215,7 +274,7 @@ u5.status
 
 - 在 `queued` 收到模型响应时拒绝。
 - `waiting_tool` 时拒绝另一个模型工具提议；已完成后再次申请同一操作编号也拒绝。
-- `blocked` 只能核对当前操作；错误操作编号不能解除阻塞。
+- `blocked` 核对时只能指定当前操作；错误操作编号不能解除阻塞。
 - `max_turns: 1` 时，第一轮工具提议可接受，工具返回后第二轮模型响应被预算规则拒绝，Kernel 仍是 `running`；显式 `fail` 才进入 `failed`。对照 RunServer 如何执行这项结束策略。
 - `cancelled` 后迟到的工具结果不会改变任务状态；取消不代表已经发生的工具效果可以撤销。
 - 对一组自己生成的合法命令轨迹逐条 `dispatch`，每一步检查状态与不变量；再重建并比较最终状态。生成规则必须保证前置条件成立。

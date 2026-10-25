@@ -18,8 +18,8 @@ hero:
       text: 阅读六章正文
       link: /reading
     - theme: alt
-      text: 动手做 L01
-      link: /labs/L01-state-machine
+      text: 做首次小练习
+      link: /labs/L01-state-machine#first-exercise
 features:
   - title: 把行为写成事实
     details: 从命令、事件与纯状态转换出发。先说清系统不变量，再决定进程如何协作。
@@ -47,7 +47,7 @@ features:
 
   <div class="reading-paths">
     <a class="reading-path" href="./reading.html"><span class="path-number">01 / 读</span><h3>建立系统直觉</h3><p>六章正文串起状态、执行、上下文、历史、效果与所有权。</p><span class="path-link">选择阅读章节 <span aria-hidden="true">↗</span></span></a>
-    <a class="reading-path" href="./labs/L01-state-machine.html"><span class="path-number">02 / 做</span><h3>从一个状态机动手</h3><p>预测合法与非法转换，收集事件，再亲手重建同一份状态。</p><span class="path-link">进入第一个实验 <span aria-hidden="true">↗</span></span></a>
+    <a class="reading-path" href="./labs/L01-state-machine.html#first-exercise"><span class="path-number">02 / 做</span><h3>先完成一条小轨迹</h3><p>预测合法与非法转换，写一个断言，再检查重建为何不执行工具。</p><span class="path-link">进入首次小练习 <span aria-hidden="true">↗</span></span></a>
     <a class="reading-path" href="./docs/course-map.html"><span class="path-number">03 / 连</span><h3>按课程逐步推进</h3><p>用 12 个主题单元组织实验，明确依赖、学生任务与成功标准。</p><span class="path-link">查看完整课程地图 <span aria-hidden="true">↗</span></span></a>
   </div>
 </section>
@@ -57,7 +57,7 @@ features:
 </section>
 
 <section class="home-section home-footnote" aria-label="内容与使用说明">
-  <p>正文、实验和章节设计卡分别标明完成状态。本站提供阅读与学习入口；实际实验在本地源码中运行。</p><p>原创代码采用 Apache-2.0，教材正文与原创图表采用 CC BY 4.0。<a href="./docs/licensing.html">查看许可范围</a> · <a href="./teaching.html">教师与授课说明</a></p>
+  <p>正文、实验和章节设计卡分别标明完成状态。先看<a href="./book/prerequisites.html">先修与桥接</a>，随时查<a href="./book/glossary.html">术语表</a>。实际实验在本地源码中运行，<a href="./docs/current-status.html">当前状态与平台边界</a>单列。</p><p>原创代码采用 Apache-2.0，教材正文与原创图表采用 CC BY 4.0。<a href="./docs/licensing.html">查看许可范围</a> · <a href="./teaching.html">教师与授课说明</a></p>
 </section>
 
 </div>

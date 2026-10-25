@@ -1,8 +1,20 @@
 # 第 5 章：Agent Loop 的理论、设计与实现
 
-本章是第 22 周补齐的试读初稿，主题沿用原计划第 5 章。实际实验顺序已调整：状态机见 [L01](../labs/L01-state-machine.md)，Streaming 与取消见 [L03](../labs/L03-streaming-control.md)，工具与离线修复见 [L04](../labs/L04-controlled-tools.md)。原计划的实验编号不能直接当作当前文件名使用；第 6、7 章的深入内容仍可在这两册实验中先行学习。
+本章始写于第 22 周，主题沿用原计划第 5 章。实际实验顺序已调整：状态机见 [L01](../labs/L01-state-machine.md)，Streaming 与取消见 [L03](../labs/L03-streaming-control.md)，工具与离线修复见 [L04](../labs/L04-controlled-tools.md)。原计划的实验编号不能直接当作当前文件名使用；第 6、7 章的深入内容仍可在这两册实验中先行学习。
 
-读完后，你应能解释一次循环为什么至少有“模型请求、接受提议、执行效果、提交结果”四个边界，并能在其中停住、取消或核对。这里使用 Scripted Provider 与受控工具；固定脚本证明机制，不证明真实模型的修复能力。独立读者试读仍需另行记录。
+读完后，你应能解释一次循环为什么至少有“模型请求、接受提议、执行效果、提交结果”四个边界，并能在其中停住、取消或核对。这里使用 Scripted Provider 与受控工具；固定脚本证明机制，不证明真实模型的修复能力。本轮采用多代理模拟评审，范围与实际执行证据见[修订评审记录](../docs/learning-revision-review.md)。
+
+## 阅读准备与路线
+
+先完成[第 2 章](ch02-agent-state-machine.md)的一条合法轨迹与一次拒绝，能解释 `waiting_tool`、`blocked`、`operation_id` 和 final 计轮。动手还需会按顺序调用进程 API、区分进程快照与纯 State；无需先会写 GenServer，也不要求先读尚未成文的第 3、4、6、7 章。缺少这些概念时用[先修桥接](prerequisites.md)和[统一术语表](glossary.md)补齐。
+
+第一次只做到 5.3：在三个 `step` 之间观察效果数，得到一条可解释的成功轨迹。第二次再走 5.4—5.5 的 unknown 和取消；文件修复在 5.7 独立进行，不必第一次就完成整册 L03/L04。本章之后进入[第 8 章](ch08-session-context.md)，研究每次 Provider 请求究竟看到了什么。现有六章路线是 **2 → 5 → 8 → 14 → 16 → 20**，见[课程地图](../docs/course-map.md)。
+
+| 本章词语 | 与上一章的连接 |
+| --- | --- |
+| Provider / 宿主 | 产出待验证响应 / 决定配置、接受与执行的程序 |
+| proposal / effect / receipt | 工具提议 / 外部变化 / 对原操作结果的记录，不是同一个动作 |
+| stream / event | 暂态输入片段 / 已接受的业务事实；半截参数不会成为工具意图 |
 
 ## 5.1 循环要推进事实，也要决定何时停止
 
@@ -44,6 +56,8 @@ LAB_DATABASE_ENABLED=false ./scripts/iex
 ```
 
 在同一个 IEx 会话执行：
+
+**第一次小练习：停在“提议已接受”。** 运行到 `planned` 的四个断言后先停下，不调用第二次 `step`。预测报告是否已经写入、下一步会增加哪个计数。提示：`tool_requested` 表示 Kernel 接受意图，不能证明工具执行。可验证结果应为 `waiting_tool`、Provider 游标 1、`requests=0`、`effects=0`；再执行第二步后才会看到 `requests=1`、`effects=1`。这就是本次小练习的完成点，第三步的 final 用来收尾。
 
 ```elixir
 alias AgentSystemsLab.{Demo, RunServer}
@@ -94,7 +108,9 @@ true = done.tool_stats.effects == 1
 :ok = GenServer.stop(server)
 ```
 
-核对通过 Mock 的原台账完成，没有重做效果。无法查询的非幂等工具不能照抄这个自动核对路径；持久流程会保留可见的人工核对项，直到可信证据足以继续。[L08](../labs/L08-retries-and-reconciliation.md) 专门区分错误分类、有限重试和模糊效果。
+核对通过 Mock 的原台账完成，没有重做效果。无法查询的非幂等工具不能照抄这个自动核对路径；仍要继续的任务必须等待可信证据，不能将等待超时解释成失败后换 ID 重试。[L08](../labs/L08-retries-and-reconciliation.md) 专门区分错误分类、有限重试和模糊效果。
+
+也可以显式取消 `blocked` 的任务，但当前 Kernel 会保留 unknown 操作并进入终态，随后拒绝这个 Run 的 `reconcile`。这代表停止推进，不代表效果已查清；宿主若需要后续调查，必须另行保留和处理未决账目。完整反例见[第 2 章的两条分支](ch02-agent-state-machine.md#24-结果未知为什么要成为业务状态)。
 
 ## 5.5 模型流并不是业务事件流
 
@@ -140,7 +156,7 @@ cat "$chapter_dir/repair/repair.diff"
 
 ## 5.8 预算与持久恢复的接缝
 
-[Budget](../lib/agent_systems_lab/budget.ex) 限制输出字节、单请求帧数、工具次数和时限；它是 RunServer 的进程内控制。输出字节跨请求累计，帧数每次请求重置。ETF 字节、模型 token 和货币费用是不同度量。
+[Budget](../lib/agent_systems_lab/budget.ex) 限制输出字节、单请求帧数、工具次数和时限；它是 RunServer 的进程内控制。输出字节跨请求累计，帧数每次请求重置。ETF（Erlang External Term Format，本地值编码）字节、模型 token 和货币费用是不同度量，见[术语表](glossary.md#会话与历史)。
 
 Kernel 轮数耗尽只拒绝下一条模型响应；RunServer 会在额外 Provider 请求之前记录 `:turn_budget_exceeded`。取消也应先停止自己拥有的工作进程，拒绝迟到帧，再记录最终业务状态；它不退回预算或撤销已发生效果。
 
@@ -158,4 +174,4 @@ Kernel 轮数耗尽只拒绝下一条模型响应；RunServer 会在额外 Provi
 
 阅读 [run_server_test](../test/agent_systems_lab/run_server_test.exs)、[run_server_stream_test](../test/agent_systems_lab/run_server_stream_test.exs)、[files_test](../test/agent_systems_lab/tools/files_test.exs) 与 [patch_test](../test/agent_systems_lab/tools/patch_test.exs)。提交三步轨迹、取消前后效果对照、unknown 核对和修复证据，并解释每条不变量由哪个组件落实。
 
-练习：将 `max_turns` 设为 1，证明不会发出第二次模型请求；在第一次工具提议后取消，证明效果数为 0；在工具成功后取消，证明效果数仍为 1。分别写出“资源控制、业务状态、外部效果”三列，不要混为一个布尔成功值。设计依据见 [ADR 0003](../docs/adr/0003-streaming-cancellation-and-budgets.md) 与 [ADR 0004](../docs/adr/0004-controlled-tools-and-call-pairing.md)。
+练习：将 `max_turns` 设为 1，证明不会发出第二次模型请求；在第一次工具提议后取消，证明效果数为 0；在工具成功后取消，证明效果数仍为 1。分别写出“资源控制、业务状态、外部效果”三列，不要混为一个布尔成功值。尝试后查 [L03 参考解答](../labs/solutions/L03.md)和 [L04 参考解答](../labs/solutions/L04.md)。设计依据见 [ADR 0003](../docs/adr/0003-streaming-cancellation-and-budgets.md) 与 [ADR 0004](../docs/adr/0004-controlled-tools-and-call-pairing.md)。
