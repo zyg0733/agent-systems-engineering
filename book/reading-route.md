@@ -31,6 +31,27 @@ description: 按状态、执行、上下文、历史、外部效果与任务所�
 
 [L20 迁移与备份恢复](../labs/L20-history-migration-backup-restore.md)是后续综合练习，先按其前置完成课程后再做，不作为首次读第 14 章的必做任务。
 
+## 把阅读路线走成实验路线
+
+每一段按“预测 → 运行 → 查原始证据 → 换一个条件解释 → 查参考解答”推进。演示跑通与独立完成手册中的改写、反例和测试任务分别记录；不要只凭一个 `all_passed` 就认定全部练习已完成。建议留下下面四段检查记录：
+
+| 段落 | 至少留下的证据 | 换条件后的自测 | 参考入口 |
+| --- | --- | --- | --- |
+| L01—L05：状态、执行与上下文 | 错 ID 不推进；半截流取消不产生工具提议；修复前后验收与当前输出目录的 Context 核验 | 手动输入一个 tool result 能证明文件真的写了吗？摘要能新增权限吗？ | [L01](../labs/solutions/L01.md)、[L02](../labs/solutions/L02.md)、[L03](../labs/solutions/L03.md)、[L04](../labs/solutions/L04.md)、[L05](../labs/solutions/L05.md) |
+| L06—L09：事实历史与效果恢复 | 非空 tail 重建、调用计数、结果未知及回执边界；P2 的每类原始故障证据 | 只有 State hash 相等够不够？直接取消 unknown 后队列空能说明效果已核清吗？ | [L06](../labs/solutions/L06.md)、[L07](../labs/solutions/L07.md)、[L08](../labs/solutions/L08.md)、[L09](../labs/solutions/L09.md) |
+| L10—L12：领取、续期与背压 | 原 due、有限并发、同 seq 下的旧 token 拒绝、队列/任务预算 | successor 已推进 seq 的拒绝，能单独证明 token fencing 吗？lease 续期会延长任务 deadline 吗？ | [L10](../labs/solutions/L10.md)、[L11](../labs/solutions/L11.md)、[L12](../labs/solutions/L12.md) |
+| L13：数据库故障与综合核对 | COMMIT 前后独立读取、断连后的原身份、组件和新 BEAM 只读审计 | caller 报错是否等于回滚？恢复连接是否允许重发未知效果？ | [L13](../labs/solutions/L13.md) |
+
+### 先确认执行上下文
+
+- `sh` 块在项目根目录的终端执行；`elixir` 块按手册进入指定 IEx。普通表达式后的预期注释不是断言，需实际比较；`true = ...`、元组匹配等才会在不符合时直接失败。另开 IEx 会丢失上一次的变量与进程，只有已提交数据库事实和文件仍可读取。
+- L01 和纯值小练习关闭数据库。L02 起先准备自己的实验 PostgreSQL，再显式设 `LAB_DATABASE_ENABLED=true`、`LAB_SCHEDULER_ENABLED=false`；不要继承上一终端的后台调度配置。手动启动的教学 Scheduler 仍须使用手册限定的 `run_ids` 或 queue。
+- 完整 `check` 使用专用实验实例的默认测试库名。若曾设置 `DATABASE_URL`，先通过 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 选定实例，再在同一终端 `unset DATABASE_URL`；单次 `env -u` 不会修改父终端。各册完整回归命令也显式移除 URL，避免恢复测试的动态 Repo 被全局 URL 覆盖。单个实验仍可用 URL 指定库，但之后运行完整回归要重新确认此环境。
+- 每次 runner 使用全新的 `--output` 目录，IEx 中读取产物也指向该次目录。只有明确核对旧版本时才读历史产物；`output_exists` 是保护旧证据，不能靠删旧目录掩盖新一轮失败。
+- 演示自带的受控故障窗口与手册的独立挑战分别记录。L09 的一轮 smoke 不能代替每窗 20 轮的正式 P2；L11 的信号与 L13 的本地代理只作用于 runner 自己创建的资源，不能对照进程列表随意暂停或终止别的实验。
+
+每段做完先解释表中的反例，再查解答。若解答与输出不一致，保留命令、实际返回、源码身份和该次目录，按下面的卡点记录方式复查；不要为得到“成功”而更换 operation、清空 retry 或放宽断言。
+
 ## 读正文，做实验，查设计卡
 
 **正文**解释问题、反例与实现选择。**实验手册**给出准备、任务、命令和验收证据。**章节设计卡**组织全书七篇、三十章的后续写作。三种材料各有用途，六章正文均仍处于试读阶段。

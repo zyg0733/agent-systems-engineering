@@ -16,14 +16,16 @@
 
 ## 2. 准备与运行范围
 
-在项目根目录执行，应用级 Scheduler 保持默认关闭：
+在项目根目录的同一终端执行；另开终端时先重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
 ./scripts/mix lab.database
 ./scripts/mix lab.p3
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 LAB_DATABASE_ENABLED=false ./scripts/mix test
 ```
 
@@ -100,7 +102,7 @@ renew 与控制邮箱分开。一个在途数据库 helper 有自己的时限；
 
 P3 汇总 W11 多 Worker、W12 租约/fencing、W13 背压/预算/公平性、W14 数据库故障。`lab.p3` 调用 `P3Verification.run/1`，实际执行 `scheduling`、`fencing`、`load`、`database` 四个组件并审计它们的原始结果，不能把旧报告的 success 字段当作新一轮实验。全局 Scheduler 若已启用或注册则拒绝执行，避免超出演示范围。
 
-`report.json` 给出逐组件 acceptance_criteria、嵌入的原始报告、失败组件与真实计数；`history-audit.json` 保存父进程重建及事实前后对照，`fresh-history-audit.json` 记录独立 BEAM 的历史重建和 20 个执行入口的零调用审计，两者共同核对持久投影、效果和模型录制保持不变，以及最终没有有效 claim。`all_passed` 可以为 true，同时 `outcomes.all_runs_succeeded` 为 false：预算实验的预期 failed 和 manual 实验的预期 blocked 是明确列出的正确结果，不能被改写成 succeeded。预期结果也必须通过相应不变量审计才算通过。
+`report.json` 给出逐组件 acceptance_criteria、嵌入的原始报告、失败组件与真实计数；`history-audit.json` 保存父进程重建及事实前后对照，`fresh-history-audit.json` 记录独立 BEAM 的历史重建和当前 27 个执行入口的零调用审计，两者共同核对持久投影、效果和模型录制保持不变，以及最终没有有效 claim。历史报告的 20 个入口属于当时冻结版本，不作为当前计数。`all_passed` 可以为 true，同时 `outcomes.all_runs_succeeded` 为 false：预算实验的预期 failed 和 manual 实验的预期 blocked 是明确列出的正确结果，不能被改写成 succeeded。预期结果也必须通过相应不变量审计才算通过。
 
 | 维度 | 需要保留的 P3 证据 |
 | --- | --- |

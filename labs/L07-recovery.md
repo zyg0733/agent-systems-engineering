@@ -26,11 +26,15 @@
 在项目根目录执行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.recover
 ```
+
+后续命令与 IEx 沿用这个终端；另开终端时先重新设置上述两个环境变量。本实验需要启用 Repo，由观察者显式调用 step/resume，不让全局 Scheduler 抢先领取示例意图；关闭后台调度不会禁止演示自己的受控执行。
 
 演示产物、准确测试计数和实际故障点见 [第 8 周验收记录](../docs/validation-week08.md)。重复运行使用新的输出目录，避免覆盖已有证据：
 
@@ -186,6 +190,8 @@ lost_id = "l07-lost-#{suffix}"
 
 `Recovery.reconcile(id)` 默认只查询；不能查明时保留 blocked。可信操作人可以明确提供 `result: {:ok, payload}` 或 `{:error, payload}`，并附非空 `evidence:`。Recovery 会为未包装的 result 生成当前配对封装；也可以显式使用 `Tools.Result.wrap/3` 绑定原 operation ID 与 tool。证据只作为可信操作人的审计声明保存，程序不能自行判断它是否反映真实外部世界。换成 `mock_mode: :unqueryable, mock_response: :lost` 运行上例时，默认 reconcile 应返回 `{:error, :reconciliation_required}`；这时才进入明确人工核对流程。
 
+这个便利入口绑定调用当时的当前操作，适用于低并发教学演练；它没有让调用方传入审阅时 `expected_seq` 的选项。事故处理时，先固定审阅的 seq 和完整 operation，再使用[运行手册第 6 节的 helper](../docs/recovery-runbook.md#6-人工证据与预期序号)；前提变化应返回 `:review_required` 并重新采证。人工核对只接受 `:ok` / `:error`，取消是独立的 `Recovery.cancel/2`，不会产生核对结论。
+
 练习：在文件效果之后、结果提交之前 kill worker。新进程 resume 时应保留原 operation，不再次执行写入。记录写入次数与文件内容；随后提供人工证据完成核对，再继续模型步骤。
 
 ## 7. 故障注入矩阵
@@ -231,7 +237,7 @@ lost_id = "l07-lost-#{suffix}"
 - 给同 operation 更换参数，冲突测试应阻止第二个业务效果。
 - 将旧 claim 结果提交到已取消 Run，迟到响应测试应保持终态不变。
 
-恢复实现后执行 `./scripts/mix check`。本周评分建议：持久配置与预算恢复 20 分，claim/lease/fencing 20 分，operation/attempt/receipt 与幂等 20 分，未知结果核对 20 分，真实故障注入与独立进程证据 15 分，边界说明 5 分。
+恢复实现后执行 `env -u DATABASE_URL ./scripts/mix check`。本周评分建议：持久配置与预算恢复 20 分，claim/lease/fencing 20 分，operation/attempt/receipt 与幂等 20 分，未知结果核对 20 分，真实故障注入与独立进程证据 15 分，边界说明 5 分。
 
 有三条硬性要求：重建路径仍是零效果；恢复不能重置预算或猜测 Provider 游标；未知的非幂等外部效果不得自动重发。任一条件不满足均不算完成。
 

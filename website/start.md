@@ -49,13 +49,19 @@ rebuild_matches=true (in-memory history; no durable storage)
 后续实验使用真实 PostgreSQL。共同验收版本为 Elixir **1.20.4**、Erlang/OTP **28.4**、PostgreSQL **18.6**；精确依赖以源码的 `mix.lock` 为准。
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/mix setup
-LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
 请使用自己的实验数据库。默认本地端口为 `55432`，开发库与测试库分别为 `agent_systems_lab_dev`、`agent_systems_lab_test`；具体连接、输出目录及故障注入要求按每份实验手册执行。
+
+如果使用自定义实例，先用 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 选定专用实验实例，再在同一终端执行 `unset DATABASE_URL`；完整回归使用默认测试库名。单次 `env -u` 不会修改父终端；后续每份实验的完整 `check` 都显式移除 URL，避免恢复测试的动态 Repo 被全局 URL 改指目标库。
+
+后续命令在这个终端继续执行；另开终端时重设上述环境变量。按[阅读与实验路线](../book/reading-route.md#把阅读路线走成实验路线)逐段记录预测、当前产物和换条件后的解释，再查对应解答；运行演示不等于独立完成整份作业。
 
 Linux 的适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整隔离实验使用 macOS Seatbelt 教学后端，Linux 隔离后端尚未实现。按[当前状态与边界](../docs/current-status.md)判断哪些实验适合当前环境。
 

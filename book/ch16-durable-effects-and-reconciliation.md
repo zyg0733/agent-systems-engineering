@@ -195,6 +195,7 @@ Run deadline 后仍可核对旧效果并接收已确认回执，但不授权新�
 操作员先固定 Run、seq、operation、tool 和精确参数，再取得独立业务回执或明确调查证据。
 可信宿主在当前 claim 下写配对结果和 evidence；人的结论若在期间已被新事实超越，应重新审阅，不能偷偷改用新 seq。
 程序能验证配对、版本和证据格式，却不能验证现实调查是否诚实；人工 evidence 是可追溯声明，不是密码学证明。
+低并发教学示例的 `Recovery.reconcile(id, result: ..., evidence: ...)` 自动绑定调用当时的操作，不提供调用方 `expected_seq` 选项。人的判断需要绑定先前审阅快照时，应使用运行手册的 expected seq helper；前提已变返回 `:review_required`，重新采证后再决定。
 若无权威证据，可以让 Run 继续 blocked，明确负责人和下一次核对条件。若另行选择取消，应按 16.4 的终态边界交接；本节的 claim/evidence 接口不能用于 cancelled Run。
 
 人工 receipt 已提交但 reconciliation Event 尚未接受时，再次恢复应复用原 receipt，不再填写不同结论。

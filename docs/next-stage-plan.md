@@ -1,6 +1,6 @@
 # 教材修订与后续落地计划
 
-更新：2026-10-25（Asia/Shanghai）。按项目所有者最新决定，本轮不安排真人验证或公开试读，改用多个 subagent 模拟不同读者并交叉技术审查。当前工作以[教材质量计划](public-reading-quality-plan.md)为准：修订六章、完善阅读 UI/功能、实际验证、提交私有仓库并检查 Actions；暂不开放 Pages。
+更新：2026-10-26（Asia/Shanghai）。按项目所有者最新决定，本轮不安排真人验证或公开试读，改用多个 subagent 模拟不同读者并交叉技术审查。六章首批修订已完成；当前按[教材质量计划](public-reading-quality-plan.md)进行[第二轮完整路线与解答复核](learning-round2-review.md)，实际验证后提交私有仓库并检查 Actions，暂不开放 Pages。
 
 ## 1 当前优先级
 

@@ -44,14 +44,14 @@ rebuild_matches=true (in-memory history; no durable storage)
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/mix setup
-LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
 安装脚本把运行时、缓存与 PostgreSQL 放在项目的 `.runtime/` 内。需普通非 root 用户、macOS 开发工具和下载/解压工具；PostgreSQL 从源码构建，还需 C 编译器、make、Bison、Flex 和 Perl。完整前置与跨环境执行见[环境操作手册](docs/cross-environment-validation.md#1-选源码分清执行范围)。
 
-默认连接为 `127.0.0.1:55432`，用户 `postgres`，开发/测试库分别为 `agent_systems_lab_dev`、`agent_systems_lab_test`；本地实例使用 trust 认证。可用 `DATABASE_URL` 或 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 指定自己的实验实例。`check` 会创建/迁移测试库，运行真实 PostgreSQL 集成和受控崩溃验收；各实验的数据库与输出要求见对应手册。
+默认连接为 `127.0.0.1:55432`，用户 `postgres`，开发/测试库分别为 `agent_systems_lab_dev`、`agent_systems_lab_test`；本地实例使用 trust 认证。单个实验可用 `DATABASE_URL` 或 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 指定自己的实验实例。完整 `check` 请移除 `DATABASE_URL`，通过 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 选择专用实验实例，并使用默认测试库名；当前恢复测试会创建、修改和删除自己管理的临时数据库，全局 URL 会覆盖其中动态 Repo 的目标库。`check` 会创建/迁移测试库，运行真实 PostgreSQL 集成和受控崩溃验收；各实验的数据库与输出要求见对应手册。
 
-`./scripts/mix`、`./scripts/iex` 优先使用项目内运行时，缺少该安装时使用 PATH 中的 Elixir；它们不会自动安装软件。维护者已有安装的本地工作副本可先运行 `./scripts/postgres status`，再运行 `./scripts/mix check`。已有全局工具链也可直接使用 `mix`。
+`./scripts/mix`、`./scripts/iex` 优先使用项目内运行时，缺少该安装时使用 PATH 中的 Elixir；它们不会自动安装软件。维护者已有安装的本地工作副本可先运行 `./scripts/postgres status`，再按上面的环境运行 `check`。已有全局工具链也可直接使用 `mix`。
 
 只做内存回归时使用 `LAB_DATABASE_ENABLED=false ./scripts/mix test`，数据库用例会报告为排除。Linux 需另备固定版本的 BEAM/PostgreSQL；[Linux CI 说明](docs/github-ci.md)记录适用范围与执行状态。
 
@@ -69,7 +69,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 | 核对候选、试读与发行门槛 | [发行评估](docs/release-assessment.md)、[发布操作](docs/release-operations.md) |
 | 查看实际验收与剩余工作 | [W26 验收](docs/validation-week26.md)、[结果索引](docs/results-index.md)、[证据阅读说明](docs/evidence-guide.md)、[下一阶段计划](docs/next-stage-plan.md) |
 | 查看 GitHub 接入记录与检查 CI | [首次入库说明](docs/github-onboarding.md)、[GitHub CI](docs/github-ci.md) |
-| 查看当前范围、教材修订和代理评审 | [当前状态](docs/current-status.md)、[质量计划](docs/public-reading-quality-plan.md)、[修订报告](docs/learning-revision-review.md) |
+| 查看当前范围、教材修订和代理评审 | [当前状态](docs/current-status.md)、[质量计划](docs/public-reading-quality-plan.md)、[首轮修订](docs/learning-revision-review.md)、[第二轮路线与解答复核](docs/learning-round2-review.md) |
 | 查看高风险表述与优秀教材借鉴 | [技术主张核查](docs/technical-claims-review.md)、[公开教材借鉴](docs/learning-design-references.md) |
 
 ## 已验收基线与当前限制

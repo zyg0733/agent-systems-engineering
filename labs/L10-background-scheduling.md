@@ -40,12 +40,14 @@ Run / Event / 下一调度意图在同一事务提交
 
 ## 3. 启动与观察
 
-在项目根目录准备数据库：
+在项目根目录的同一终端准备数据库；另开终端时先重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.schedule
 LAB_DATABASE_ENABLED=false ./scripts/mix test
 ```
@@ -55,7 +57,7 @@ LAB_DATABASE_ENABLED=false ./scripts/mix test
 默认应用启动不会执行旧 Run。专用实验数据库准备并迁移完成后，可用 `LAB_SCHEDULER_ENABLED=true ./scripts/iex` 启动应用监督的命名调度器；当前配置为 2 个 Worker、100 ms 扫描、5000 ms lease、1000 ms 续期。它没有限定 Run 范围，会消费数据库中所有符合资格的工作，因此下面练习使用默认关闭的应用和显式限定范围的实例：
 
 ```sh
-./scripts/iex
+LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/iex
 ```
 
 在 IEx 中创建三个独立 Run：长模型步骤、一次工具调用，以及可到期重试的模型。脚本均为可持久化数据，不含 PID、reference 或匿名函数：
@@ -81,16 +83,11 @@ ids = [slow_id, tool_id, retry_id]
   model_attempt_scripts: %{0 => [{:error, :unavailable}, {:final, "retry done"}]},
   run_timeout_ms: 120_000)
 
-{:ok, scheduler} = Scheduler.start_link(workers: 2, run_ids: ids,
-  poll_interval_ms: 25, lease_ms: 600, renew_interval_ms: 100)
-for _ <- 1..20, do: Scheduler.wake(scheduler)
-view = Scheduler.status(scheduler)
-true = length(view.active) <= view.max_workers
 ```
 
 `start_link/1` 未提供 `name` 时返回未注册实例；后续把 `scheduler` PID 传入 API。默认 `workers` 为 4，也可改用同义 `max_workers`，两者不能同时提供。`poll_interval_ms` 默认为 100，`lease_ms` 默认为 30_000，`renew_interval_ms` 默认为 lease 的三分之一；续期间隔须为正且小于 lease。`run_ids` 必须是非空 ID 列表，空列表会被拒绝；省略该项才是全库可执行范围。
 
-用有上限的观察者等待条件成立。这里的 sleep 只用于实验观察，不占用 Scheduler Worker 的 retry lease：
+继续在同一 IEx 会话定义有上限的观察者，再启动限定范围的 Scheduler。这里的 sleep 只用于实验观察，不占用 Scheduler Worker 的 retry lease。`after` 在断言成功、失败或抛异常时都停止本例创建的实例；不终止其他 Scheduler，也不删除持久事实：
 
 ```elixir
 await = fn predicate ->
@@ -103,34 +100,44 @@ await = fn predicate ->
     end
   end)
 end
-:ok = await.(fn ->
-  {:ok, current} = Recovery.load(retry_id)
-  match?(%{status: :waiting}, current.recovery.retry)
-end)
-{:ok, waiting} = Recovery.load(retry_id)
-due = waiting.recovery.retry.next_attempt_at_ms
-1 = waiting.recovery.progress.model_attempts
+{:ok, scheduler} = Scheduler.start_link(workers: 2, run_ids: ids,
+  poll_interval_ms: 25, lease_ms: 600, renew_interval_ms: 100)
 
-:ok = await.(fn ->
-  Enum.all?(ids, fn id ->
-    {:ok, current} = Recovery.load(id)
-    current.state.status == :succeeded
+try do
+  for _ <- 1..20, do: Scheduler.wake(scheduler)
+  view = Scheduler.status(scheduler)
+  true = length(view.active) <= view.max_workers
+  :ok = await.(fn ->
+    {:ok, current} = Recovery.load(retry_id)
+    match?(%{status: :waiting}, current.recovery.retry)
   end)
-end)
-view = Scheduler.status(scheduler)
-true = view.counters.renewed > 0
-1 = DurableTools.stats(tool_id).effects
-{:ok, retried} = Recovery.load(retry_id)
-2 = retried.recovery.progress.model_attempts
-1 = retried.recovery.progress.cursor
-{:ok, [record]} = ModelResultStore.list(retry_id)
-{:final, "retry done"} = record.record.response
-{:ok, [journal]} = RetryStore.list(retry_id)
-2 = journal.attempts
-:ok = Scheduler.stop(scheduler)
+  {:ok, waiting} = Recovery.load(retry_id)
+  due = waiting.recovery.retry.next_attempt_at_ms
+  1 = waiting.recovery.progress.model_attempts
+  IO.inspect(%{run_id: retry_id, next_attempt_at_ms: due}, label: "L10_RETRY_WAIT")
+
+  :ok = await.(fn ->
+    Enum.all?(ids, fn id ->
+      {:ok, current} = Recovery.load(id)
+      current.state.status == :succeeded
+    end)
+  end)
+  view = Scheduler.status(scheduler)
+  true = view.counters.renewed > 0
+  1 = DurableTools.stats(tool_id).effects
+  {:ok, retried} = Recovery.load(retry_id)
+  2 = retried.recovery.progress.model_attempts
+  1 = retried.recovery.progress.cursor
+  {:ok, [record]} = ModelResultStore.list(retry_id)
+  {:final, "retry done"} = record.record.response
+  {:ok, [journal]} = RetryStore.list(retry_id)
+  2 = journal.attempts
+after
+  if Process.alive?(scheduler), do: Scheduler.stop(scheduler)
+end
 ```
 
-以上观察应在创建后立即连续完成；停留超过原 Run deadline 或 retry 窗口会按原预算结束。`status.active` 的 claim 包含 token，属于写入凭证；分享截图或报告时只保留需要的身份摘要。`claimed/completed/failed/renewed/scans` 是当前进程诊断计数，重启会清零；`completed` 计的是一次步骤调用正常返回，不是业务 Run 成功数。
+以上观察应在创建后立即连续完成；停留超过原 Run deadline 或 retry 窗口会按原预算结束。若数据库返回未知结果，保留原记录与错误，不在清理代码中猜测结果或手工 release 模糊 claim；停止本地实例不证明外部效果未发生。`status.active` 的 claim 包含 token，属于写入凭证；分享截图或报告时只保留需要的身份摘要。`claimed/completed/failed/renewed/scans` 是当前进程诊断计数，重启会清零；`completed` 计的是一次步骤调用正常返回，不是业务 Run 成功数。
 
 `Scheduler.status/1` 返回配置、在途 Worker/executor、续期次数与最近错误。历史事实仍通过 `Recovery.load`、Retry/operation journal 与 Events 查询。`wake/1` 是异步提示，返回 `:ok` 不代表工作已被领取或完成。
 

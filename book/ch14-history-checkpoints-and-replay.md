@@ -185,7 +185,7 @@ LAB_SCHEDULER_ENABLED=false ./scripts/mix lab.upgrade --output artifacts/ch14-up
 | hash 都相等，就可以自动执行吗 | 不能；完整性、授权和有效 claim 是不同条件 |
 | 还原数据库能读，原文件却不在 | DB 备份不覆盖工作区；按原授权与文件证据另行处理 |
 
-1. 把一条工具回执 operation ID 改掉，解释为什么重建必须拒绝，而不能再执行工具来“修复”。
+1. 按 [L06 第 4 节](../labs/L06-history-checkpoints.md#4-故意制造无法重建的历史)分别修改 Event 的 operation ID 和 `tool_result.v1` 回执封装内的 ID，解释两种拒绝为何不同。上方纯值例子的 opaque 回执本身没有 ID；不能新增一个普通字段就声称完成封装配对测试，更不能执行工具来“修复”。
 2. 构造自洽的伪造 checkpoint，指出哪个权威前缀比较会拒绝它。
 3. 给出迁移 COMMIT 前后崩溃的读取结果；说明 caller error 为什么不能证明回滚。
 4. 区分布局 v2、Event schema v2 与新 SQL 列，写出每一项的当前支持范围。

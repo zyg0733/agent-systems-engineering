@@ -30,13 +30,16 @@
 
 ```sh
 export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/postgres status
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.verify_db
 ```
+
+本页后续命令在同一终端继续，IEx 继承这两项设置；新开终端时先重新执行两条 `export`。本实验使用真实 PostgreSQL，但手动检查调度意图，不启用后台 Scheduler。L01 的内存路径不能替代本册的提交边界验证。
 
 项目脚本把 PostgreSQL 安装与数据放在项目本地目录。首次准备需要下载和构建；后续运行使用本地服务。默认连接为 `127.0.0.1:55432`、用户 `postgres`；开发库为 `agent_systems_lab_dev`，测试库为 `agent_systems_lab_test`。可用 `DATABASE_URL`，或 `PGHOST`、`PGPORT`、`PGUSER`、`PGPASSWORD` 指向你自己的实验实例。自备实例也要创建和迁移对应数据库。
 
@@ -206,13 +209,20 @@ SELECT
 
 ## 6. 换一个 BEAM 再读取
 
-在开发库创建一项任务，记下固定 Run ID。退出 IEx，重新运行 `./scripts/iex`，用该 ID 调用 `Storage.load/1`，比较事件和状态。再停止、重新启动项目 PostgreSQL，重复读取。
+在开发库创建一项任务，记下固定 Run ID。退出 IEx，重新运行 `./scripts/iex`。新 IEx 不继承原会话的别名或变量；先执行：
+
+```elixir
+alias AgentSystemsLab.Storage
+```
+
+再把记下的完整 Run ID 字符串传给 `Storage.load/1`，比较事件和状态；不能继续引用旧会话的 `id`、`loaded` 等变量。再停止、重新启动项目 PostgreSQL，重复读取。
 
 这项练习使用正常关闭和重启，证明数据不依赖原 IEx 内存；不能据此声称已验证断电、数据库介质损坏或异地故障转移。报告写出你实际上停止了哪一层。
 
 进一步阅读 RunServer 的 `storage: :postgres` 路径，完成一个持久模式的正常任务，检查进程快照与 Storage 快照相符：
 
 ```elixir
+alias AgentSystemsLab.Storage
 run_id = "l02-server-#{System.system_time(:microsecond)}-#{System.unique_integer([:positive])}"
 {:ok, server} = AgentSystemsLab.start_run(
   run_id: run_id, input: "持久化最终回答", script: [{:final, "完成"}], storage: :postgres)
@@ -254,7 +264,7 @@ GenServer.stop(server)
 运行并保存结果：
 
 ```sh
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.verify_db
 ```
 

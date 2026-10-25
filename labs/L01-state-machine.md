@@ -80,11 +80,14 @@ GenServer.stop(tool)
 先按照 README 准备 Elixir/OTP，在仓库根目录运行。项目的 `scripts/mix` 优先使用 `.runtime/` 中的项目运行时，也兼容已安装的全局 Mix：
 
 ```sh
+export LAB_SCHEDULER_ENABLED=false
 LAB_DATABASE_ENABLED=false ./scripts/mix test
 LAB_DATABASE_ENABLED=false ./scripts/mix lab.verify
 LAB_DATABASE_ENABLED=false ./scripts/mix lab.demo
 LAB_DATABASE_ENABLED=false ./scripts/mix lab.demo --lost-response
 ```
+
+本页完整实验后续命令均在这个终端继续；新开终端时先重新执行 `export LAB_SCHEDULER_ENABLED=false`。本实验使用内存路径，命令中的 `LAB_DATABASE_ENABLED=false` 关闭 Repo；无需启动 PostgreSQL。关闭后台调度器可避免继承后续实验留下的启用设置。
 
 把 Elixir/OTP 版本、测试结果和任务集结果保存到实验记录。演示用于认识调用链；只运行这些命令不算完成本实验。
 

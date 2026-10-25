@@ -19,13 +19,15 @@
 
 ## 2. 准备
 
-在项目根目录执行，保持应用级 Scheduler 默认关闭：
+在项目根目录的同一终端执行；另开终端时先重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
 ./scripts/mix lab.load
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 LAB_DATABASE_ENABLED=false ./scripts/mix test
 ```
 
@@ -47,7 +49,7 @@ blocked 仍占 capacity，因为它代表未完成且需要核对的真实工作
 
 ### 一个限定范围的准入示例
 
-在 `./scripts/iex` 中连续执行。示例只创建一个新队列和自己的 Run，并只启动该队列的 Scheduler；第三个 ID 被拒绝后没有持久事实。任务完成后保留演示历史，重复执行会使用新的名字：
+在上述同一终端用 `./scripts/iex` 进入会话后连续执行。示例只创建一个新队列和自己的 Run，并只启动该队列的 Scheduler；第三个 ID 被拒绝后没有持久事实。任务完成后保留演示历史，重复执行会使用新的名字：
 
 ```elixir
 alias AgentSystemsLab.{QueueStore, Recovery, Scheduler, Storage, TaskBudgetStore}

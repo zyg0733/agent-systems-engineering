@@ -29,7 +29,7 @@ Heartbeat 是延长当前资格的尝试，不是已成功提交结果的证明�
   → 接管者读取原 operation / receipt / retry 事实，继续原业务身份
 ```
 
-领取、续期和提交采用相同的 Run → Intent 锁顺序。每次重新领取更换 token 并递增 generation；正常续期保留两者。`expires_at` 在 claim map 中是该次返回时的观察值，写入资格以数据库中的当前行和当前时间为准。仅修改调用者内存中的 expiry，不能延长数据库 lease。
+本册未入队示例的领取按 Run → Intent 锁定；命名队列的领取须先锁 Queue，再按 Queue → Run → Intent 取得权威。续期、release 与普通业务提交在 Run 锁内校验当前 Intent，不反向补取 Queue 锁。每次重新领取更换 token 并递增 generation；正常续期保留两者。`expires_at` 在 claim map 中是该次返回时的观察值，写入资格以数据库中的当前行和当前时间为准。仅修改调用者内存中的 expiry，不能延长数据库 lease。
 
 续期还需要覆盖一个事务内部窗口：调用通过 `verify` 后可能暂停，即使它仍持有 Run 锁，等恢复到 UPDATE 时原 lease 也可能已经过期。续期 UPDATE 自身再次要求原 expiry 大于数据库当前时间，并在写入时计算新 expiry；已过期返回 `:claim_expired`，不能因为先前校验成功就重新延长旧 token。内部 `:before_renew_write` gate 只用于精确复现这个窗口，测试仍等待真实时间到期。
 
@@ -39,7 +39,7 @@ Worker 的续期 timer 携带每次新生成的 reference，只处理当前 tick
 
 ### 只观察一个限定范围的 Heartbeat
 
-在默认未启用应用级 Scheduler 的 `./scripts/iex` 中连续执行以下代码。它只创建一个独立 Run，gate 暂停该 executor，Worker 继续续期；本段不发送操作系统信号：
+确认沿 L10 准备的数据库仍在运行，再用 `LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/iex` 进入会话并连续执行以下代码。它只创建一个独立 Run，gate 暂停该 executor，Worker 继续续期；本段不发送操作系统信号：
 
 ```elixir
 alias AgentSystemsLab.{IntentStore, Recovery, Scheduler}
@@ -110,13 +110,15 @@ end
 
 ## 3. 准备与运行
 
-在项目根目录执行：
+在项目根目录的同一终端执行；另开终端时先重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
 ./scripts/mix lab.fence
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 LAB_DATABASE_ENABLED=false ./scripts/mix test
 ```
 

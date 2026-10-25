@@ -38,16 +38,21 @@ Session 的 `facts` 是字符串键 JSON Map，`acceptance` 与 `constraints` �
 在项目根目录执行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
-./scripts/mix lab.p1
+env -u DATABASE_URL ./scripts/mix check
+p1_output="artifacts/week06-p1"
+./scripts/mix lab.p1 --output "$p1_output"
 ```
 
-默认输出为 `artifacts/week06-p1`。目录必须新建；重复实验使用 `./scripts/mix lab.p1 --output artifacts/week06-p1-second`。数据库模式是默认值。只练习离线内存路径可执行：
+本页后续命令在同一终端继续；新开终端时先重新执行两条 `export`。数据库模式是默认值，后台 Scheduler 保持关闭。上面的输出为 `artifacts/week06-p1`，目录必须新建；重复实验先将 `p1_output` 改为尚不存在的目录，例如 `artifacts/week06-p1-second`，再执行相同命令。只练习离线内存路径时可跳过数据库启动与 setup，执行：
 
 ```sh
-LAB_DATABASE_ENABLED=false ./scripts/mix lab.p1 --memory --output artifacts/week06-p1-memory
+export LAB_SCHEDULER_ENABLED=false
+p1_output="artifacts/week06-p1-memory"
+LAB_DATABASE_ENABLED=false ./scripts/mix lab.p1 --memory --output "$p1_output"
 ```
 
 P1 创建 40 条规范历史消息，四次模型请求均压缩上下文，并包含有原文摘录的确定性摘要。Scripted Provider 以流式工具调用完成固定配送费修复，验收由 3/4 提升为 4/4；另一次流式调用在参数未完整时取消，文件写入次数为 0。PostgreSQL 模式额外运行创建 Run、转换 Run 各自提交前后共四个真实进程 kill 探针；内存模式明确记录未运行这些探针。
@@ -62,7 +67,11 @@ P1 创建 40 条规范历史消息，四次模型请求均压缩上下文，并�
 
 `byte_size` 统计 Provider payload 的确定性 ETF 实际字节，包含工具 schema、回执及摘要封装；不是 token 数、API 费用，也不包含独立 manifest。JSON 文件是阅读视图，不能拿 JSON 文件长度代替 ETF 度量。
 
-可在独立的 `LAB_DATABASE_ENABLED=false ./scripts/iex` 中只读验证导出证据。这里加载已安装的可信模块词汇，读取 inert 数据，不执行 workspace 中的源码、模型输出或工具操作；不要为解码失败增加不安全的 `binary_to_term` 回退。
+在刚才运行 P1 的同一个终端启动独立 IEx，只读验证所选输出目录。若换了终端，先重新设置 `LAB_SCHEDULER_ENABLED=false`，并把 `p1_output` 设置为本次实际输出目录。这里加载已安装的可信模块词汇，读取 inert 数据，不执行 workspace 中的源码、模型输出或工具操作；不要为解码失败增加不安全的 `binary_to_term` 回退。
+
+```sh
+P1_OUTPUT="$p1_output" LAB_DATABASE_ENABLED=false ./scripts/iex
+```
 
 ```elixir
 alias AgentSystemsLab.{Context, Session}
@@ -76,7 +85,8 @@ Enum.each([
   AgentSystemsLab.Tools.Mock, Context, Session
 ], &Code.ensure_loaded!/1)
 
-paths = Path.wildcard("artifacts/week06-p1/contexts/*.bin")
+output = System.fetch_env!("P1_OUTPUT")
+paths = Path.wildcard(Path.join(output, "contexts/*.bin"))
 4 = length(paths)
 Enum.each(paths, fn path ->
   {:ok, bundle} = Codec.decode(File.read!(path))
@@ -208,7 +218,7 @@ nil = done.context_id
 
 ## 6. PostgreSQL 的 Session 版本与提交前 capture
 
-另启 `./scripts/iex`，先执行第 3 节生成 Session 和 `permissions`、`opts` 的代码，然后执行：
+本节使用真实 PostgreSQL。回到 shell，另启 `LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/iex`，先执行第 3 节生成 Session 和 `permissions`、`opts` 的代码，然后执行：
 
 ```elixir
 alias AgentSystemsLab.{ContextStore, SessionStore, Storage}
@@ -244,7 +254,7 @@ RunServer 以 `storage: :postgres, session_id: session.id` 加载规范 Session�
 
 ## 7. 验收与破坏练习
 
-运行完整 `./scripts/mix check`。重点阅读 `context_test.exs`、`session_test.exs`、`session_store_test.exs`、`context_store_test.exs`、`run_server_context_test.exs`、`persisted_context_runtime_test.exs` 与 `p1_demo_test.exs`。数据库测试使用真实提交，不能用全部回滚的测试事务代替提交前后崩溃证据。
+运行完整 `env -u DATABASE_URL ./scripts/mix check`。重点阅读 `context_test.exs`、`session_test.exs`、`session_store_test.exs`、`context_store_test.exs`、`run_server_context_test.exs`、`persisted_context_runtime_test.exs` 与 `p1_demo_test.exs`。数据库测试使用真实提交，不能用全部回滚的测试事务代替提交前后崩溃证据。
 
 提交自己的 L05 报告，至少包含：
 

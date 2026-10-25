@@ -51,9 +51,12 @@ Context 是上述权威输入的确定性投影。manifest 记录输入版本/ha
 以下练习完全在内存中运行，不需要数据库。先运行相关纯测试，然后进入 IEx：
 
 ```sh
+export LAB_SCHEDULER_ENABLED=false
 LAB_DATABASE_ENABLED=false ./scripts/mix test test/agent_systems_lab/session_test.exs test/agent_systems_lab/context_test.exs test/agent_systems_lab/run_server_context_test.exs
 LAB_DATABASE_ENABLED=false ./scripts/iex
 ```
+
+本章后续 shell 命令沿用同一终端；新开终端时先重新设置 `LAB_SCHEDULER_ENABLED=false`，避免继承其他实验启用的后台调度器。
 
 在同一个会话执行：
 
@@ -176,6 +179,7 @@ capture 不是业务 Event，不增加 Run Event seq，也不创造调度意图�
 下面在 shell 执行；若仍在 IEx，先输入 `System.halt()`。`chapter_dir` 保留在当前 shell，数据库步骤继续使用同一个终端；换终端时应重新分配一个全新父目录。
 
 ```sh
+export LAB_SCHEDULER_ENABLED=false
 mkdir -p artifacts
 chapter_dir="$(mktemp -d artifacts/ch08-reader-XXXXXX)"
 LAB_DATABASE_ENABLED=false ./scripts/mix lab.p1 --memory --output "$chapter_dir/p1-memory"
@@ -187,6 +191,7 @@ P1 保留 40 条规范消息，完成四次压缩 Context 的流式修复与一�
 完成数据库准备后，在同一新父目录的另一个尚不存在的子目录执行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
 ./scripts/postgres start
 ./scripts/mix setup
 ./scripts/mix lab.p1 --output "$chapter_dir/p1-postgres"

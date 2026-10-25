@@ -33,16 +33,18 @@
 在项目根目录运行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.stream
 ./scripts/mix lab.stream --cancel
 ./scripts/mix lab.stream --budget
 ./scripts/iex
 ```
 
-如果运行时或数据库尚未安装，先按 README 准备。完整验收需要真实 PostgreSQL；只做内存练习时，可用 `LAB_DATABASE_ENABLED=false ./scripts/iex`。数据库目标、配置和可丢弃数据的要求沿用 L02。
+如果运行时或数据库尚未安装，先按 README 准备。本页后续命令在同一终端继续；新开终端时先重新执行两条 `export`。完整验收需要真实 PostgreSQL，后台 Scheduler 保持关闭。只做第 3—6 节内存练习时，可跳过数据库启动与 setup，先执行 `export LAB_SCHEDULER_ENABLED=false`，再用 `LAB_DATABASE_ENABLED=false ./scripts/iex`；第 7 节另用启用数据库的会话。数据库目标、配置和可丢弃数据的要求沿用 L02。
 
 在同一 IEx 会话定义这些辅助函数：
 
@@ -260,6 +262,8 @@ GenServer.stop(server)
 
 ## 7. 在 PostgreSQL 中核对接受边界
 
+若前面使用关闭 Repo 的内存会话，先退出 IEx；完成第 2 节数据库准备后，在 shell 用 `LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/iex` 新开会话，并重新定义第 2 节的 alias 和辅助函数。
+
 重复第 4 节的 gate 练习，使用新 ID，并在 `start_run` 选项中加入 `storage: :postgres`。在屏障处运行：
 
 ```elixir
@@ -322,7 +326,7 @@ Runtime 的输出计数、定时器、活动请求和缓存不是持久 checkpoi
 运行并保留完整结果：
 
 ```sh
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.stream
 ./scripts/mix lab.stream --cancel
 ./scripts/mix lab.stream --budget

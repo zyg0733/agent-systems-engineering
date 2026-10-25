@@ -39,13 +39,15 @@
 在项目根目录运行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.repair
 ```
 
-默认输出目录为 `artifacts/week05-repair`。命令拒绝覆盖已存在的输出目录；再次实验请提供一个新的目标：
+本页后续命令在同一终端继续；新开终端时先重新执行两条 `export`。这段准备面向完整 PostgreSQL 验收，后台 Scheduler 保持关闭；`lab.repair` 自身运行内存文件工具路径。默认输出目录为 `artifacts/week05-repair`。命令拒绝覆盖已存在的输出目录；再次实验请提供一个新的目标：
 
 ```sh
 ./scripts/mix lab.repair --output artifacts/week05-repair-second
@@ -55,7 +57,14 @@
 
 记录 diff 中每个被修改的文件与对应 `operation_id`。不要只贴最后的 `succeeded`：保留原始内容 hash、修改后的 hash、配对结果和可重建的业务历史。新目录要求避免把旧输出误认为本次 Agent 的产物。
 
-只练习内存模式时可使用 `LAB_DATABASE_ENABLED=false ./scripts/iex`；完整验收仍需 PostgreSQL。数据库配置与可丢弃数据要求沿用 L02。
+第 3—6 节在 IEx 执行。只做这些内存工具练习时可跳过本节数据库准备，在项目根目录执行：
+
+```sh
+export LAB_SCHEDULER_ENABLED=false
+LAB_DATABASE_ENABLED=false ./scripts/iex
+```
+
+完整验收及第 7 节仍需启用数据库的 IEx 会话；数据库配置与可丢弃数据要求沿用 L02。
 
 ## 3. 用三次调用完成最小读、补丁与写入
 
@@ -233,6 +242,8 @@ File.read!(Path.join(ledger_workspace, "once.txt"))
 
 ## 7. PostgreSQL 只保存已接受事实
 
+若前面使用关闭 Repo 的内存会话，先退出 IEx；完成第 2 节数据库准备后，在 shell 用 `LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/iex` 新开会话。
+
 用全新 Run ID 重做第 3 节，加入 `storage: :postgres`。每个接受的工具提议后检查：
 
 ```elixir
@@ -278,7 +289,7 @@ saved_result.state.operations["read-001"].result.type
 运行完整验收和一条新的离线修复：
 
 ```sh
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.repair --output artifacts/week05-repair-review
 ```
 

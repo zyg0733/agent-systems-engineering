@@ -48,9 +48,10 @@ Provider 输出是待验证输入。工具 description、历史消息和模型�
 
 ## 5.3 把循环拆成可观察的三步
 
-先运行不需要 PostgreSQL 的测试，再进入 IEx。`LAB_DATABASE_ENABLED=false` 只关闭 Repo；示例显式使用内存 RunServer。
+先运行不需要 PostgreSQL 的测试，再进入 IEx。`LAB_DATABASE_ENABLED=false` 只关闭 Repo；同时关闭后台调度器，示例显式使用内存 RunServer。本章后续 shell 命令沿用同一终端，新开终端时先重新设置 `LAB_SCHEDULER_ENABLED=false`。
 
 ```sh
+export LAB_SCHEDULER_ENABLED=false
 LAB_DATABASE_ENABLED=false ./scripts/mix test test/agent_systems_lab/run_server_test.exs test/agent_systems_lab/run_server_files_test.exs test/agent_systems_lab/run_server_stream_test.exs
 LAB_DATABASE_ENABLED=false ./scripts/iex
 ```
@@ -63,7 +64,8 @@ LAB_DATABASE_ENABLED=false ./scripts/iex
 alias AgentSystemsLab.{Demo, RunServer}
 id = "ch05-#{System.unique_integer([:positive])}"
 {:ok, server} = AgentSystemsLab.start_run(
-  run_id: id, input: "记录报告", storage: :memory, script: Demo.script())
+  run_id: id, input: "记录报告", storage: :memory,
+  run_timeout_ms: 600_000, script: Demo.script())
 
 {:ok, planned} = RunServer.step(server)
 true = planned.state.status == :waiting_tool
@@ -85,6 +87,8 @@ true = done.provider.cursor == 2
 
 第一步只有工具提议，没有效果；第二步才执行工具；第三步接受最终回答。把这三个观察点画成时间线，标出取消发生在第一步后和第二步后的差别。取消前已确认的效果仍留在 operations 中。
 
+交互练习将 Run 总时限放宽到 10 分钟，给逐段观察留出时间；默认仍是 60 秒，且从进程启动时计时，包含等待人工 `step` 的时间。若练习期间已到截止，应使用新 Run 重新观察，并保留这次超时结果。
+
 这里的工具是 Mock 进程。其请求数和效果数是独立事实：同一 operation ID 可收到多次请求，但参数相同才可复用原结果，效果数不能随重投增长。ID 冲突不是新任务，不能悄悄换参数继续。
 
 ## 5.4 未知结果让循环停在可解释的位置
@@ -95,7 +99,7 @@ true = done.provider.cursor == 2
 id = "ch05-lost-#{System.unique_integer([:positive])}"
 {:ok, server} = AgentSystemsLab.start_run(
   run_id: id, input: "核对报告", storage: :memory,
-  script: Demo.script(), mock_response: :lost)
+  run_timeout_ms: 600_000, script: Demo.script(), mock_response: :lost)
 {:ok, paused} = RunServer.run_until_pause(server)
 true = paused.state.status == :blocked
 true = paused.tool_stats == %{requests: 1, effects: 1}
@@ -158,7 +162,7 @@ cat "$chapter_dir/repair/repair.diff"
 
 [Budget](../lib/agent_systems_lab/budget.ex) 限制输出字节、单请求帧数、工具次数和时限；它是 RunServer 的进程内控制。输出字节跨请求累计，帧数每次请求重置。ETF（Erlang External Term Format，本地值编码）字节、模型 token 和货币费用是不同度量，见[术语表](glossary.md#会话与历史)。
 
-Kernel 轮数耗尽只拒绝下一条模型响应；RunServer 会在额外 Provider 请求之前记录 `:turn_budget_exceeded`。取消也应先停止自己拥有的工作进程，拒绝迟到帧，再记录最终业务状态；它不退回预算或撤销已发生效果。
+Kernel 轮数耗尽只拒绝下一条模型响应；RunServer 会在额外 Provider 请求之前记录 `:turn_budget_exceeded`。本章教学 RunServer 当前先接受取消转换，再停止自己拥有的模型工作进程、清理 timer 并拒绝迟到帧；模型工作进程的停止请求本身没有等待 `:DOWN`，也不证明远端请求已结束。取消不退回预算或撤销已发生效果。持久 Recovery 的超时处理先停止并等待本地执行器退出，再归档 receipt/unknown，见[第 16 章 16.7 节](ch16-durable-effects-and-reconciliation.md)。
 
 选择 `storage: :postgres` 能使 Run/Event/调度意图事务持久化，却不能把这个教学循环的 Provider 游标、流片段、内存预算与 Mock 台账变成完整恢复协议。跨崩溃续跑使用后续 [Recovery](../lib/agent_systems_lab/recovery.ex)、持久任务预算、稳定 operation、receipt、claim 与 fencing；不要从头重启 RunServer 冒充恢复。
 

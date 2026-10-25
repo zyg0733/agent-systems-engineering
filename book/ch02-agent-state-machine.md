@@ -65,9 +65,12 @@ Event 包含 `run_id`、连续 `seq`、`schema_version`、事件类型和数据�
 在仓库根目录运行以下命令；本章不需要数据库、模型密钥或网络工具。
 
 ```sh
+export LAB_SCHEDULER_ENABLED=false
 LAB_DATABASE_ENABLED=false ./scripts/mix test test/agent_systems_lab/kernel_test.exs test/agent_systems_lab/kernel_tool_pairing_test.exs
 LAB_DATABASE_ENABLED=false ./scripts/iex
 ```
+
+本章后续 shell 命令沿用这个终端；新开终端时先重新设置 `LAB_SCHEDULER_ENABLED=false`，避免继承其他实验启用的后台调度器。
 
 在同一个 IEx 会话逐段执行。所有工具结果都由教学代码手动提供，尚未产生外部效果。
 

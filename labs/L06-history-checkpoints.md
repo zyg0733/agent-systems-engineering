@@ -24,11 +24,15 @@ Recorded 是显式调用的测试适配器。它可以返回先前保存的工�
 在项目根目录执行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.history
 ```
+
+后续命令与 IEx 都沿用这个终端；另开终端时先重新设置上述两个环境变量，避免继承内存练习的数据库关闭配置或让后台领取干扰核验。关闭全局 Scheduler 后，`lab.history` 仍会显式创建演示 Run、执行一次文件写入，再启动只读核验进程。
 
 默认输出目录为 `artifacts/week07-history`；需要重复运行时使用新的目录：
 
@@ -109,7 +113,34 @@ assert_error.(Checkpoint.verify(checkpoint, [changed_started, requested]))
 assert_error.(History.from_checkpoint(checkpoint, [succeeded]))
 ```
 
-另做三项破坏：把工具回执内的调用 ID 改成其他 ID；在终态之后追加 Event；给 checkpoint 增加未知字段或修改 `last_seq`。报告应保存具体错误与原值未变化的证据。未来 Event、checkpoint、模型录制、Codec 版本各有自己的验证入口；支持其中一个版本不能替代另一个版本检查。当前没有自动迁移器，不能把 `schema_version` 改回 1 冒充迁移。
+接着区分两层配对。上面的 opaque 教学回执只有 `"receipt"`，没有内嵌调用 ID；Event 的 `data.operation_id` 负责关联原操作。当前带标签的 `tool_result.v1` 封装还会校验回执内的 operation/tool。继续在同一 IEx 中执行：
+
+```elixir
+# 先破坏 Event 与原操作的关联。
+wrong_event = put_in(result.data.operation_id, "other")
+{:error, {:unexpected_operation_id, "call-001", "other"}} =
+  History.rebuild(id, [started, requested, wrong_event, succeeded], opts)
+
+# 再构造真正含有配对身份的回执，只篡改封装内的 ID。
+alias AgentSystemsLab.Tools.Result
+paired = Result.wrap({:ok, %{"receipt" => "historical"}}, "call-001", "mock_write")
+{:ok, _paired_state, [paired_event]} =
+  LabKernel.dispatch(waiting, {:tool_result, "call-001", paired})
+{:ok, envelope} = paired_event.data.result
+wrong_receipt = put_in(paired_event.data.result, {:ok, %{envelope | operation_id: "other"}})
+{:error, {:invalid_tool_result_envelope, "call-001", "mock_write"}} =
+  History.rebuild(id, [started, requested, wrong_receipt, succeeded], opts)
+
+# 合法 seq 也不能越过终态；checkpoint 字段和状态位置也必须一致。
+late = %{succeeded | seq: succeeded.seq + 1}
+{:error, {:terminal_run, :succeeded}} = History.rebuild(id, events ++ [late], opts)
+{:error, :invalid_checkpoint} = Checkpoint.verify(Map.put(checkpoint, :extra, true), prefix)
+{:error, :checkpoint_state_mismatch} =
+  Checkpoint.verify(%{checkpoint | last_seq: checkpoint.last_seq + 1}, prefix)
+true = result.data.result === {:ok, %{"receipt" => "historical"}}
+```
+
+不要给 opaque 回执随意新增一个 `"operation_id"` 字符串字段后，就期待封装校验报错；那仍是普通业务数据，没有声明 `tool_result.v1` 协议。报告保存以上明确错误、原值未变化的断言，以及每种错误破坏的是哪一层绑定。未来 Event、checkpoint、模型录制、Codec 版本各有自己的验证入口；支持其中一个版本不能替代另一个版本检查。本周的业务 schema 没有自动迁移器，不能把 `schema_version` 改回 1 冒充迁移；当前布局迁移的范围见文末 W22 说明。
 
 hash 用于发现数据损坏、来源替换和绑定不一致，不是带密钥签名。若有人能一致地重写完整权威历史、状态和所有 hash，本实验没有外部可信锚点证明原始事实。
 
@@ -206,7 +237,7 @@ Recorded 不按提示词相似度选择录制；不匹配时 cursor 与 requests
 
 safe ETF 只接受已加载的可信模块词汇和 inert 值。遇到未加载词汇应修复已安装模块的加载路径；不要去掉 `[:safe, :used]`，不要执行录制中的源码，也不要把错误变成不受限解码。任意用户 atom 跨独立 VM 仍不可移植；用户数据继续优先使用字符串键和值。
 
-完整运行 `./scripts/mix check`，并保存本周报告。评分建议：历史顺序/版本与状态核对 25 分，checkpoint 前缀与 tail 校验 20 分，模型录制的输入/Event 绑定 20 分，真实提交边界 15 分，新进程零执行证明 15 分，明确能力边界 5 分。任一重建路径执行模型或工具，或 silently 接受未知版本，均不算完成。
+完整运行 `env -u DATABASE_URL ./scripts/mix check`，并保存本周报告。评分建议：历史顺序/版本与状态核对 25 分，checkpoint 前缀与 tail 校验 20 分，模型录制的输入/Event 绑定 20 分，真实提交边界 15 分，新进程零执行证明 15 分，明确能力边界 5 分。任一重建路径执行模型或工具，或 silently 接受未知版本，均不算完成。
 
 参考解答见 [L06 解答](solutions/L06.md)，实际测试计数、演示产物和新进程结果见 [第 7 周验收记录](../docs/validation-week07.md)。
 

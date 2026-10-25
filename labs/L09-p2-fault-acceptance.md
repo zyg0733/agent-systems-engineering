@@ -34,12 +34,16 @@
 在项目根目录执行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.p2
 LAB_DATABASE_ENABLED=false ./scripts/mix test
 ```
+
+后续命令与 IEx 沿用这个终端；另开终端时先重新设置上述两个环境变量。P2 需要启用 Repo，并由 runner 自己显式驱动领取、等待与接管，全局 Scheduler 不应同时消费这些故障夹具。
 
 `lab.p2` 为每个故障窗口创建独立 Run，默认每个窗口重复 20 次。它会执行真实的调用进程 kill、等待 PostgreSQL lease 到期、在同一业务身份下接管，并用新 BEAM 继续专门的跨进程场景。该命令会调用离线 Provider 和持久 Mock，属于执行路径。请使用实验数据库和独立输出目录。
 
@@ -68,6 +72,10 @@ LAB_DATABASE_ENABLED=false ./scripts/mix test
 | `retry_after_reserve` / `retry_after_schedule` | 重试预留 / due 调度已提交 |
 | `query_before_commit` / `query_after_commit` | 核对结果接受事务 COMMIT 前 / 后 |
 | `manual_after_receipt` | 人工 receipt 已确认，核对 Event 尚未接受 |
+
+按当前 runner 的静态契约，1 轮预期为 16 probe、17 次真实 kill，20 轮为 320 probe、340 次 kill；多出的一次来自每轮的 `recovery_after_effect_twice`。新 BEAM 场景只在第一轮的两个指定窗口执行，因此两种轮数的 `fresh_vm_probes` 均预期为 2。以上是核对目标，实际数量必须从本次报告读取。
+
+这 16 个窗口的受控夹具都有可复用的确认结果，runner 最终逐项要求 `succeeded`、一个 Mock 效果及空的当前核对队列。`manual_after_receipt` 在 kill 前已经提交人工确认回执，恢复时复用它并完成核对，不能把这个窗口的最终空队列解释为“尚未查明的 manual unknown 也自动解决了”。另按 [L08 第 6 节](L08-retries-and-reconciliation.md#6-让-unknown-可见并通过核对解除)在提交人工证据之前采证，或检查对应禁止重投保护测试，提交至少一条仍未查明且未取消的 blocked/可见队列证据；它与 runner 的成功窗口分别验收。
 
 ## 3. 工具成功后的三个提交边界
 

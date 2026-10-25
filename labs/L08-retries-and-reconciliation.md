@@ -38,12 +38,16 @@ alias AgentSystemsLab.ErrorPolicy
 在项目根目录执行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL ./scripts/mix check
 ./scripts/mix lab.retry
 ./scripts/mix lab.reconcile
 ```
+
+后续命令与 IEx 沿用这个终端；另开终端时先重新设置上述两个环境变量。启用 Repo 并关闭全局 Scheduler 后，由观察者决定何时 resume/reconcile，不会在你检查 due、claim 和队列之前被后台推进示例。
 
 重复演示时使用新目录，保留原始证据：
 
@@ -231,7 +235,7 @@ true = DurableTools.stats(unknown_id) === before
 :running = observed.state.status
 ```
 
-只在已通过外部事实核实后执行此示例。程序会绑定当前 Run、operation、tool 与预期序号，并保留原 unknown attempt 和证据；它无法自行判断人工声明是否真实。确认失败可以传 `{:error, payload}`，同样需要证据。确认取消、失败或成功都不会自动回滚已经发生的文件或业务写入。
+只在已通过外部事实核实后执行此示例。这个低并发教学入口会绑定调用当时的 Run、operation、tool 与当前序号，并保留原 unknown attempt 和证据；它无法自行判断人工声明是否真实。确认失败可以传 `{:error, payload}`，同样需要证据。人的审阅可能过期时，改用[运行手册第 6 节的 expected seq helper](../docs/recovery-runbook.md#6-人工证据与预期序号)，不能把旧判断自动绑定到新操作。这里没有 `:cancel` 核对结果；取消另走 `Recovery.cancel/2`。已知失败、成功或取消都不会自动回滚已经发生的文件或业务写入。
 
 在确认完成后重新查询队列，任务应离开当前待核对列表；原始 attempt、unknown 观察与证据仍能通过持久工具账本审计。随后显式 resume 才继续后续模型步骤。
 
@@ -242,6 +246,27 @@ true = DurableTools.stats(unknown_id) === before
 :succeeded = completed.state.status
 1 = DurableTools.stats(unknown_id).effects
 ```
+
+再用一个独立 Run 验证取消分支；不要取消上面已经核对完成的 Run。以下是受控 Mock 反例，没有人工核对结论：
+
+```elixir
+cancel_id = "l08-cancel-#{suffix}"
+{:ok, _} = Recovery.create_run(cancel_id, "停止推进但保留未决效果",
+  script: [{:call, call}, {:final, "不应执行"}],
+  retry_policy: [], mock_mode: :unqueryable, mock_response: :lost)
+{:ok, cancel_blocked} = Recovery.resume(cancel_id)
+:blocked = cancel_blocked.state.status
+{:ok, cancelled} = Recovery.cancel(cancel_id, :stop_task)
+:cancelled = cancelled.state.status
+:unknown = cancelled.state.operations["charge-001"].status
+{:ok, []} = ReconciliationQueue.list(run_id: cancel_id)
+{:error, :not_blocked} = Recovery.reconcile(cancel_id)
+{:ok, same_cancelled} = Recovery.resume(cancel_id)
+true = same_cancelled.state === cancelled.state
+1 = DurableTools.stats(cancel_id).effects
+```
+
+队列离项在两条分支中含义不同：核对后离项表示已接受已知结果；直接取消后离项只表示 Run 终结，原 operation 仍 unknown，也没有因此新增核对证据。后者需要在终态 Run 之外交接调查；当前仓库没有通用的取消后调查台账。
 
 ## 7. 故障注入与时间边界
 
@@ -277,6 +302,6 @@ reservation 在真正调用前提交。相同 token 二次 reserve 应拒绝；�
 - 移除旧 token、取消或 expected seq 校验时，迟到结果与竞争断言必须失败。
 - 将失败半截流放进模型结果录制时，录制数量与配对断言必须失败。
 
-最后执行 `./scripts/mix check`，确认前序 fixture、历史重建、事务崩溃和第 8 周恢复测试仍通过。建议评分：分类与停止规则 15 分，有限持久重试与退避 25 分，超时和预算 20 分，unknown/队列/核对 20 分，真实故障与跨进程证据 15 分，边界说明 5 分。
+最后执行 `env -u DATABASE_URL ./scripts/mix check`，确认前序 fixture、历史重建、事务崩溃和第 8 周恢复测试仍通过。建议评分：分类与停止规则 15 分，有限持久重试与退避 25 分，超时和预算 20 分，unknown/队列/核对 20 分，真实故障与跨进程证据 15 分，边界说明 5 分。
 
 三条硬性要求：次数和时间必须有限；重建与队列读取仍零效果；未知的非幂等业务不得自动重发。任一条件不满足均不算完成。参考解答见 [L08 解答](solutions/L08.md)。

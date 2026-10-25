@@ -224,7 +224,7 @@ CONT 后 runner 通过受控 gate 先观察迟到写入，再放开 heartbeat �
 2. error 只表明客户端没有获得成功确认，不能证明服务器回滚。claim 回报未知时不启动业务，重连后等待或读取原 lease，再以新确认的 claim 继续；结果回报未知时读原 seq/receipt/operation，复用已确认结果或进入查询/人工核对。
 3. 独立 watchdog 与绝对任务预算回收本地执行，先停止并等待 executor。unknown 描述效果不确定，预算描述资源，不可互相替代；重发可能重复非幂等效果。
 4. 尚缺原子 Run/Event/Job 提交、业务提交时旧代次检查、效果后回报丢失的核对、持久预算与 retry 映射等。反例可用暂停旧 Executor 后救援接管，再恢复旧执行；或远端效果已发生但 ack 丢失。unique 不会阻止这类同一 job 的重复 attempt，也不自动约束业务表。
-5. 将旧 BEAM SIGSTOP，等待真实 lease 过期并让新 Worker 提交，再 SIGCONT。保存 PID、OS 信号、故障 gate、原新 token/generation/seq/deadline、旧写入返回、最终投影与目标效果台账。只看旧 PID 最终退出无法证明数据库拒绝旧写入，必须展示它实际尝试的结果和新状态保持。
+5. 将旧 BEAM SIGSTOP，等待真实 lease 过期，让 successor 只领取同一个 intent、同一个 seq 的新 claim，暂不推进业务。SIGCONT 后先通过控制 gate 让旧 executor 真正尝试迟到调用，确认它因旧 token/generation 被拒、successor claim 与已扣预算未变，再放开 Heartbeat 清理并让 successor 提交。另做 successor 已提交后的窗口，检查新状态和 receipt 不被覆盖；这一窗口单独通过可能只是 seq CAS 生效，不能替代同 seq fencing。保存 PID、OS 信号、故障 gate、原新 token/generation/seq/deadline、旧调用实际返回、前后投影与目标效果台账。只看旧 PID 最终退出无法证明提交门拒绝了旧资格。
 
 </details>
 
