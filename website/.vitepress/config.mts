@@ -10,6 +10,7 @@ const base = process.env.SITE_BASE || '/agent-systems-engineering/'
 if (!/^\/(?:[a-zA-Z0-9_-]+\/)*$/.test(base)) throw new Error('SITE_BASE must be a slash-delimited URL path')
 const repo = 'https://github.com/zyg0733/agent-systems-engineering'
 const chapters = [
+  ['第 1 章 · 从 LLM 应用到 Agent 系统', 'ch01-from-llm-apps-to-agent-systems-engineering'],
   ['第 2 章 · 状态机与不变量', 'ch02-agent-state-machine'],
   ['第 5 章 · Agent Loop 与工具', 'ch05-agent-loop-and-tools'],
   ['第 8 章 · Session 与 Context', 'ch08-session-context'],
@@ -23,7 +24,7 @@ const labs = readdirSync(path.join(source, 'labs')).filter(file => /^L\d\d-.*\.m
 }))
 const sidebar = [
   { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '先修自测与桥接', link: '/book/prerequisites' }, { text: '阅读路线与章节', link: '/reading' }, { text: '术语与易混概念', link: '/book/glossary' }, { text: '当前状态与边界', link: '/docs/current-status' }, { text: '环境准备与项目说明', link: '/project' }] },
-  { text: '六章试读正文', items: chapters },
+  { text: '正文草稿 · 导读与六章主线', items: chapters },
   { text: '动手实验 · L01—L25', collapsed: true, items: labs },
   { text: '课程与教学', collapsed: true, items: [{ text: 'C01—C12 课程地图', link: '/docs/course-map' }, { text: '全书 30 章设计卡', link: '/book/chapter-cards' }, { text: '教师参考与使用方式', link: '/teaching' }, { text: '六章修订与代理评审', link: '/docs/learning-revision-review' }] },
   { text: '随手查阅', collapsed: true, items: [{ text: '架构与系统边界', link: '/docs/architecture' }, { text: '命令与实现参考', link: '/docs/command-reference' }, { text: '公开接口与扩展', link: '/docs/public-interfaces' }, { text: '恢复运行手册', link: '/docs/recovery-runbook' }, { text: '技术主张核查', link: '/docs/technical-claims-review' }] },
@@ -32,7 +33,7 @@ const sidebar = [
 
 export default defineConfig({
   title: 'Agent Systems Engineering',
-  description: '从纯状态机到可恢复的 Agent 系统：六章试读、25 份实验和 12 个课程单元。',
+  description: '从 LLM 应用到可恢复的 Agent 系统：7 章正文草稿、25 份实验和 12 个课程单元。',
   lang: 'zh-CN',
   base,
   srcDir: '.content',
@@ -68,7 +69,7 @@ export default defineConfig({
       } },
       translations: { button: { buttonText: '搜索书与实验', buttonAriaLabel: '搜索教材、实验与参考手册' }, modal: { noResultsText: '没有找到相关内容，试试“状态机”“幂等”或实验编号。', resetButtonTitle: '清空搜索', displayDetails: '显示段落', backButtonTitle: '返回搜索', footer: { selectText: '打开', navigateText: '切换结果', closeText: '关闭' } } }
     } },
-    notFound: { code: '404', title: '没有找到这一页', quote: '可以返回首页，选择已完成的六章正文与实验。', linkLabel: '返回首页', linkText: '返回首页' }
+    notFound: { code: '404', title: '没有找到这一页', quote: '可以返回首页，选择已有正文草稿与实验。', linkLabel: '返回首页', linkText: '返回首页' }
   },
   markdown: {
     codeCopyButtonTitle: '复制代码',

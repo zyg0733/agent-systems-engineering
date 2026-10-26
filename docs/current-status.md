@@ -4,9 +4,9 @@
 
 ## 现在可以读什么
 
-已有第 2、5、8、14、16、20 章正文，以及 25 份实验手册、12 个课程单元和 30 张章节设计卡。其余 24 章还不是完整正文。先看[先修与桥接](../book/prerequisites.md)，再按[六章路线](../book/reading-route.md)推进；术语随时查[统一术语表](../book/glossary.md)。
+已有第 1、2、5、8、14、16、20 章正文草稿，以及 25 份实验手册、12 个课程单元和 30 张章节设计卡。其余 23 章还不是完整正文。新读者先读[第 1 章导读](../book/ch01-from-llm-apps-to-agent-systems-engineering.md)，结合[先修与桥接](../book/prerequisites.md)进入[六章技术主线](../book/reading-route.md)；术语随时查[统一术语表](../book/glossary.md)。
 
-本轮按项目所有者决定使用 subagent 模拟读者与交叉技术审查，不做真人试读或公开试读评审。六章首批准备见[首轮报告](learning-revision-review.md)，完整阅读/实验路线、练习及解答复核见[第二轮报告](learning-round2-review.md)。模拟、静态核查、代码实跑和浏览器检查分别记录。没有真人满意度或学习完成率，也不要求取得这些数据才能继续编辑。
+本轮按项目所有者决定使用 subagent 模拟读者与交叉技术审查，不做真人试读或公开试读评审。六章首批准备见[首轮报告](learning-revision-review.md)，完整阅读/实验路线、练习及解答复核见[第二轮报告](learning-round2-review.md)，新导读与 P3 有界复验见[后续记录](learning-followup-review.md)。模拟、静态核查、代码实跑和浏览器检查分别记录。没有真人满意度或学习完成率，也不要求取得这些数据才能继续编辑。
 
 ## 阅读站与源码如何取得
 
@@ -27,6 +27,6 @@
 
 ## 验证与版本
 
-当前仍为 0.1.0-dev，正式 0.1.0 未发布。最近已核验的首轮修订基线提交为 [eb4fe22](https://github.com/zyg0733/agent-systems-engineering/commit/eb4fe22562576d27332339b7344276b175bba94f)：[Reading site](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40176517885)和 [Lab checks](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40176517882)通过。它不替代第二轮修订的验证；本轮结果以第二轮报告及对应提交的 [Actions](https://github.com/zyg0733/agent-systems-engineering/actions)为准。
+当前仍为 0.1.0-dev，正式 0.1.0 未发布。六章第二轮修订基线提交为 [e335e4e](https://github.com/zyg0733/agent-systems-engineering/commit/e335e4e6f0b10406b3c5f1a02c34b7242a326809)：[Reading site](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40220350159)和 [Lab checks](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40220350130)通过；首次 P3 失败证据及首因未知的结论保留。该基线不替代新导读的验证；本批以对应提交的 [Actions](https://github.com/zyg0733/agent-systems-engineering/actions)和后续记录为准。
 
 旧候选和 v1 发行工具保持原字段，release_ready=false 和历史真人 0 不伪造成通过。本轮以[教材质量计划](public-reading-quality-plan.md)推进代理评审，不把旧真人 gate 设为教材继续写作的条件。完整平台与正式版本发布另行处理，本轮不创建 tag 或开放网站。

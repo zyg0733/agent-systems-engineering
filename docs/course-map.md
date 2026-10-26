@@ -2,7 +2,7 @@
 
 原[研究计划第 8 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#08-十二个实验与故障验收)的 **L01–L12 是主题编号**。实施中加入 Streaming、重试、故障验收等分册，实际已交付 **25 份手册，连续编号为 L01–L25**。本地图用 C01–C12 固定课程单元对应原十二主题；L23–L25 是 C12 之后的发行与跨环境进阶实验。保留所有已交付文件名，不把实际 L12 误称为评估实验。30 章的七篇依赖与正文状态见[章节设计卡](../book/chapter-cards.md)。
 
-首次进入先看[先修自测与桥接](../book/prerequisites.md)，用[术语表](../book/glossary.md)统一概念。只读六章请按[阅读路线](../book/reading-route.md)走；本地图用于完成实验。设计卡中的未成稿章节是写作计划，不是本地图的必读前置；以下起点均指向已有正文、ADR 或手册。
+首次进入可先读[第 1 章导读](../book/ch01-from-llm-apps-to-agent-systems-engineering.md)，结合[先修自测与桥接](../book/prerequisites.md)，用[术语表](../book/glossary.md)统一概念。概念阅读按[阅读路线](../book/reading-route.md)走；本地图用于完成实验，不是导读的必做前置。设计卡中的未成稿章节是写作计划，不是本地图的必读前置；以下起点均指向已有正文、ADR 或手册。
 
 所有单元均从同一 [mix.exs](../mix.exs) `0.1.0-dev` 完整源码开始，通过 [Reproduction](../lib/agent_systems_lab/reproduction.ex) 的 source manifest 冻结文件字节、大小、模式和目录。独立练习时导出到自己拥有的新目录，可在副本中改变实现再与参考解答对照。仓库没有历史 Git 标签；本课程不声称存在逐实验的 start/solution 标签，也不伪造逐周缺功能的起始版本。教师应保存学生修改与冻结源的 diff，禁止覆盖正式试读包。
 

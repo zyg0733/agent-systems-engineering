@@ -5,6 +5,7 @@ import { useData, useRoute, withBase } from 'vitepress'
 defineProps<{ trackOnly?: boolean }>()
 
 const chapters = [
+  { path: '/book/ch01-from-llm-apps-to-agent-systems-engineering.html', title: '第 1 章 · 从 LLM 应用到 Agent Systems Engineering' },
   { path: '/book/ch02-agent-state-machine.html', title: '第 2 章 · 状态机、命令、事件与系统不变量' },
   { path: '/book/ch05-agent-loop-and-tools.html', title: '第 5 章 · Agent Loop 的理论、设计与实现' },
   { path: '/book/ch08-session-context.html', title: '第 8 章 · Session、Turn、Message 与状态演化' },

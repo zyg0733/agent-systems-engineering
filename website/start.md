@@ -13,7 +13,7 @@ description: 选择阅读、实验或授课路线，从第一个状态机进入 
 
 | 你现在想做什么 | 从这里开始 |
 | --- | --- |
-| 先理解系统设计 | [第 2 章：状态机、命令、事件与系统不变量](../book/ch02-agent-state-machine.md)，随后按[六章阅读路线](../book/reading-route.md)推进 |
+| 先理解系统设计 | [第 1 章：从 LLM 应用到 Agent Systems Engineering](../book/ch01-from-llm-apps-to-agent-systems-engineering.md)，再按[阅读路线](../book/reading-route.md)进入第 2 章状态机 |
 | 直接动手运行 | 先完成下方演示，再做 [L01 首次小练习](../labs/L01-state-machine.md#first-exercise)：预测状态、拒绝错 ID、核对重建前后的 Mock 计数 |
 | 系统学习全部主题 | [C01—C12 课程地图](../docs/course-map.md)，按课程依赖组织 25 份实验手册 |
 | 组织课程或读书会 | [教师与授课说明](teaching.md)，先确定范围、独立练习副本和证据要求 |
@@ -42,7 +42,7 @@ rebuild_matches=true (in-memory history; no durable storage)
 
 这一步只运行内存演示。接着完成 [L01 首次小练习](../labs/L01-state-machine.md#first-exercise)，亲自检查 `command → event → state` 的关系。小练习完成后再进入 L01 的完整任务，不需要先跑全仓库回归才能开始学习。
 
-遇到 `state/status`、`rebuild/resume` 或 `unknown/error` 时，先查[六章共用术语表](../book/glossary.md)。安装下载、阅读、执行和排错应分别记录；此处没有承诺固定的首次学习用时。
+遇到 `state/status`、`rebuild/resume` 或 `unknown/error` 时，先查[共用术语表](../book/glossary.md)。安装下载、阅读、执行和排错应分别记录；此处没有承诺固定的首次学习用时。
 
 ## 再进入持久化与恢复
 
@@ -74,5 +74,5 @@ Linux 的适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整
 遇到问题时，先查[术语表](../book/glossary.md)、[命令与实现参考](../docs/command-reference.md)和[恢复运行手册](../docs/recovery-runbook.md)，再沿对应实验回到源码与测试。课程的具体任务、评分与成功标准以[课程地图](../docs/course-map.md)为准。
 
 ::: info 当前内容状态
-本站对应 `0.1.0-dev`：6 章试读正文、25 份实验手册、12 个课程单元与 30 张章节设计卡。设计卡用于说明写作计划与依赖，正式 `0.1.0` 尚未发布。
+本站对应 `0.1.0-dev`：7 章正文草稿（含第 1 章导读）、25 份实验手册、12 个课程单元与 30 张章节设计卡。设计卡用于说明写作计划与依赖，正式 `0.1.0` 尚未发布。
 :::

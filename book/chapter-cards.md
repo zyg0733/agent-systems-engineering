@@ -1,6 +1,8 @@
 # 三十章设计卡：从现有证据安排教材
 
-本文件落实原[研究计划第 10 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#10-三十章教材的落地方式)，保留七篇、三十章及其原题。它是 **30 张设计卡，不是 30 章正文**。ch02、ch05、ch08、ch14、ch16、ch20 有现存试读稿；其余 24 章只有设计卡。设计卡的三道习题与教师参考用于组织后续写作，不能代替完整章节、术语表、引用审校或外部试教。
+本文件落实原[研究计划第 10 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#10-三十章教材的落地方式)，保留七篇、三十章及其原题。它是 **30 张设计卡，不是 30 章正文**。ch01、ch02、ch05、ch08、ch14、ch16、ch20 有现存正文草稿；其余 23 章只有设计卡。设计卡的三道习题与教师参考用于组织后续写作，不能代替完整章节、术语表、引用审校或外部试教。
+
+各卡的“状态”字段保留 W23 v1 发行清单的固定契约；新增正文用“当前正文进度”单列。当前正文数量与阅读入口以本段和[当前状态](../docs/current-status.md)为准，不能把历史字段当作实时写作统计。
 
 统一起点是 [mix.exs](../mix.exs) 的 `0.1.0-dev`，由 [Reproduction](../lib/agent_systems_lab/reproduction.ex) 导出 manifest 绑定具体文件字节和模式。仓库没有可引用的历史 Git 标签；不虚构逐章标签。源码链接指向当前文件，使用冻结包授课时以包内相同相对路径和 manifest 为准。课程顺序见 [12 单元课程地图](../docs/course-map.md)。习题中的故障均在各实验的自有 fixture、数据库或工作区操作，不把读者文字当命令执行。
 
@@ -23,9 +25,11 @@
 
 教师参考：① 不能，须检查独立产物及配对回执；② 不能，效果与重启分属不同边界；③ 例如工作目录、网络策略、预算。三项各 1 分，回答须点出相应证据来源。
 
-证据：[架构](../docs/architecture.md)、[场景测试](../test/agent_systems_lab/scenarios_test.exs)、[首轮验收](../docs/validation.md)。
+证据：[第 1 章正文](ch01-from-llm-apps-to-agent-systems-engineering.md)、[架构](../docs/architecture.md)、[场景测试](../test/agent_systems_lab/scenarios_test.exs)、[导读复核](../docs/learning-followup-review.md)。
 
-状态：design_card — 仅设计卡；真实模型 Provider 和通用生产 Agent 平台未实现，本章不可承诺其成功率。
+状态：design_card — 保留 W23 v1 发行清单的历史字段，不代表当前正文进度。
+
+当前正文进度：draft — 已有导读正文、纯值小练习与教师参考；真实模型 Provider 和通用生产 Agent 平台未实现，本章不可承诺其成功率。
 
 <!-- chapter:ch02 -->
 ### ch02 状态机 事件 命令与系统不变量
@@ -584,7 +588,7 @@
 
 习题：① 写了 30 卡可宣称全书完成吗？② v0.1-dev 加源 manifest 可替代不存在的历史 tag 吗？③ 什么会阻止宣称 P5 全部通过？
 
-教师参考：① 不可，只有六章稿和 30 卡；② 可准确标识本次快照，不能伪造历史演进标签；③ 真实外部 3–5 人试读及其 fresh-workspace 复现尚未验收。各 1 分，交付报告须明确范围。
+教师参考：① 不可，当前只有七章正文草稿和 30 卡；② 可准确标识本次快照，不能伪造历史演进标签；③ 旧 W22 口径的真实外部 3–5 人试读及其 fresh-workspace 复现尚未验收；当前教材编辑采用代理模拟与实际运行，该旧字段不作为继续写作的前置。各 1 分，交付报告须明确范围。
 
 证据：[课程地图](../docs/course-map.md)、[完整运行手册](../docs/recovery-runbook.md)、[W22 原始结论](../docs/validation-week22.md)、[L22](../labs/L22-release-readiness.md)。
 

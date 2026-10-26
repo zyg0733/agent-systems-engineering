@@ -34,7 +34,7 @@ export async function prepare() {
   }
   for (const name of ['index.md', 'start.md', 'reading.md', 'teaching.md']) {
     let page = await readFile(name === 'reading.md' ? path.join(repoRoot, 'book', 'reading-route.md') : path.join(siteRoot, name), 'utf8')
-    if (name === 'reading.md') page = page.replace('# 六章阅读路线\n', '# 六章阅读路线\n\n<ReadingProgress />\n')
+    if (name === 'reading.md') page = page.replace(/^(# .+)$/m, '$1\n\n<ReadingProgress />')
     // These authored pages live one level below the repo in GitHub, but at
     // the website root after preparation. Preserve both sets of relative links.
     await writeFile(path.join(contentRoot, name), page.replace(/\]\(\.\.\/(book|labs|docs)\//g, ']($1/'))
