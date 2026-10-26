@@ -37,6 +37,8 @@ watch([() => props.code, isDark], render)
 <style scoped>
 .reading-diagram { margin: 24px 0; overflow-x: auto; text-align: center; }
 .reading-diagram :deep(svg) { max-width: 100%; height: auto; margin: auto; }
+/* Match Mermaid's measured label height instead of inheriting prose leading. */
+.reading-diagram :deep(svg p) { line-height: 1.5; }
 .reading-diagram pre { text-align: left; }
 .reading-diagram figcaption { font-size: 13px; color: var(--vp-c-text-2); }
 </style>
