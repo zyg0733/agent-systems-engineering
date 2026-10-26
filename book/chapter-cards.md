@@ -1,6 +1,6 @@
 # 三十章设计卡：从现有证据安排教材
 
-本文件落实原[研究计划第 10 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#10-三十章教材的落地方式)，保留七篇、三十章及其原题。它是 **30 张设计卡，不是 30 章正文**。ch01、ch02、ch05、ch08、ch14、ch16、ch20 有现存正文草稿；其余 23 章只有设计卡。设计卡的三道习题与教师参考用于组织后续写作，不能代替完整章节、术语表、引用审校或外部试教。
+本文件落实原[研究计划第 10 节](../Agent%20Systems%20Engineering%20研究与落地计划.md#10-三十章教材的落地方式)，保留七篇、三十章及其原题。本页是章节设计卡汇总；30 章正文草稿另见[全书路线](reading-route.md)，逐章审查与实际执行范围见[全书复核](../docs/book-completion-review.md)。设计卡不能代替正文，正文齐备也不等于出版完稿或生产能力已经验收。
 
 各卡的“状态”字段保留 W23 v1 发行清单的固定契约；新增正文用“当前正文进度”单列。当前正文数量与阅读入口以本段和[当前状态](../docs/current-status.md)为准，不能把历史字段当作实时写作统计。
 
@@ -27,9 +27,9 @@
 
 证据：[第 1 章正文](ch01-from-llm-apps-to-agent-systems-engineering.md)、[架构](../docs/architecture.md)、[场景测试](../test/agent_systems_lab/scenarios_test.exs)、[导读复核](../docs/learning-followup-review.md)。
 
-状态：design_card — 保留 W23 v1 发行清单的历史字段，不代表当前正文进度。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
 
-当前正文进度：draft — 已有导读正文、纯值小练习与教师参考；真实模型 Provider 和通用生产 Agent 平台未实现，本章不可承诺其成功率。
+当前正文进度：draft — 已有[第 1 章正文](ch01-from-llm-apps-to-agent-systems-engineering.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch02 -->
 ### ch02 状态机 事件 命令与系统不变量
@@ -48,7 +48,9 @@
 
 证据：[现存正文](ch02-agent-state-machine.md)、[Kernel 测试](../test/agent_systems_lab/kernel_test.exs)、[工具配对测试](../test/agent_systems_lab/kernel_tool_pairing_test.exs)、[技术修订](../docs/reader-study-revisions.md)。
 
-状态：draft — 已有六章试读稿之一，已技术修订；真人试读未完成，不标记出版完稿。
+状态：draft — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 2 章正文](ch02-agent-state-machine.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch03 -->
 ### ch03 进程 线程 异步 Actor 与消息传递
@@ -67,7 +69,9 @@
 
 证据：[监督测试](../test/agent_systems_lab/supervision_test.exs)、[异步流测试](../test/agent_systems_lab/run_server_stream_test.exs)、[W22 时序修订](../docs/validation-week22.md)。
 
-状态：design_card — 仅设计卡；分布式 Erlang 集群与跨主机 Actor 调度不在现有实现范围。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 3 章正文](ch03-processes-actors-and-messages.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch04 -->
 ### ch04 事务 WAL 持久化与故障模型
@@ -86,7 +90,9 @@
 
 证据：[事务测试](../test/agent_systems_lab/storage_test.exs)、[ADR 0002](../docs/adr/0002-transactional-storage.md)、[W3 验收](../docs/validation-week03.md)。
 
-状态：design_card — 仅设计卡；PostgreSQL 路径已实现，SQLite 小实验、主机断电和磁盘损坏演练待后续设计。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 4 章正文](ch04-transactions-wal-and-failures.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 ## 第二篇：Agent 执行与会话
 
@@ -107,7 +113,9 @@
 
 证据：[现存正文](ch05-agent-loop-and-tools.md)、[RunServer 测试](../test/agent_systems_lab/run_server_test.exs)、[P1 测试](../test/agent_systems_lab/p1_demo_test.exs)、[W6 验收](../docs/validation-week06.md)。
 
-状态：draft — 已有六章试读稿之一；当前闭环是离线脚本和固定修复，不宣称真实模型编码效果。
+状态：draft — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 5 章正文](ch05-agent-loop-and-tools.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch06 -->
 ### ch06 Model Streaming 事件流 取消与控制
@@ -126,7 +134,9 @@
 
 证据：[流测试](../test/agent_systems_lab/stream_test.exs)、[持久流测试](../test/agent_systems_lab/persisted_stream_test.exs)、[W4 验收](../docs/validation-week04.md)。
 
-状态：design_card — 仅设计卡；实现通用 Scripted streaming，厂商 HTTP/SSE、远程取消与真实计费未接入。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 6 章正文](ch06-streaming-cancellation-and-control.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch07 -->
 ### ch07 Tool Calling 与工具生命周期
@@ -145,7 +155,9 @@
 
 证据：[Catalog 测试](../test/agent_systems_lab/tools/catalog_test.exs)、[文件测试](../test/agent_systems_lab/tools/files_test.exs)、[补丁测试](../test/agent_systems_lab/tools/patch_test.exs)、[W5 验收](../docs/validation-week05.md)。
 
-状态：design_card — 仅设计卡；受控读写补丁已实现，任意 shell 工具和一般文件系统事务未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 7 章正文](ch07-tool-calling-and-lifecycle.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch08 -->
 ### ch08 Session Turn Message 与状态演化
@@ -164,7 +176,9 @@
 
 证据：[现存正文](ch08-session-context.md)、[Session 测试](../test/agent_systems_lab/session_test.exs)、[持久 Context 测试](../test/agent_systems_lab/persisted_context_runtime_test.exs)、[W6 验收](../docs/validation-week06.md)。
 
-状态：draft — 已有六章试读稿之一；会话不是长期向量记忆服务，外部试读仍待验收。
+状态：draft — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 8 章正文](ch08-session-context.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 ## 第三篇：上下文与工具协议
 
@@ -185,7 +199,9 @@
 
 证据：[Context 测试](../test/agent_systems_lab/context_test.exs)、[ContextStore 测试](../test/agent_systems_lab/context_store_test.exs)、[ADR 0005](../docs/adr/0005-session-context-and-manifests.md)。
 
-状态：design_card — 仅设计卡；确定性输入构造已实现，模型驱动动态 prompt 优化不在验收范围。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 9 章正文](ch09-context-construction.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch10 -->
 ### ch10 Compaction 短期记忆 长期记忆与检索
@@ -204,7 +220,9 @@
 
 证据：[Context 测试](../test/agent_systems_lab/context_test.exs)、[P1 验收](../docs/validation-week06.md)、[原计划扩展边界](../Agent%20Systems%20Engineering%20研究与落地计划.md#10-三十章教材的落地方式)。
 
-状态：design_card — 仅设计卡；短期压缩已实现，长期 Store、向量索引、检索质量和遗忘策略仅为后续扩展。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 10 章正文](ch10-compaction-and-memory.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch11 -->
 ### ch11 Tool Registry MCP Transport 与 Schema
@@ -223,7 +241,9 @@
 
 证据：[传输测试](../test/agent_systems_lab/mcp_transport_test.exs)、[策略测试](../test/agent_systems_lab/mcp_policy_test.exs)、[W16 验收](../docs/validation-week16.md)。
 
-状态：design_card — 仅设计卡；固定 `2025-11-25` stateful stdio 子集已实现，HTTP/OAuth、完整 JSON Schema、任意第三方服务兼容性未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 11 章正文](ch11-tool-registry-mcp-and-schema.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch12 -->
 ### ch12 状态版本化 隔离与 Context Recovery
@@ -242,7 +262,9 @@
 
 证据：[兼容测试](../test/agent_systems_lab/history_compatibility_test.exs)、[编码测试](../test/agent_systems_lab/history_encoding_test.exs)、[W21 验收](../docs/validation-week21.md)。
 
-状态：design_card — 仅设计卡；支持矩阵有界，不承诺任意旧版本自动升级或跨系统上下文迁移。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 12 章正文](ch12-state-versioning-and-context-recovery.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 ## 第四篇：历史、外部效果与恢复
 
@@ -263,7 +285,9 @@
 
 证据：[CheckpointStore 测试](../test/agent_systems_lab/checkpoint_store_test.exs)、[History 测试](../test/agent_systems_lab/history_test.exs)、[W7 验收](../docs/validation-week07.md)。
 
-状态：design_card — 仅设计卡；checkpoint 已实现，历史归档裁除和分层冷存储未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 13 章正文](ch13-checkpoints-and-persistent-snapshots.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch14 -->
 ### ch14 Event Sourcing Event History 与 Replay
@@ -282,7 +306,9 @@
 
 证据：[现存正文](ch14-history-checkpoints-and-replay.md)、[录制测试](../test/agent_systems_lab/model_result_store_test.exs)、[历史运行时测试](../test/agent_systems_lab/persisted_history_runtime_test.exs)、[W7 验收](../docs/validation-week07.md)。
 
-状态：draft — 已有六章试读稿之一；历史重建与安全续跑为不同入口，外部读者反馈仍未取得。
+状态：draft — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 14 章正文](ch14-history-checkpoints-and-replay.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch15 -->
 ### ch15 Retry Timeout Idempotency 与故障语义
@@ -301,7 +327,9 @@
 
 证据：[错误策略测试](../test/agent_systems_lab/error_policy_test.exs)、[恢复重试测试](../test/agent_systems_lab/recovery_retry_test.exs)、[核对队列测试](../test/agent_systems_lab/reconciliation_queue_test.exs)、[W9 验收](../docs/validation-week09.md)。
 
-状态：design_card — 仅设计卡；有限重试和核对已实现，远程系统通用幂等保证不由本项目提供。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 15 章正文](ch15-retry-timeout-and-idempotency.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch16 -->
 ### ch16 External Side Effects 与提交协议
@@ -320,7 +348,9 @@
 
 证据：[现存正文](ch16-durable-effects-and-reconciliation.md)、[DurableTools 测试](../test/agent_systems_lab/durable_tools_test.exs)、[P2 安全测试](../test/agent_systems_lab/p2_safety_test.exs)、[故障报告](../docs/p2-fault-report.md)。
 
-状态：draft — 已有六章试读稿之一；受控工具的具体回执协议已实现，不承诺任意外部效果 exactly once。
+状态：draft — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 16 章正文](ch16-durable-effects-and-reconciliation.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch17 -->
 ### ch17 Resume Recovery 状态迁移与任务恢复
@@ -339,7 +369,9 @@
 
 证据：[恢复测试](../test/agent_systems_lab/recovery_test.exs)、[只读还原测试](../test/agent_systems_lab/readonly_restore_test.exs)、[W21 验收](../docs/validation-week21.md)、[运行手册](../docs/recovery-runbook.md)。
 
-状态：design_card — 仅设计卡；受管新数据库还原已实现，任意不可信 dump 导入和自动生产灾备未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 17 章正文](ch17-resume-migration-and-recovery.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 ## 第五篇：调度与所有权
 
@@ -360,7 +392,9 @@
 
 证据：[QueueStore 测试](../test/agent_systems_lab/queue_store_test.exs)、[负载测试](../test/agent_systems_lab/load_demo_test.exs)、[P3 报告](../docs/p3-report.md)。
 
-状态：design_card — 仅设计卡；教学 Queue 已实现，生产 Oban 集成只做源码责任对照，未替换为其执行引擎。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 18 章正文](ch18-queues-priority-and-backpressure.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch19 -->
 ### ch19 Worker Pool 并发控制与公平调度
@@ -379,7 +413,9 @@
 
 证据：[Scheduler 测试](../test/agent_systems_lab/scheduler_test.exs)、[deadline 测试](../test/agent_systems_lab/scheduler_deadline_test.exs)、[W13 验收](../docs/validation-week13.md)。
 
-状态：design_card — 仅设计卡；同数据库多 Worker 已实现，跨租户资源公平性与跨机容量调度未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 19 章正文](ch19-worker-pools-and-fair-scheduling.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch20 -->
 ### ch20 Lease Heartbeat 超时与任务所有权
@@ -398,7 +434,9 @@
 
 证据：[现存正文](ch20-scheduling-and-recovery.md)、[lease 测试](../test/agent_systems_lab/lease_heartbeat_test.exs)、[fencing 安全测试](../test/agent_systems_lab/fencing_safety_test.exs)、[W12 验收](../docs/validation-week12.md)。
 
-状态：draft — 已有六章试读稿之一；受控效果端配合 fencing，不将本地 lease 等同于通用远程执行唯一性。
+状态：draft — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 20 章正文](ch20-scheduling-and-recovery.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch21 -->
 ### ch21 Distributed State Consistency 与 Replication
@@ -417,7 +455,9 @@
 
 证据：[事务测试](../test/agent_systems_lab/storage_test.exs)、[备份测试](../test/agent_systems_lab/backup_test.exs)、[W21 范围记录](../docs/validation-week21.md)。
 
-状态：design_card — 仅设计卡；replication、只读 replica 路由、Raft 与跨机一致性均为概念或后续实验，项目未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 21 章正文](ch21-distributed-state-and-replication.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch22 -->
 ### ch22 故障转移 资源调度与多租户隔离
@@ -436,7 +476,9 @@
 
 证据：[DB 代理测试](../test/agent_systems_lab/database_proxy_test.exs)、[调度 DB 测试](../test/agent_systems_lab/scheduler_database_test.exs)、[W14 验收](../docs/validation-week14.md)。
 
-状态：design_card — 仅设计卡；实现应用恢复和受控断连演练，数据库 failover、租户身份、配额隔离和云资源调度未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 22 章正文](ch22-failover-resources-and-multitenancy.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 ## 第六篇：编排、安全与审批
 
@@ -457,7 +499,9 @@
 
 证据：[图定义测试](../test/agent_systems_lab/workflow_definition_test.exs)、[Join 测试](../test/agent_systems_lab/workflow_join_test.exs)、[W17 验收](../docs/validation-week17.md)。
 
-状态：design_card — 仅设计卡；静态 DAG 已实现，LLM 动态规划、任意循环工作流和通用分布式编排未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 23 章正文](ch23-planning-dags-and-workflows.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch24 -->
 ### ch24 Multi Agent Handoff Reviewer 与人工审批
@@ -476,7 +520,9 @@
 
 证据：[审批 Case 测试](../test/agent_systems_lab/approval_cases_test.exs)、[产物测试](../test/agent_systems_lab/approval_artifact_test.exs)、[W18 验收](../docs/validation-week18.md)。
 
-状态：design_card — 仅设计卡；固定脚本角色、静态编排与本地人工决定已实现，真实模型自主 handoff、通用多 Agent 协议与身份认证未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 24 章正文](ch24-multi-agent-handoffs-and-approvals.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch25 -->
 ### ch25 Sandbox 文件系统 进程与网络隔离
@@ -495,7 +541,9 @@
 
 证据：[隔离策略测试](../test/agent_systems_lab/isolation_policy_test.exs)、[隔离测试](../test/agent_systems_lab/isolation_test.exs)、[W15 验收](../docs/validation-week15.md)。
 
-状态：design_card — 仅设计卡；已验收 Darwin arm64 Seatbelt 后端，Linux namespace/cgroup、总内存/磁盘强限制和多租户安全边界未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 25 章正文](ch25-sandbox-files-processes-and-network.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch26 -->
 ### ch26 Authentication Authorization Secrets 与 Audit
@@ -514,7 +562,9 @@
 
 证据：[Gateway 测试](../test/agent_systems_lab/isolation_tool_gateway_test.exs)、[MCP 权限测试](../test/agent_systems_lab/mcp_tool_gateway_test.exs)、[观测测试](../test/agent_systems_lab/observability_test.exs)。
 
-状态：design_card — 仅设计卡；工具授权与有限审计已实现，用户登录、OAuth/OIDC、secret vault、RBAC/ABAC 平台及防恶意同账户的隔离未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 26 章正文](ch26-identity-authorization-secrets-and-audit.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 ## 第七篇：观测、评估与系统验收
 
@@ -535,7 +585,9 @@
 
 证据：[观测执行测试](../test/agent_systems_lab/observability_execution_test.exs)、[查询测试](../test/agent_systems_lab/observability_query_test.exs)、[W19 验收](../docs/validation-week19.md)。
 
-状态：design_card — 仅设计卡；项目内部 trace/metrics 与受控 exporter 已实现，未接入完整 OpenTelemetry SDK/OTLP Collector 生产链路，不以章题冒充已接入。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 27 章正文](ch27-traces-spans-and-metrics.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch28 -->
 ### ch28 Agent Evaluation Dataset Rubric 与 Scorer
@@ -554,7 +606,9 @@
 
 证据：[报告测试](../test/agent_systems_lab/evaluation_report_test.exs)、[Scorer 测试](../test/agent_systems_lab/evaluation_scorer_test.exs)、[W20 验收](../docs/validation-week20.md)、[W22 演示修订](../docs/validation-week22.md)。
 
-状态：design_card — 仅设计卡；离线 Scripted 数据集和合成价格表已实现，真实模型能力评测、真实账单与在线 benchmark 未实现。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 28 章正文](ch28-evaluation-datasets-and-scorers.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch29 -->
 ### ch29 Replay Testing Regression 与 Fault Injection
@@ -573,7 +627,9 @@
 
 证据：[P2 测试](../test/agent_systems_lab/p2_verification_test.exs)、[P3 测试](../test/agent_systems_lab/p3_verification_test.exs)、[复现测试](../test/agent_systems_lab/reproduction_test.exs)、[W22 验收](../docs/validation-week22.md)。
 
-状态：design_card — 仅设计卡；已有受控故障矩阵，不能推导任意主机故障、跨平台、真实模型或真人试读已通过。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 29 章正文](ch29-replay-regression-and-fault-injection.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。
 
 <!-- chapter:ch30 -->
 ### ch30 完整 Agent 系统设计 实现 测试与部署
@@ -584,12 +640,14 @@
 
 源码入口：[mix.exs](../mix.exs)、[固定运行入口](../scripts/mix)、[Reproduction.export/2](../lib/agent_systems_lab/reproduction.ex)、[ReaderStudy.prepare/1](../lib/agent_systems_lab/reader_study.ex)；版本冻结不等于生产部署许可。
 
-实验：[课程地图](../docs/course-map.md) 的 12 单元，最后完成 [L22](../labs/L22-release-readiness.md) 发布前核验；W24 冻结验收矩阵与 v0.1 候选发布仍为下一周任务。
+实验：[课程地图](../docs/course-map.md) 的 12 单元，最后完成 [L22](../labs/L22-release-readiness.md) 发布前核验；原 W24 排期属于历史设计卡时点，已有结果见[W24 记录](../docs/validation-week24.md)，本批全书草稿与私有提交的范围另见[全书复核](../docs/book-completion-review.md)。
 
 习题：① 写了 30 卡可宣称全书完成吗？② v0.1-dev 加源 manifest 可替代不存在的历史 tag 吗？③ 什么会阻止宣称 P5 全部通过？
 
-教师参考：① 不可，当前只有七章正文草稿和 30 卡；② 可准确标识本次快照，不能伪造历史演进标签；③ 旧 W22 口径的真实外部 3–5 人试读及其 fresh-workspace 复现尚未验收；当前教材编辑采用代理模拟与实际运行，该旧字段不作为继续写作的前置。各 1 分，交付报告须明确范围。
+教师参考：① 不可，设计卡不能代替正文；本批虽已有 30 章草稿，仍须分别说明审校、实验与发行状态；② 可准确标识本次快照，不能伪造历史演进标签；③ 旧 W22 口径的真实外部 3–5 人试读及其 fresh-workspace 复现尚未验收；当前教材编辑采用代理模拟与实际运行，该旧字段不作为继续写作的前置。各 1 分，交付报告须明确范围。
 
 证据：[课程地图](../docs/course-map.md)、[完整运行手册](../docs/recovery-runbook.md)、[W22 原始结论](../docs/validation-week22.md)、[L22](../labs/L22-release-readiness.md)。
 
-状态：design_card — 仅设计卡；本机教学交付准备已安排，W24 候选包、生产部署、多租户服务及商业出版均不在本周完成声明中。
+状态：design_card — W23/v1 固定清单的兼容字段，不作为当前写作进度。
+
+当前正文进度：draft — 已有[第 30 章正文](ch30-complete-system-design-and-delivery.md)；具体能力和实跑边界见正文及[本批复核](../docs/book-completion-review.md)。

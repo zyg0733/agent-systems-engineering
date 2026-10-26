@@ -39,7 +39,7 @@ SITE_BASE=/ npm run preview
 
 ## 原稿、生成内容与实验源码
 
-新增或修订章节时，直接编辑 `book/`；实验讲解与参考解答编辑 `labs/`；操作和设计文档编辑 `docs/`。可随实验包阅读的路线维护在 `book/reading-route.md`，准备器将它呈现为站点的 `/reading.html`，并加入最近章节组件；不要维护另一份路线副本。新增正文还须同步 `website/.vitepress/config.mts` 的章节导航、`theme/ReadingProgress.vue` 的最近章节列表、首页规模与阅读入口；对应设计卡以“当前正文进度：draft”登记，保留旧 W23 v1 清单约束的“状态”字段，并说明两者用途。阅读站自己的首页与开始/教学页在 `website/`，导航、主题、内容准备和检查代码也在该目录。`npm run prepare:content` 会把当前原稿准备到忽略的 `website/.content/`；不要编辑或提交 `.content/`、`node_modules/`、缓存和构建产物。原稿变化后重新运行 `dev` 或 `build` 以刷新准备内容。
+新增或修订章节时，直接编辑 `book/`；实验讲解与参考解答编辑 `labs/`；操作和设计文档编辑 `docs/`。可随实验包阅读的路线维护在 `book/reading-route.md`，准备器将它呈现为站点的 `/reading.html`，并加入最近章节组件；不要维护另一份路线副本。全书目录的单一来源是 `website/chapters.json`：配置按其中的篇号生成七篇导航，`ReadingProgress.vue` 从同一清单识别全部章节，内容准备器检查 30 个文件、顺序与标题。维护该清单、首页规模和阅读路线即可，不再分别维护两套章节数组。对应设计卡以“当前正文进度：draft”登记，保留旧 W23 v1 清单约束的“状态”字段，并说明两者用途。阅读站自己的首页与开始/教学页在 `website/`，导航、主题、内容准备和检查代码也在该目录。`npm run prepare:content` 会把当前原稿准备到忽略的 `website/.content/`；不要编辑或提交 `.content/`、`node_modules/`、缓存和构建产物。原稿变化后重新运行 `dev` 或 `build` 以刷新准备内容。
 
 阅读站呈现静态讲解与代码，不能在网页上执行 PostgreSQL、BEAM、故障注入或隔离实验。实际实验仍需按 [README](../README.md)和[课程地图](course-map.md)在本地配置环境。站点中的源码链接指向私有 GitHub 仓库，访问者仍需相应仓库权限；教材公开不会自动赋予源码访问权。
 

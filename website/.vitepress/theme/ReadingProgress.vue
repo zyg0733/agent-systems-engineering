@@ -1,18 +1,11 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useData, useRoute, withBase } from 'vitepress'
+import chapterEntries from '../../chapters.json'
 
 defineProps<{ trackOnly?: boolean }>()
 
-const chapters = [
-  { path: '/book/ch01-from-llm-apps-to-agent-systems-engineering.html', title: '第 1 章 · 从 LLM 应用到 Agent Systems Engineering' },
-  { path: '/book/ch02-agent-state-machine.html', title: '第 2 章 · 状态机、命令、事件与系统不变量' },
-  { path: '/book/ch05-agent-loop-and-tools.html', title: '第 5 章 · Agent Loop 的理论、设计与实现' },
-  { path: '/book/ch08-session-context.html', title: '第 8 章 · Session、Turn、Message 与状态演化' },
-  { path: '/book/ch14-history-checkpoints-and-replay.html', title: '第 14 章 · Event History、Checkpoint 与纯重建' },
-  { path: '/book/ch16-durable-effects-and-reconciliation.html', title: '第 16 章 · 外部效果、提交协议与 Unknown 核对' },
-  { path: '/book/ch20-scheduling-and-recovery.html', title: '第 20 章 · Lease、Heartbeat、超时与任务所有权' },
-]
+const chapters = chapterEntries.map(chapter => ({ path: `/book/${chapter.file}.html`, title: chapter.title }))
 
 const { site } = useData()
 const route = useRoute()

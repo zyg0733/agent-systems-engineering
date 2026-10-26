@@ -5,8 +5,15 @@
 
 ## 16.1 学习路径：从事实转向下一次效果
 
+本章后续 shell 命令使用同一终端。动手前先关闭应用级后台 Scheduler；另开终端时重新设置，数据库命令仍按各节准备自有实例。
+
+```sh
+export LAB_SCHEDULER_ENABLED=false
+```
+
+
 先修能力：能解释 [第 14 章](ch14-history-checkpoints-and-replay.md)中 rebuild 为何只读，知道 schema/operation 配对与文件授权的用途，能区分事务 COMMIT 与 caller 收到确认。缺项从[先修知识](prerequisites.md)补齐；operation、attempt、receipt、unknown 见[术语表](glossary.md)。
-六章主路线从第 14 章直接进入本章；首次小练习只用 Kernel 纯值。运行持久恢复前再完成 [L04](../labs/L04-controlled-tools.md)、[L06](../labs/L06-history-checkpoints.md)的环境和任务，不必先做故障矩阵。本章先拆开 operation、attempt 和 receipt，再观察工具成功后崩溃，最后决定安全续跑或人工交接。
+本章承接[第 15 章](ch15-retry-timeout-and-idempotency.md)的故障分类与稳定操作身份；首次小练习只用 Kernel 纯值。运行持久恢复前再完成 [L04](../labs/L04-controlled-tools.md)、[L06](../labs/L06-history-checkpoints.md)的环境和任务，不必先做故障矩阵。本章先拆开 operation、attempt 和 receipt，再观察工具成功后崩溃，最后决定安全续跑或人工交接。
 后续：[第 20 章](ch20-scheduling-and-recovery.md)负责多 Worker 下的领取、lease 与 fencing。
 
 最危险的问题通常不是工具抛出了 error，而是工具已经成功，Runtime 却没有拿到可接受的结果。

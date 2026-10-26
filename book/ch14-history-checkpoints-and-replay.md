@@ -5,10 +5,17 @@
 
 ## 14.1 学习路径：先恢复事实，再决定是否行动
 
+本章后续 shell 命令使用同一终端。动手前先关闭应用级后台 Scheduler；另开终端时重新设置，数据库命令仍按各节准备自有实例。
+
+```sh
+export LAB_SCHEDULER_ENABLED=false
+```
+
+
 先修能力：能读懂 `{:ok, value}` 的匹配，区分命令与已接受 Event，知道连续 seq 和原 `max_turns` 为什么不能猜；做数据库部分前还需理解事务提交与回滚。用[先修知识](prerequisites.md)检查缺项，遇到中英混用词可查[术语表](glossary.md)。
-主路线：[第 2 章状态机](ch02-agent-state-machine.md) → [第 8 章 Session](ch08-session-context.md) → 本章纯值练习 → [第 16 章](ch16-durable-effects-and-reconciliation.md)。只阅读六章不要求先完成 L01—L05；准备运行持久化实验时，再完成 [L04](../labs/L04-controlled-tools.md)、[L05](../labs/L05-session-context.md)和 [L06](../labs/L06-history-checkpoints.md)的环境与任务。
+顺序阅读先完成[第 13 章 checkpoint](ch13-checkpoints-and-persistent-snapshots.md)，再做本章纯值练习。概念阅读不要求先完成 L01—L05；准备运行持久化实验时，再完成 [L04](../labs/L04-controlled-tools.md)、[L05](../labs/L05-session-context.md)和 [L06](../labs/L06-history-checkpoints.md)的环境与任务。
 本章先用纯值重建状态，再检查数据库 checkpoint 和模型录制；格式迁移与备份还原是第二遍进阶阅读，不是首次重建的前置条件。
-后续：[第 16 章](ch16-durable-effects-and-reconciliation.md)讨论安全续跑，[第 20 章](ch20-scheduling-and-recovery.md)讨论谁有资格推进。
+后续先读[第 15 章](ch15-retry-timeout-and-idempotency.md)的重试、超时与幂等，再由[第 16 章](ch16-durable-effects-and-reconciliation.md)分析外部效果与提交，第 17 章连接实际恢复流程。
 
 完成本章应能回答三个问题：历史里发生了什么，历史能否被当前代码解释，以及读取历史有没有偷偷重新执行效果。
 “最后状态相同”只是第一项；若一次重建又写了文件，即使最终 State 相同，也没有满足本章契约。

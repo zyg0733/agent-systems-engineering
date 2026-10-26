@@ -1,0 +1,182 @@
+[
+  {
+    "id": "ch01",
+    "file": "ch01-from-llm-apps-to-agent-systems-engineering",
+    "title": "第 1 章 · 从 LLM 应用到 Agent 系统",
+    "part": 1
+  },
+  {
+    "id": "ch02",
+    "file": "ch02-agent-state-machine",
+    "title": "第 2 章 · 状态机与系统不变量",
+    "part": 1
+  },
+  {
+    "id": "ch03",
+    "file": "ch03-processes-actors-and-messages",
+    "title": "第 3 章 · 进程、Actor 与消息传递",
+    "part": 1
+  },
+  {
+    "id": "ch04",
+    "file": "ch04-transactions-wal-and-failures",
+    "title": "第 4 章 · 事务、WAL 与故障模型",
+    "part": 1
+  },
+  {
+    "id": "ch05",
+    "file": "ch05-agent-loop-and-tools",
+    "title": "第 5 章 · Agent Loop 与工具",
+    "part": 2
+  },
+  {
+    "id": "ch06",
+    "file": "ch06-streaming-cancellation-and-control",
+    "title": "第 6 章 · Streaming、取消与控制",
+    "part": 2
+  },
+  {
+    "id": "ch07",
+    "file": "ch07-tool-calling-and-lifecycle",
+    "title": "第 7 章 · 工具调用与生命周期",
+    "part": 2
+  },
+  {
+    "id": "ch08",
+    "file": "ch08-session-context",
+    "title": "第 8 章 · Session 与状态演化",
+    "part": 2
+  },
+  {
+    "id": "ch09",
+    "file": "ch09-context-construction",
+    "title": "第 9 章 · Context 构造",
+    "part": 3
+  },
+  {
+    "id": "ch10",
+    "file": "ch10-compaction-and-memory",
+    "title": "第 10 章 · 压缩、记忆与检索边界",
+    "part": 3
+  },
+  {
+    "id": "ch11",
+    "file": "ch11-tool-registry-mcp-and-schema",
+    "title": "第 11 章 · 工具 Registry、MCP 与 Schema",
+    "part": 3
+  },
+  {
+    "id": "ch12",
+    "file": "ch12-state-versioning-and-context-recovery",
+    "title": "第 12 章 · 状态版本与 Context Recovery",
+    "part": 3
+  },
+  {
+    "id": "ch13",
+    "file": "ch13-checkpoints-and-persistent-snapshots",
+    "title": "第 13 章 · Checkpoint 与持久化快照",
+    "part": 4
+  },
+  {
+    "id": "ch14",
+    "file": "ch14-history-checkpoints-and-replay",
+    "title": "第 14 章 · 事件历史与纯重建",
+    "part": 4
+  },
+  {
+    "id": "ch15",
+    "file": "ch15-retry-timeout-and-idempotency",
+    "title": "第 15 章 · 重试、超时与幂等",
+    "part": 4
+  },
+  {
+    "id": "ch16",
+    "file": "ch16-durable-effects-and-reconciliation",
+    "title": "第 16 章 · 外部效果与提交协议",
+    "part": 4
+  },
+  {
+    "id": "ch17",
+    "file": "ch17-resume-migration-and-recovery",
+    "title": "第 17 章 · 续跑、迁移与任务恢复",
+    "part": 4
+  },
+  {
+    "id": "ch18",
+    "file": "ch18-queues-priority-and-backpressure",
+    "title": "第 18 章 · 队列、优先级与背压",
+    "part": 5
+  },
+  {
+    "id": "ch19",
+    "file": "ch19-worker-pools-and-fair-scheduling",
+    "title": "第 19 章 · Worker Pool 与公平调度",
+    "part": 5
+  },
+  {
+    "id": "ch20",
+    "file": "ch20-scheduling-and-recovery",
+    "title": "第 20 章 · Lease、Heartbeat 与所有权",
+    "part": 5
+  },
+  {
+    "id": "ch21",
+    "file": "ch21-distributed-state-and-replication",
+    "title": "第 21 章 · 分布式状态与复制",
+    "part": 5
+  },
+  {
+    "id": "ch22",
+    "file": "ch22-failover-resources-and-multitenancy",
+    "title": "第 22 章 · 故障转移、资源与多租户",
+    "part": 5
+  },
+  {
+    "id": "ch23",
+    "file": "ch23-planning-dags-and-workflows",
+    "title": "第 23 章 · 规划、DAG 与工作流",
+    "part": 6
+  },
+  {
+    "id": "ch24",
+    "file": "ch24-multi-agent-handoffs-and-approvals",
+    "title": "第 24 章 · 多 Agent、交接与审批",
+    "part": 6
+  },
+  {
+    "id": "ch25",
+    "file": "ch25-sandbox-files-processes-and-network",
+    "title": "第 25 章 · 文件、进程与网络隔离",
+    "part": 6
+  },
+  {
+    "id": "ch26",
+    "file": "ch26-identity-authorization-secrets-and-audit",
+    "title": "第 26 章 · 身份、授权、Secrets 与审计",
+    "part": 6
+  },
+  {
+    "id": "ch27",
+    "file": "ch27-traces-spans-and-metrics",
+    "title": "第 27 章 · Trace、Span 与 Metrics",
+    "part": 7
+  },
+  {
+    "id": "ch28",
+    "file": "ch28-evaluation-datasets-and-scorers",
+    "title": "第 28 章 · 数据集、Rubric 与评估",
+    "part": 7
+  },
+  {
+    "id": "ch29",
+    "file": "ch29-replay-regression-and-fault-injection",
+    "title": "第 29 章 · 重建、回归与故障注入",
+    "part": 7
+  },
+  {
+    "id": "ch30",
+    "file": "ch30-complete-system-design-and-delivery",
+    "title": "第 30 章 · 完整系统设计与交付",
+    "part": 7
+  }
+]

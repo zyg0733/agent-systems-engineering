@@ -1,14 +1,14 @@
 # 第 5 章：Agent Loop 的理论、设计与实现
 
-本章始写于第 22 周，主题沿用原计划第 5 章。实际实验顺序已调整：状态机见 [L01](../labs/L01-state-machine.md)，Streaming 与取消见 [L03](../labs/L03-streaming-control.md)，工具与离线修复见 [L04](../labs/L04-controlled-tools.md)。原计划的实验编号不能直接当作当前文件名使用；第 6、7 章的深入内容仍可在这两册实验中先行学习。
+本章始写于第 22 周，主题沿用原计划第 5 章。实际实验顺序已调整：状态机见 [L01](../labs/L01-state-machine.md)，Streaming 与取消见 [L03](../labs/L03-streaming-control.md)，工具与离线修复见 [L04](../labs/L04-controlled-tools.md)。原计划的实验编号不能直接当作当前文件名使用；深入解释见[第 6 章流式控制](ch06-streaming-cancellation-and-control.md)与[第 7 章工具生命周期](ch07-tool-calling-and-lifecycle.md)，实际命令仍以两册手册为准。
 
 读完后，你应能解释一次循环为什么至少有“模型请求、接受提议、执行效果、提交结果”四个边界，并能在其中停住、取消或核对。这里使用 Scripted Provider 与受控工具；固定脚本证明机制，不证明真实模型的修复能力。本轮采用多代理模拟评审，范围与实际执行证据见[修订评审记录](../docs/learning-revision-review.md)。
 
 ## 阅读准备与路线
 
-先完成[第 2 章](ch02-agent-state-machine.md)的一条合法轨迹与一次拒绝，能解释 `waiting_tool`、`blocked`、`operation_id` 和 final 计轮。动手还需会按顺序调用进程 API、区分进程快照与纯 State；无需先会写 GenServer，也不要求先读尚未成文的第 3、4、6、7 章。缺少这些概念时用[先修桥接](prerequisites.md)和[统一术语表](glossary.md)补齐。
+先完成[第 2 章](ch02-agent-state-machine.md)的一条合法轨迹与一次拒绝，能解释 `waiting_tool`、`blocked`、`operation_id` 和 final 计轮。动手还需会按顺序调用进程 API、区分进程快照与纯 State；无需先会写 GenServer，进程与事务可先读[第 3 章](ch03-processes-actors-and-messages.md)、[第 4 章](ch04-transactions-wal-and-failures.md)，流和工具的细节在第 6、7 章展开。缺少这些概念时用[先修桥接](prerequisites.md)和[统一术语表](glossary.md)补齐。
 
-第一次只做到 5.3：在三个 `step` 之间观察效果数，得到一条可解释的成功轨迹。第二次再走 5.4—5.5 的 unknown 和取消；文件修复在 5.7 独立进行，不必第一次就完成整册 L03/L04。本章之后进入[第 8 章](ch08-session-context.md)，研究每次 Provider 请求究竟看到了什么。现有六章路线是 **2 → 5 → 8 → 14 → 16 → 20**，见[课程地图](../docs/course-map.md)。
+第一次只做到 5.3：在三个 `step` 之间观察效果数，得到一条可解释的成功轨迹。第二次再走 5.4—5.5 的 unknown 和取消；文件修复在 5.7 独立进行，不必第一次就完成整册 L03/L04。本章之后按[第 6 章](ch06-streaming-cancellation-and-control.md) → [第 7 章](ch07-tool-calling-and-lifecycle.md) → [第 8 章](ch08-session-context.md)推进，依次解释响应控制、工具协议和模型输入。全书路线与实验依赖见[阅读路线](reading-route.md)。
 
 | 本章词语 | 与上一章的连接 |
 | --- | --- |

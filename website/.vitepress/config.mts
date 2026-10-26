@@ -9,31 +9,29 @@ const source = path.join(root, '.content')
 const base = process.env.SITE_BASE || '/agent-systems-engineering/'
 if (!/^\/(?:[a-zA-Z0-9_-]+\/)*$/.test(base)) throw new Error('SITE_BASE must be a slash-delimited URL path')
 const repo = 'https://github.com/zyg0733/agent-systems-engineering'
-const chapters = [
-  ['第 1 章 · 从 LLM 应用到 Agent 系统', 'ch01-from-llm-apps-to-agent-systems-engineering'],
-  ['第 2 章 · 状态机与不变量', 'ch02-agent-state-machine'],
-  ['第 5 章 · Agent Loop 与工具', 'ch05-agent-loop-and-tools'],
-  ['第 8 章 · Session 与 Context', 'ch08-session-context'],
-  ['第 14 章 · 历史、检查点与重放', 'ch14-history-checkpoints-and-replay'],
-  ['第 16 章 · 持久效果与核对', 'ch16-durable-effects-and-reconciliation'],
-  ['第 20 章 · 调度与恢复', 'ch20-scheduling-and-recovery']
-].map(([text, file]) => ({ text, link: '/book/' + file }))
+const chapterEntries = JSON.parse(readFileSync(path.join(root, 'chapters.json'), 'utf8')) as Array<{ id: string; file: string; title: string; part: number }>
+const partTitles = ['基础模型与持久化', 'Agent 执行与会话', '上下文与工具协议', '历史、外部效果与恢复', '调度与所有权', '编排、安全与审批', '观测、评估与系统验收']
+const chapterParts = partTitles.map((text, index) => ({
+  text: `第 ${index + 1} 篇 · ${text}`,
+  collapsed: index !== 0,
+  items: chapterEntries.filter(chapter => chapter.part === index + 1).map(chapter => ({ text: chapter.title, link: '/book/' + chapter.file }))
+}))
 const labs = readdirSync(path.join(source, 'labs')).filter(file => /^L\d\d-.*\.md$/.test(file)).sort().map(file => ({
   text: readFileSync(path.join(source, 'labs', file), 'utf8').split('\n')[0].replace(/^#\s*/, ''),
   link: '/labs/' + file.replace(/\.md$/, '')
 }))
 const sidebar = [
   { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '先修自测与桥接', link: '/book/prerequisites' }, { text: '阅读路线与章节', link: '/reading' }, { text: '术语与易混概念', link: '/book/glossary' }, { text: '当前状态与边界', link: '/docs/current-status' }, { text: '环境准备与项目说明', link: '/project' }] },
-  { text: '正文草稿 · 导读与六章主线', items: chapters },
+  { text: '全书正文 · 30 章草稿', items: chapterParts },
   { text: '动手实验 · L01—L25', collapsed: true, items: labs },
-  { text: '课程与教学', collapsed: true, items: [{ text: 'C01—C12 课程地图', link: '/docs/course-map' }, { text: '全书 30 章设计卡', link: '/book/chapter-cards' }, { text: '教师参考与使用方式', link: '/teaching' }, { text: '六章修订与代理评审', link: '/docs/learning-revision-review' }] },
+  { text: '课程与教学', collapsed: true, items: [{ text: 'C01—C12 课程地图', link: '/docs/course-map' }, { text: '全书 30 章设计卡', link: '/book/chapter-cards' }, { text: '教师参考与使用方式', link: '/teaching' }, { text: '全书草稿与交叉评审', link: '/docs/book-completion-review' }] },
   { text: '随手查阅', collapsed: true, items: [{ text: '架构与系统边界', link: '/docs/architecture' }, { text: '命令与实现参考', link: '/docs/command-reference' }, { text: '公开接口与扩展', link: '/docs/public-interfaces' }, { text: '恢复运行手册', link: '/docs/recovery-runbook' }, { text: '技术主张核查', link: '/docs/technical-claims-review' }] },
   { text: '项目与维护', collapsed: true, items: [{ text: '源码检查与 CI', link: '/docs/github-ci' }, { text: '阅读站维护', link: '/docs/reading-site' }, { text: '教材质量计划', link: '/docs/public-reading-quality-plan' }, { text: '公开教材借鉴', link: '/docs/learning-design-references' }, { text: '结果与历史记录', link: '/docs/results-index' }, { text: '下一阶段计划', link: '/docs/next-stage-plan' }, { text: '许可与署名', link: '/docs/licensing' }] }
 ]
 
 export default defineConfig({
   title: 'Agent Systems Engineering',
-  description: '从 LLM 应用到可恢复的 Agent 系统：7 章正文草稿、25 份实验和 12 个课程单元。',
+  description: '从 LLM 应用到可恢复的 Agent 系统：30 章正文草稿、25 份实验和 12 个课程单元。',
   lang: 'zh-CN',
   base,
   srcDir: '.content',

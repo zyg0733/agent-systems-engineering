@@ -229,3 +229,6 @@ CONT 后 runner 通过受控 gate 先观察迟到写入，再放开 heartbeat �
 </details>
 
 术语：lease 是短期资格，heartbeat 是续期请求，fencing 是对迟到权威的持久拒绝，receipt 是效果结果证据，reconcile 是基于原身份核对已发生结果。它们互相配合，但不能彼此代替。
+
+
+下一站是[第 21 章](ch21-distributed-state-and-replication.md)：以本章的单权威数据库所有权为对照，分析复制延迟和跨数据库一致性；这些设计推演不等于本项目已经实现复制或 HA。

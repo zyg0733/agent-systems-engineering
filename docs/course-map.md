@@ -257,7 +257,7 @@
 
 平台要求：完整路径需 macOS arm64、固定 Elixir/OTP/PG、clang、PG dump/restore；干净复现使用新目录、新 runtime/deps/PGDATA，并声明可信缓存来源。
 
-课程材料的状态分别记录：30 张设计卡不代表全书完成；六章稿不代表学习效果已经验证；同宿主新目录复现不代表另一 OS/机器验证。当前教材修订采用多个 subagent 模拟评审，不安排真人试读，也不公开发布；模拟记录不能填写为真人反馈。[W22 验收记录](validation-week22.md)保留真实外部读者 **0 人**、P5 外部 gate **false**；历史证据与发行工具契约保持原值，并不要求当前修订先招募真人。[W24 冻结验收](validation-week24.md)已有历史候选证据，正式发行仍待验收。故障处置沿用[运行手册](recovery-runbook.md)，发布前检查参照 [L22](../labs/L22-release-readiness.md)。
+课程材料的状态分别记录：30 张设计卡不代表全书完成；30 章草稿不代表学习效果已经验证；同宿主新目录复现不代表另一 OS/机器验证。当前教材修订采用多个 subagent 模拟评审，不安排真人试读，也不公开发布；模拟记录不能填写为真人反馈。[W22 验收记录](validation-week22.md)保留真实外部读者 **0 人**、P5 外部 gate **false**；历史证据与发行工具契约保持原值，并不要求当前修订先招募真人。[W24 冻结验收](validation-week24.md)已有历史候选证据，正式发行仍待验收。故障处置沿用[运行手册](recovery-runbook.md)，发布前检查参照 [L22](../labs/L22-release-readiness.md)。
 
 ## C12 之后：发行与跨环境进阶
 

@@ -1,6 +1,6 @@
 # 共用术语表
 
-本表统一导读、六章技术主线与实验的用词。小写英文表示概念；`State`、`Run`、`Operation` 等代码名以具体模块和数据结构为准。同一词在其他框架中可能有不同含义。
+本表统一全书 30 章与实验的用词。小写英文表示概念；`State`、`Run`、`Operation` 等代码名以具体模块和数据结构为准。同一词在其他框架中可能有不同含义。
 
 ## 状态与转换
 
@@ -16,6 +16,17 @@
 | terminal（终态） | `succeeded`、`failed`、`cancelled` | 终态拒绝迟到命令；cancelled 不表示外部已发生效果被撤销 |
 
 入口：[第 2 章](ch02-agent-state-machine.md)、[L01](../labs/L01-state-machine.md)。
+
+## 进程、消息与监督
+
+| 术语 | 本书含义 | 容易混淆的边界 |
+| --- | --- | --- |
+| BEAM PID / Run ID / OS PID | 运行中的轻量进程身份 / 任务事实身份 / 操作系统进程身份 | 一个 BEAM 内有多个轻量进程；重新创建同名内存 Run 不会恢复旧状态 |
+| mailbox / request ref | 进程收到的消息集合 / 本轮请求相关性标记 | mailbox 不是持久 Event history；旧 ref 的帧不能推进新请求 |
+| monitor / link | 观察某进程退出 / 按退出规则关联进程生命周期 | `:DOWN` 不证明效果已回滚；link 的传播还取决于 trap_exit 与处理逻辑 |
+| Supervisor / child specification | 依子规范管理启动、停止、监视与重启 | 本项目教学 RunServer 是 temporary；监督策略不是业务恢复协议 |
+
+入口：[第 3 章](ch03-processes-actors-and-messages.md)、[第 6 章](ch06-streaming-cancellation-and-control.md)。
 
 ## 会话与历史
 
@@ -34,6 +45,17 @@
 | recording（录制结果） | 按本项目契约保存的模型响应或输入相关材料 | 不等于 Event history；不能任意更换录制结果而保持同一历史含义 |
 
 入口：[第 8 章](ch08-session-context.md)、[第 14 章](ch14-history-checkpoints-and-replay.md)。
+
+## 版本、协议与压缩
+
+| 术语 | 本书含义 | 容易混淆的边界 |
+| --- | --- | --- |
+| Kernel schema / Codec / History layout | 事件语义、二进制值编码、历史存储布局三个版本域 | layout=2 不表示 Kernel schema=2，局部版本检查不等于完整恢复资格 |
+| compaction / summary / retrieval | 在输入预算内选择或压缩叙述 / 保存有来源的摘要 / 根据查询获取外部记忆 | 当前是确定性提取式摘要；没有实现向量长期记忆或检索质量验收 |
+| MCP tool discovery / authorization | 知道服务声明了哪些工具 / 宿主允许当前任务调用哪些工具 | 列出工具不会授予权限；本仓库只实现固定版本 stateful stdio 子集 |
+| Schema validation / execution precondition | 校验值的形状 / 执行前复核真实资源、权限与内容版本 | 参数合法仍可能因真实符号链接或 base hash 不符而拒绝执行 |
+
+入口：[第 9 章](ch09-context-construction.md)至[第 12 章](ch12-state-versioning-and-context-recovery.md)。
 
 ## 外部效果与结果
 
@@ -65,3 +87,17 @@
 | deadline / timeout | 总截止时刻 / 某次等待或执行的时间限制 | timeout 不证明远端失败；重启、重试、暂停都不应重置原总截止时间 |
 
 入口：[第 20 章](ch20-scheduling-and-recovery.md)、[L10](../labs/L10-background-scheduling.md)、[L11](../labs/L11-leases-heartbeats-fencing.md)。
+
+## 编排、隔离与验收
+
+| 术语 | 本书含义 | 容易混淆的边界 |
+| --- | --- | --- |
+| DAG / join / handoff | 静态依赖图 / 汇合经核对的前驱结果 / 交接责任与输入 | 当前固定角色和宿主静态图不是模型动态规划或通用多 Agent 平台 |
+| authentication / authorization | 确认主体身份 / 决定该主体在当前资源上的权限 | 本项目审批人字符串是宿主声明，不是登录认证；工具能力不等于用户角色系统 |
+| sandbox / workspace | OS 执行限制 / 宿主指定的资源范围 | 私有路径不是强租户隔离；当前后端能力须按平台实查 |
+| replica / restored copy / failover | 持续复制的副本 / 静止备份还原 / 权威服务切换 | 本项目的还原和代理断连不构成 replication 或数据库 HA 证据 |
+| trace / span / metric | 诊断关联 / 一段活动 / 有单位的计量值 | 观测可丢且缓冲有界，不代替业务提交或审计事实；内部实现不是完整 OTel/OTLP 链路 |
+| oracle / rubric / benchmark | 独立判据 / 评分规则 / 明确任务和范围的比较实验 | 固定 Scripted fixture 和合成价格不能证明真实模型能力或实际账单 |
+| source_ready / release_ready | 固定来源检查满足 / 发行政策满足 | 本项目旧工具分别报告，前者 true 不自动使后者 true；30 章草稿也不直接改变旧发行 gate |
+
+入口：[第 21 章](ch21-distributed-state-and-replication.md)至[第 30 章](ch30-complete-system-design-and-delivery.md)。

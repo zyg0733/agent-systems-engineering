@@ -2,13 +2,13 @@
 
 《Agent Systems Engineering》的 Elixir/OTP 配套实验项目，学习如何把 Agent 的状态、外部效果与恢复过程变成可检查的事实。固定 Scripted/Recorded Provider、Mock 与受控工具支持离线复现，**无需模型密钥**。
 
-项目覆盖纯状态机、事务与事件历史、Streaming 和预算、Session/Context、工具回执与核对、崩溃恢复、多 Worker 调度、lease/fencing、隔离执行、MCP stdio、DAG、人工审批、观测与固定评测。配套 **25 份实验手册、12 个课程单元、30 张章节设计卡和 7 章正文草稿**（第 1 章导读及六章技术主线）。
+项目覆盖纯状态机、事务与事件历史、Streaming 和预算、Session/Context、工具回执与核对、崩溃恢复、多 Worker 调度、lease/fencing、隔离执行、MCP stdio、DAG、人工审批、观测与固定评测。配套 **25 份实验手册、12 个课程单元、30 张章节设计卡和 30 章正文草稿**（七篇完整阅读路线）。
 
 当前版本为 **`0.1.0-dev`**。W26 技术交付已完成；`v0.1.0-rc.1` 是历史候选包的清单标签，正式 `0.1.0` 尚未发布。
 
 源码仓库：[zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)（私有仓库，需获得访问权限）。远程检查见 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)，结果以具体提交对应的运行记录为准。
 
-## 在线阅读
+## 阅读站与本地预览
 
 面向教材与实验的 VitePress 阅读站已具备本地构建和私有 Actions 预览，尚未公开。阅读站提供导读、正文、课程、实验与参考文档的统一入口；维护和发布说明见[阅读站维护文档](docs/reading-site.md)。在项目根目录启动本地预览：
 
@@ -41,6 +41,8 @@ rebuild_matches=true (in-memory history; no durable storage)
 需要数据库的完整实验继续执行：
 
 ```sh
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/mix setup
@@ -53,13 +55,13 @@ env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 
 `./scripts/mix`、`./scripts/iex` 优先使用项目内运行时，缺少该安装时使用 PATH 中的 Elixir；它们不会自动安装软件。维护者已有安装的本地工作副本可先运行 `./scripts/postgres status`，再按上面的环境运行 `check`。已有全局工具链也可直接使用 `mix`。
 
-只做内存回归时使用 `LAB_DATABASE_ENABLED=false ./scripts/mix test`，数据库用例会报告为排除。Linux 需另备固定版本的 BEAM/PostgreSQL；[Linux CI 说明](docs/github-ci.md)记录适用范围与执行状态。
+只做内存回归时使用 `LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test`，数据库用例会报告为排除。Linux 需另备固定版本的 BEAM/PostgreSQL；[Linux CI 说明](docs/github-ci.md)记录适用范围与执行状态。
 
 ## 学习路线与文档
 
 1. 先做[先修自测与概念桥接](book/prerequisites.md)，再运行 [L01 首次小练习](labs/L01-state-machine.md#first-exercise)；完整 L01 作业在小练习之后。遇到易混概念查[术语表](book/glossary.md)。
 2. 按 [C01—C12 课程地图](docs/course-map.md)推进事务、工具、历史恢复、调度、隔离与编排。实验分册保留 L01—L25 编号，课程单元与实验编号分别使用。
-3. 从[第 1 章导读](book/ch01-from-llm-apps-to-agent-systems-engineering.md)进入[阅读路线](book/reading-route.md)，已有状态机基础也可直接进入第 2 章。[30 张章节设计卡](book/chapter-cards.md)包含其余章节规划。本轮采用多个 subagent 模拟读者并交叉技术审查，见[导读与后续复核](docs/learning-followup-review.md)，不安排真人验证或公开试读。
+3. 从[第 1 章导读](book/ch01-from-llm-apps-to-agent-systems-engineering.md)进入[阅读路线](book/reading-route.md)，已有状态机基础也可直接进入第 2 章。[30 张章节设计卡](book/chapter-cards.md)记录目标、习题及旧发行契约，正文入口以阅读路线为准。本轮采用多个 subagent 模拟读者并交叉技术审查，见[全书草稿与配套验证](docs/book-completion-review.md)，不安排真人验证或公开试读。
 4. 用[命令与实现参考](docs/command-reference.md)、[公开接口与扩展契约](docs/public-interfaces.md)查具体入口，按[恢复运行手册](docs/recovery-runbook.md)处理 unknown、回执、审批与恢复。
 
 | 需要做的事 | 文档入口 |

@@ -19,6 +19,16 @@ export async function markdownFiles(directory) {
 }
 
 export async function prepare() {
+  const chapters = JSON.parse(await readFile(path.join(siteRoot, 'chapters.json'), 'utf8'))
+  if (!Array.isArray(chapters) || chapters.length !== 30) throw new Error('The book navigation must contain all 30 chapters')
+  for (const [index, chapter] of chapters.entries()) {
+    const id = `ch${String(index + 1).padStart(2, '0')}`
+    if (chapter.id !== id || typeof chapter.file !== 'string' || !/^ch\d{2}-[a-z0-9-]+$/.test(chapter.file) || !chapter.file.startsWith(id + '-') || typeof chapter.title !== 'string' || !chapter.title.trim() || !Number.isInteger(chapter.part) || chapter.part < 1 || chapter.part > 7) {
+      throw new Error(`Invalid or out-of-order chapter navigation at ${id}`)
+    }
+    const text = await readFile(path.join(repoRoot, 'book', chapter.file + '.md'), 'utf8')
+    if (!new RegExp(`^# 第 ${index + 1} 章[：:]`, 'm').test(text)) throw new Error(`Chapter heading does not match ${id}`)
+  }
   // The portable book route is rendered at /reading rather than duplicated.
   const files = (await Promise.all(['book', 'labs', 'docs'].map(markdownFiles))).flat().filter(relative => relative !== 'book/reading-route.md')
   await rm(contentRoot, { recursive: true, force: true })
