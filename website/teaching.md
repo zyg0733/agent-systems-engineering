@@ -21,7 +21,7 @@ L23—L25 是冻结候选、版本化评估与跨环境验证的补充材料。�
 
 ## 为学生保留独立练习空间
 
-所有单元从同一 `0.1.0-dev` 完整实现出发。先阅读现有实现，再在学生自己的副本中完成任务、构造反例并解释修复。具体导出与完整性核对见 [L21](../labs/L21-reader-study-and-clean-reproduction.md) 和[跨环境执行说明](../docs/cross-environment-validation.md)。
+所有单元从同一 `0.1.0-dev` 完整实现出发。先按[材料获取说明](../docs/material-access.md)确认学生能够取得同一版本源码；阅读站与教师参考可读不代表私有仓库权限已开通。再阅读现有实现，在学生自己的副本中完成任务、构造反例并解释修复。具体导出与完整性核对见 [L21](../labs/L21-reader-study-and-clean-reproduction.md) 和[跨环境执行说明](../docs/cross-environment-validation.md)。
 
 保留冻结源码与学生修改的 diff；实验报告和输出写入新的目录。准备数据库、权限与隔离后端时，提前核对[当前状态与边界](../docs/current-status.md)。需要完整 macOS 隔离实验的课程，应在开课前完成对应环境验证。
 

@@ -8,6 +8,10 @@
 
 源码仓库：[zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)（私有仓库，需获得访问权限）。远程检查见 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)，结果以具体提交对应的运行记录为准。
 
+阅读、实验源码和历史证据的获取范围见[材料获取与反馈](docs/material-access.md)。当前没有公开网站或公共实验下载；阅读页中的源码、测试和协作入口仍需仓库权限。没有权限时可继续概念阅读，并按该页模板向提供教材的维护者申请材料。
+
+公开准备评估后的命令修正、案例、综合任务与阅读改进见[本批修订记录](docs/readiness-improvements-review.md)；各轮验证分别绑定实际源码，不把历史 W26 数字视为本批测试结果。
+
 ## 阅读站与本地预览
 
 面向教材与实验的 VitePress 阅读站已具备本地构建和私有 Actions 预览，尚未公开。阅读站提供导读、正文、课程、实验与参考文档的统一入口；维护和发布说明见[阅读站维护文档](docs/reading-site.md)。在项目根目录启动本地预览：
@@ -25,6 +29,7 @@ npm run dev
 新克隆目录不包含 `.runtime/`、`deps/`、`_build/` 或实验数据库。先安装运行时与依赖，再运行最小内存演示：
 
 ```sh
+unset MIX_ENV
 sh scripts/bootstrap_runtime.sh
 ./scripts/mix local.hex --force
 ./scripts/mix deps.get
@@ -41,12 +46,13 @@ rebuild_matches=true (in-memory history; no durable storage)
 需要数据库的完整实验继续执行：
 
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
 安装脚本把运行时、缓存与 PostgreSQL 放在项目的 `.runtime/` 内。需普通非 root 用户、macOS 开发工具和下载/解压工具；PostgreSQL 从源码构建，还需 C 编译器、make、Bison、Flex 和 Perl。完整前置与跨环境执行见[环境操作手册](docs/cross-environment-validation.md#1-选源码分清执行范围)。
@@ -55,7 +61,7 @@ env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 
 `./scripts/mix`、`./scripts/iex` 优先使用项目内运行时，缺少该安装时使用 PATH 中的 Elixir；它们不会自动安装软件。维护者已有安装的本地工作副本可先运行 `./scripts/postgres status`，再按上面的环境运行 `check`。已有全局工具链也可直接使用 `mix`。
 
-只做内存回归时使用 `LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test`，数据库用例会报告为排除。Linux 需另备固定版本的 BEAM/PostgreSQL；[Linux CI 说明](docs/github-ci.md)记录适用范围与执行状态。
+只做内存回归时使用 `LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test`，数据库用例会报告为排除。Ubuntu 读者从 [Linux core 入门](docs/linux-core-start.md)准备固定 BEAM、首次内存演示与自有 PostgreSQL；[Linux CI 说明](docs/github-ci.md)记录适用范围与执行状态。文档中的安装路线不冒充本轮已执行的新主机冷安装。
 
 ## 学习路线与文档
 
@@ -63,6 +69,7 @@ env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 2. 按 [C01—C12 课程地图](docs/course-map.md)推进事务、工具、历史恢复、调度、隔离与编排。实验分册保留 L01—L25 编号，课程单元与实验编号分别使用。
 3. 从[第 1 章导读](book/ch01-from-llm-apps-to-agent-systems-engineering.md)进入[阅读路线](book/reading-route.md)，已有状态机基础也可直接进入第 2 章。[30 张章节设计卡](book/chapter-cards.md)记录目标、习题及旧发行契约，正文入口以阅读路线为准。本轮采用多个 subagent 模拟读者并交叉技术审查，见[全书草稿与配套验证](docs/book-completion-review.md)，不安排真人验证或公开试读。
 4. 用[命令与实现参考](docs/command-reference.md)、[公开接口与扩展契约](docs/public-interfaces.md)查具体入口，按[恢复运行手册](docs/recovery-runbook.md)处理 unknown、回执、审批与恢复。
+5. 完成所选主线后，用[第 30 章综合任务](book/ch30-complete-system-design-and-delivery.md)和[交付模板](book/templates/capstone-report.md)组织自己的成功、反例、重建与设计推演证据。
 
 | 需要做的事 | 文档入口 |
 | --- | --- |

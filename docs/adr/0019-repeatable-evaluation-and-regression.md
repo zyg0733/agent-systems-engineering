@@ -20,7 +20,7 @@ suite identity 绑定 manifest 原始字节、全部任务文件及 Suite/Scorer
 
 reference/regressed 仅选择固定宿主响应，不改变输入、预算、工具许可或 oracle。主动回归包含实际错误产物与一次固定预算耗尽；正确产物不能覆盖执行失败，自报成功不能覆盖错误产物。初始输入属于宿主 enrollment，不计作模型工具调用。
 
-评分使用新 OS BEAM 的固定宿主 scorer。执行器通过受控读取捕获实际文件到单独只读快照，子进程只读 hash 与大小并运行固定 `exact_bytes_v1` oracle，不执行候选代码。子进程不启动项目应用，不继承数据库/API 凭据；请求与结果绑定 sample、task、artifact 与 scorer identity。超时、有限 stdout 超额、非零退出、错误协议和错配均可见。独立 guardian 持有 Port 并监控调用者；异常、超时、超量输出或调用者被 kill 时终止实际 owned OS PID、关闭 Port 并等待退出，不能以调用者 try/after 或 Port.close 替代进程清理。
+评分使用新 OS BEAM 的固定宿主 scorer。执行器通过受控读取捕获实际文件到单独只读快照，子进程只读 hash 与大小并运行固定 `exact_bytes_v1` oracle，不执行候选代码。子进程不启动项目应用，不继承数据库/API 凭据；请求与结果绑定 sample、task、artifact 与 scorer identity。超时、有限 stdout 超额、非零退出、错误协议和错配均可见。独立 guardian 持有 Port 并监控调用者；异常、超时、超量输出或调用者被 kill 时尝试终止本次 owned OS PID、关闭 Port 并有界轮询。当前 helper 最多轮询约 1.5 秒，到截止时仍可返回 `:ok`，结果没有独立的 `cleanup_verified` 字段；函数返回本身不认证进程已退出，必须结合本次自有 PID 的独立观察。不能以调用者 try/after 或 Port.close 替代清理证据。
 
 评分前后核对原业务 source fingerprint 和快照 hash。只读 chmod 与独立进程用于可信固定 grader，不构成执行任意不可信代码的安全 sandbox，也不能防止同一宿主账户的恶意并发修改。后续引入生成测试或外部 grader 必须另行设计隔离与授权。
 

@@ -19,16 +19,19 @@
 
 ## 2. 准备
 
-在项目根目录的同一终端执行；另开终端时先重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
+在项目根目录的同一终端执行；另开终端时先选择实例、清除 `DATABASE_URL` 并重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
+
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
 
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
 ./scripts/mix lab.load
-env -u DATABASE_URL ./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 `lab.load` 创建自己的命名队列与实验 Run，不接管已有事故任务。默认输出目录为 `artifacts/week13-load`，默认任务数为 12，`--jobs` 范围是 6—100；已有目录不能覆盖，复测应选择新的路径：

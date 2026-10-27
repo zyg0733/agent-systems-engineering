@@ -7,7 +7,7 @@ description: 选择阅读、实验或授课路线，从第一个状态机进入 
 
 先读一章，再完成一个能解释清楚的实验。本书适合写过程序、想理解 Agent 执行与恢复机制的读者；动手部分逐步需要 Elixir/OTP、进程与 SQL 事务知识。你不需要准备模型密钥；当前实现使用固定 Scripted/Recorded Provider、Mock 与受控工具。
 
-开始前用[阅读准备与先修桥接](../book/prerequisites.md)的五道自测找出需要补读的概念。只读设计无需立即安装环境；运行代码则需要仓库访问权和对应平台。
+开始前用[阅读准备与先修桥接](../book/prerequisites.md)的五道自测找出需要补读的概念。只读设计无需立即安装环境；运行代码则需要仓库访问权和对应平台。[材料获取与反馈](../docs/material-access.md)说明无权限时可读什么、如何申请实验材料，以及源码链接为何可能返回 404。
 
 ## 选择你的入口
 
@@ -20,11 +20,12 @@ description: 选择阅读、实验或授课路线，从第一个状态机进入 
 
 ## 跑通第一个演示
 
-运行实验需要源码。仓库目前为[私有仓库](https://github.com/zyg0733/agent-systems-engineering)，克隆前需获得访问权限。
+运行实验需要源码。仓库目前为[私有仓库](https://github.com/zyg0733/agent-systems-engineering)，下面的克隆命令仅供已有权限者使用；没有权限请先看[材料获取方式](../docs/material-access.md#没有源码权限)，不要将克隆失败当成工具链安装错误。
 
 以下是已验收的 macOS 路线，在克隆后的**项目根目录**执行。首次安装需要下载运行时和依赖；安装脚本会将它们放入项目的 `.runtime/`。详细平台和工具要求见[跨环境执行说明](../docs/cross-environment-validation.md)。
 
 ```sh
+unset MIX_ENV
 git clone https://github.com/zyg0733/agent-systems-engineering.git
 cd agent-systems-engineering
 sh scripts/bootstrap_runtime.sh
@@ -49,12 +50,13 @@ rebuild_matches=true (in-memory history; no durable storage)
 后续实验使用真实 PostgreSQL。共同验收版本为 Elixir **1.20.4**、Erlang/OTP **28.4**、PostgreSQL **18.6**；精确依赖以源码的 `mix.lock` 为准。
 
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
 请使用自己的实验数据库。默认本地端口为 `55432`，开发库与测试库分别为 `agent_systems_lab_dev`、`agent_systems_lab_test`；具体连接、输出目录及故障注入要求按每份实验手册执行。
@@ -63,7 +65,7 @@ env -u DATABASE_URL LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 
 后续命令在这个终端继续执行；另开终端时重设上述环境变量。按[阅读与实验路线](../book/reading-route.md#把阅读路线走成实验路线)逐段记录预测、当前产物和换条件后的解释，再查对应解答；运行演示不等于独立完成整份作业。
 
-Linux 的适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整隔离实验使用 macOS Seatbelt 教学后端，Linux 隔离后端尚未实现。按[当前状态与边界](../docs/current-status.md)判断哪些实验适合当前环境。
+Linux 从[core 入门路线](../docs/linux-core-start.md)准备固定工具链并跑通首次内存演示，具体适用回归范围见 [GitHub CI 说明](../docs/github-ci.md)。完整隔离实验使用 macOS Seatbelt 教学后端，Linux 隔离后端尚未实现。按[当前状态与边界](../docs/current-status.md)判断哪些实验适合当前环境。
 
 ## 每次实验留下三样东西
 

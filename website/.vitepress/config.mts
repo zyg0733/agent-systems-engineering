@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { slug } from 'github-slugger'
+import { boostReadingDocument, tokenizeReadingText } from '../scripts/search-policy.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const source = path.join(root, '.content')
@@ -21,12 +22,12 @@ const labs = readdirSync(path.join(source, 'labs')).filter(file => /^L\d\d-.*\.m
   link: '/labs/' + file.replace(/\.md$/, '')
 }))
 const sidebar = [
-  { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '先修自测与桥接', link: '/book/prerequisites' }, { text: '阅读路线与章节', link: '/reading' }, { text: '术语与易混概念', link: '/book/glossary' }, { text: '当前状态与边界', link: '/docs/current-status' }, { text: '环境准备与项目说明', link: '/project' }] },
+  { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '先修自测与桥接', link: '/book/prerequisites' }, { text: '阅读路线与章节', link: '/reading' }, { text: '术语与易混概念', link: '/book/glossary' }, { text: '材料获取与反馈', link: '/docs/material-access' }, { text: 'Linux core 入门', link: '/docs/linux-core-start' }, { text: '当前状态与边界', link: '/docs/current-status' }, { text: '环境准备与项目说明', link: '/project' }] },
   { text: '全书正文 · 30 章草稿', items: chapterParts },
   { text: '动手实验 · L01—L25', collapsed: true, items: labs },
   { text: '课程与教学', collapsed: true, items: [{ text: 'C01—C12 课程地图', link: '/docs/course-map' }, { text: '全书 30 章设计卡', link: '/book/chapter-cards' }, { text: '教师参考与使用方式', link: '/teaching' }, { text: '全书草稿与交叉评审', link: '/docs/book-completion-review' }] },
   { text: '随手查阅', collapsed: true, items: [{ text: '架构与系统边界', link: '/docs/architecture' }, { text: '命令与实现参考', link: '/docs/command-reference' }, { text: '公开接口与扩展', link: '/docs/public-interfaces' }, { text: '恢复运行手册', link: '/docs/recovery-runbook' }, { text: '技术主张核查', link: '/docs/technical-claims-review' }] },
-  { text: '项目与维护', collapsed: true, items: [{ text: '源码检查与 CI', link: '/docs/github-ci' }, { text: '阅读站维护', link: '/docs/reading-site' }, { text: '教材质量计划', link: '/docs/public-reading-quality-plan' }, { text: '公开教材借鉴', link: '/docs/learning-design-references' }, { text: '结果与历史记录', link: '/docs/results-index' }, { text: '下一阶段计划', link: '/docs/next-stage-plan' }, { text: '许可与署名', link: '/docs/licensing' }] }
+  { text: '项目与维护', collapsed: true, items: [{ text: '源码检查与 CI', link: '/docs/github-ci' }, { text: '阅读站维护', link: '/docs/reading-site' }, { text: '公开准备修订', link: '/docs/readiness-improvements-review' }, { text: '教材质量计划', link: '/docs/public-reading-quality-plan' }, { text: '公开教材借鉴', link: '/docs/learning-design-references' }, { text: '结果与历史记录', link: '/docs/results-index' }, { text: '下一阶段计划', link: '/docs/next-stage-plan' }, { text: '许可与署名', link: '/docs/licensing' }] }
 ]
 
 export default defineConfig({
@@ -53,18 +54,13 @@ export default defineConfig({
     skipToContentLabel: '跳到正文',
     externalLinkIcon: true,
     socialLinks: [{ icon: 'github', link: repo, ariaLabel: 'GitHub 源码仓库（需访问权限）' }],
-    editLink: { pattern: ({ relativePath }) => `https://github.com/zyg0733/agent-systems-engineering/edit/main/${relativePath === 'project.md' ? 'README.md' : relativePath === 'reading.md' ? 'book/reading-route.md' : /^(index|start|teaching)\.md$/.test(relativePath) ? 'website/' + relativePath : relativePath}`, text: '在 GitHub 查看或改进本页' },
+    editLink: { pattern: '/docs/material-access.html#反馈与勘误', text: '反馈与材料获取' },
     footer: {
       message: `教材 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 代码 <a href="${base}licenses/LICENSE.txt">Apache-2.0</a> · <a href="${base}docs/licensing.html">许可范围与署名</a>`,
       copyright: 'Agent Systems Lab contributors · 0.1.0-dev'
     },
     search: { provider: 'local', options: {
-      miniSearch: { options: {
-        tokenize(text) {
-          if (typeof Intl.Segmenter === 'function') return Array.from(new Intl.Segmenter('zh-CN', { granularity: 'word' }).segment(text)).filter(part => part.isWordLike).map(part => part.segment)
-          return text.match(/[\u3400-\u9fff]|[\p{L}\p{N}_]+/gu) || []
-        }
-      } },
+      miniSearch: { options: { tokenize: tokenizeReadingText }, searchOptions: { boostDocument: boostReadingDocument } },
       translations: { button: { buttonText: '搜索书与实验', buttonAriaLabel: '搜索教材、实验与参考手册' }, modal: { noResultsText: '没有找到相关内容，试试“状态机”“幂等”或实验编号。', resetButtonTitle: '清空搜索', displayDetails: '显示段落', backButtonTitle: '返回搜索', footer: { selectText: '打开', navigateText: '切换结果', closeText: '关闭' } } }
     } },
     notFound: { code: '404', title: '没有找到这一页', quote: '可以返回首页，选择已有正文草稿与实验。', linkLabel: '返回首页', linkText: '返回首页' }

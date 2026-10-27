@@ -18,11 +18,16 @@
 
 在项目根目录执行。该隔离实验本身不要求数据库；完整回归仍需要现有 PostgreSQL：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
-./scripts/mix lab.isolate
-./scripts/mix lab.isolate --output artifacts/week15-isolation-repeat
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix lab.isolate
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix lab.isolate --output artifacts/week15-isolation-repeat
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 默认输出目录为 `artifacts/week15-isolation`。输出目录已经存在时拒绝执行，以保留原有证据；重复运行选择新目录。后端未支持、初始化失败或任一探针不满足判据时必须返回非成功结果。具体参数、真实计数和原始证据以验收记录为准。
@@ -35,7 +40,7 @@ LAB_DATABASE_ENABLED=false ./scripts/mix test
 
 不要将工作目录设置为用户 home、仓库外的私人目录或整个临时目录。临时文件放在受控工作目录内；运行库只开放必需系统路径。符号链接不能扩大可读写范围，非法根目录应在启动前拒绝。初始化失败时不得调用 System.cmd 执行原命令作为兼容方案。
 
-以下在 `./scripts/iex -S mix` 中创建独立的内存实验。只允许固定 echo；模型 schema 只能提交 command/args，不含 workspace、network、env 或 limits：
+以下在 `LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/iex -S mix` 中创建独立的内存实验。只允许固定 echo；模型 schema 只能提交 command/args，不含 workspace、network、env 或 limits：
 
 ```elixir
 alias AgentSystemsLab.{RunServer, Isolation.Policy}

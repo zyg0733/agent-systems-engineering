@@ -23,16 +23,19 @@ Recorded 是显式调用的测试适配器。它可以返回先前保存的工�
 
 在项目根目录执行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.history
 ```
 
-后续命令与 IEx 都沿用这个终端；另开终端时先重新设置上述两个环境变量，避免继承内存练习的数据库关闭配置或让后台领取干扰核验。关闭全局 Scheduler 后，`lab.history` 仍会显式创建演示 Run、执行一次文件写入，再启动只读核验进程。
+后续命令与 IEx 都沿用这个终端；另开终端时先选择实例、清除 `DATABASE_URL` 并重新设置上述两个环境变量，避免继承内存练习的数据库关闭配置或让后台领取干扰核验。关闭全局 Scheduler 后，`lab.history` 仍会显式创建演示 Run、执行一次文件写入，再启动只读核验进程。
 
 默认输出目录为 `artifacts/week07-history`；需要重复运行时使用新的目录：
 
@@ -237,7 +240,7 @@ Recorded 不按提示词相似度选择录制；不匹配时 cursor 与 requests
 
 safe ETF 只接受已加载的可信模块词汇和 inert 值。遇到未加载词汇应修复已安装模块的加载路径；不要去掉 `[:safe, :used]`，不要执行录制中的源码，也不要把错误变成不受限解码。任意用户 atom 跨独立 VM 仍不可移植；用户数据继续优先使用字符串键和值。
 
-完整运行 `env -u DATABASE_URL ./scripts/mix check`，并保存本周报告。评分建议：历史顺序/版本与状态核对 25 分，checkpoint 前缀与 tail 校验 20 分，模型录制的输入/Event 绑定 20 分，真实提交边界 15 分，新进程零执行证明 15 分，明确能力边界 5 分。任一重建路径执行模型或工具，或 silently 接受未知版本，均不算完成。
+完整运行 `env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check`，并保存本周报告。评分建议：历史顺序/版本与状态核对 25 分，checkpoint 前缀与 tail 校验 20 分，模型录制的输入/Event 绑定 20 分，真实提交边界 15 分，新进程零执行证明 15 分，明确能力边界 5 分。任一重建路径执行模型或工具，或 silently 接受未知版本，均不算完成。
 
 参考解答见 [L06 解答](solutions/L06.md)，实际测试计数、演示产物和新进程结果见 [第 7 周验收记录](../docs/validation-week07.md)。
 

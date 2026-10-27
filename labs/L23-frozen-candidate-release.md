@@ -54,8 +54,13 @@ LAB_DATABASE_ENABLED=false ./scripts/mix lab.freeze verify --output "$matrix_out
 
 在同一源码身份上运行并保存完整原始日志：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
-LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 

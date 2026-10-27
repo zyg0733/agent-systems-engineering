@@ -10,7 +10,7 @@
 | 跑通纯内存练习 | 会在终端进入目录、运行命令；有仓库访问权和 Elixir/OTP 环境；能读元组、map 和模式匹配 | [L01 首次小练习](../labs/L01-state-machine.md#first-exercise) |
 | 完成持久化与故障实验 | 在上一行基础上，能使用自己的可丢弃 PostgreSQL，理解事务、进程退出和并发 | 先补下方事务与领取桥接，再按[课程地图](../docs/course-map.md)逐项完成 |
 
-只阅读概念可以暂不安装工具。运行实验前先查看[开始学习](../README.md#快速开始)的安装与平台说明：当前仓库仍私有；完整隔离实验依赖 macOS Seatbelt，Linux 核心回归并不包含该后端。
+只阅读概念可以暂不安装工具。运行实验前先查看[开始学习](../README.md#快速开始)的安装与平台说明：当前仓库仍私有；Ubuntu 读者可按 [Linux core 入门](../docs/linux-core-start.md)准备固定版本并运行首个内存演示。完整隔离实验依赖 macOS Seatbelt，Linux 核心回归并不包含该后端。
 
 ## 五道自测
 
@@ -48,6 +48,8 @@
 | `alias AgentSystemsLab.Kernel, as: LabKernel` | 使用短名；避免与 Elixir 自带的 `Kernel` 混淆 |
 
 变量可以重新绑定，但先前的值不会被就地修改。实验中把状态依次命名为 `s0`、`s1`、`s2`，是为了保留转换前后的对照。IEx 中 `true = expression` 是一个简单断言：只有表达式为 `true` 才匹配成功。完整测试使用 ExUnit 的 `assert`。
+
+第一次把 IEx 观察写成测试时，先用 [L01 的测试文件骨架](../labs/L01-state-machine.md#先准备一个能独立运行的测试文件)学习 `defmodule`、`use ExUnit.Case`、`test` 和 `assert`，运行单个文件并观察一次预期失败。测试骨架在独立任务之前，不必为了启动测试先查看教师解答。
 
 ### 读懂累计器与匿名函数
 

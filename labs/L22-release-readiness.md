@@ -37,7 +37,7 @@ LAB_DATABASE_ENABLED=false ./scripts/mix lab.release plan
 
 ## 4. 检查课程与章节产物
 
-30 张章卡应逐章有问题、学习目标、前置知识、源码/实验入口、练习、验收标准及能力边界；卡片不是 30 篇已完成长篇章稿。六章已有试读正文仍按原身份保留。12 次课程是现有 L01—L22 的教学路径，不能把 C12 写成“只运行 L12”，也不能以课程测试 argv 代替实验里的真实 OS/数据库故障演练。
+30 张章卡应逐章有问题、学习目标、前置知识、源码/实验入口、练习、验收标准及能力边界；卡片不替代正文。当前全书 30 章正文草稿另见[阅读路线](../book/reading-route.md)与[全书复核](../docs/book-completion-review.md)，原六章试读正文仍按此前冻结身份保留。12 次课程是现有 L01—L22 的教学路径，不能把 C12 写成“只运行 L12”，也不能以课程测试 argv 代替实验里的真实 OS/数据库故障演练。
 
 选择一条课程，沿所有本地链接读取相应章卡、实验、解答和源码；确认参数确实受当前 CLI 支持。对照运行操作说明安装输入、配置、首次启动、事故核对、备份还原和回退；若发现遗漏，补文档并重新检查源码候选。
 
@@ -45,8 +45,13 @@ LAB_DATABASE_ENABLED=false ./scripts/mix lab.release plan
 
 在已明确身份的实验 PostgreSQL 上关闭全局 Scheduler：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
-LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 

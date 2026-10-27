@@ -28,18 +28,21 @@
 
 在仓库根目录运行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/postgres status
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.verify_db
 ```
 
-本页后续命令在同一终端继续，IEx 继承这两项设置；新开终端时先重新执行两条 `export`。本实验使用真实 PostgreSQL，但手动检查调度意图，不启用后台 Scheduler。L01 的内存路径不能替代本册的提交边界验证。
+本页后续命令在同一终端继续，IEx 继承这两项设置；新开终端时先选择实例、清除 `DATABASE_URL` 并重新执行两条 `export`。本实验使用真实 PostgreSQL，但手动检查调度意图，不启用后台 Scheduler。L01 的内存路径不能替代本册的提交边界验证。
 
 项目脚本把 PostgreSQL 安装与数据放在项目本地目录。首次准备需要下载和构建；后续运行使用本地服务。默认连接为 `127.0.0.1:55432`、用户 `postgres`；开发库为 `agent_systems_lab_dev`，测试库为 `agent_systems_lab_test`。可用 `DATABASE_URL`，或 `PGHOST`、`PGPORT`、`PGUSER`、`PGPASSWORD` 指向你自己的实验实例。自备实例也要创建和迁移对应数据库。
 
@@ -264,7 +267,7 @@ GenServer.stop(server)
 运行并保存结果：
 
 ```sh
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.verify_db
 ```
 

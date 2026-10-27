@@ -38,16 +38,19 @@
 
 在项目根目录运行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.repair
 ```
 
-本页后续命令在同一终端继续；新开终端时先重新执行两条 `export`。这段准备面向完整 PostgreSQL 验收，后台 Scheduler 保持关闭；`lab.repair` 自身运行内存文件工具路径。默认输出目录为 `artifacts/week05-repair`。命令拒绝覆盖已存在的输出目录；再次实验请提供一个新的目标：
+本页后续命令在同一终端继续；新开终端时先选择实例、清除 `DATABASE_URL` 并重新执行两条 `export`。这段准备面向完整 PostgreSQL 验收，后台 Scheduler 保持关闭；`lab.repair` 自身运行内存文件工具路径。默认输出目录为 `artifacts/week05-repair`。命令拒绝覆盖已存在的输出目录；再次实验请提供一个新的目标：
 
 ```sh
 ./scripts/mix lab.repair --output artifacts/week05-repair-second
@@ -289,7 +292,7 @@ saved_result.state.operations["read-001"].result.type
 运行完整验收和一条新的离线修复：
 
 ```sh
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.repair --output artifacts/week05-repair-review
 ```
 

@@ -37,17 +37,20 @@ Session 的 `facts` 是字符串键 JSON Map，`acceptance` 与 `constraints` �
 
 在项目根目录执行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 p1_output="artifacts/week06-p1"
 ./scripts/mix lab.p1 --output "$p1_output"
 ```
 
-本页后续命令在同一终端继续；新开终端时先重新执行两条 `export`。数据库模式是默认值，后台 Scheduler 保持关闭。上面的输出为 `artifacts/week06-p1`，目录必须新建；重复实验先将 `p1_output` 改为尚不存在的目录，例如 `artifacts/week06-p1-second`，再执行相同命令。只练习离线内存路径时可跳过数据库启动与 setup，执行：
+本页后续命令在同一终端继续；新开终端时先选择实例、清除 `DATABASE_URL` 并重新执行两条 `export`。数据库模式是默认值，后台 Scheduler 保持关闭。上面的输出为 `artifacts/week06-p1`，目录必须新建；重复实验先将 `p1_output` 改为尚不存在的目录，例如 `artifacts/week06-p1-second`，再执行相同命令。只练习离线内存路径时可跳过数据库启动与 setup，执行：
 
 ```sh
 export LAB_SCHEDULER_ENABLED=false
@@ -254,7 +257,7 @@ RunServer 以 `storage: :postgres, session_id: session.id` 加载规范 Session�
 
 ## 7. 验收与破坏练习
 
-运行完整 `env -u DATABASE_URL ./scripts/mix check`。重点阅读 `context_test.exs`、`session_test.exs`、`session_store_test.exs`、`context_store_test.exs`、`run_server_context_test.exs`、`persisted_context_runtime_test.exs` 与 `p1_demo_test.exs`。数据库测试使用真实提交，不能用全部回滚的测试事务代替提交前后崩溃证据。
+运行完整 `env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check`。重点阅读 `context_test.exs`、`session_test.exs`、`session_store_test.exs`、`context_store_test.exs`、`run_server_context_test.exs`、`persisted_context_runtime_test.exs` 与 `p1_demo_test.exs`。数据库测试使用真实提交，不能用全部回滚的测试事务代替提交前后崩溃证据。
 
 提交自己的 L05 报告，至少包含：
 

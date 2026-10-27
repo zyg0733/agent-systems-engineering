@@ -5,6 +5,21 @@ import path from 'node:path'
 import os from 'node:os'
 import { auditOutput } from './check-output.mjs'
 import { startPreview } from './preview.mjs'
+import { disablePageSearch, excludeFromReaderSearch } from './search-policy.mjs'
+
+test('P2 fault reports and separate solutions stay out of search while reader chapters remain indexed', () => {
+  assert.equal(excludeFromReaderSearch('docs/p2-fault-report.md'), true)
+  assert.equal(excludeFromReaderSearch('docs/p3-report.md'), true)
+  assert.equal(excludeFromReaderSearch('labs/solutions/L19.md'), true)
+  assert.equal(excludeFromReaderSearch('book/templates/capstone-report.md'), true)
+  assert.equal(excludeFromReaderSearch('book/ch15-retry-timeout-and-idempotency.md'), false)
+})
+
+test('search exclusion preserves an authored page title in a single frontmatter block', () => {
+  const source = '---\ntitle: 历史记录\nsearch: true\n---\n\n# 记录\n'
+  const prepared = disablePageSearch(source)
+  assert.equal(prepared, '---\ntitle: 历史记录\n\nsearch: false\n---\n\n# 记录\n')
+})
 
 async function fixture(t, files) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'reading-site-audit-'))

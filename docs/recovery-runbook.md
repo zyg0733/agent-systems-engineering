@@ -4,6 +4,8 @@
 
 操作目标：读取已提交事实，用原业务身份继续安全的下一步，或明确交接仍未知的结果。`blocked` 是需要核对的可见状态；取消和失败也不会撤销已发生的外部效果。
 
+下文创建新 Run 的教学演练及完整 `check` 只在自己的可丢弃实验实例执行，先按[完整回归的环境准备](command-reference.md#完整回归的环境准备)确认 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 与默认测试库。演练代码段清除父终端 `DATABASE_URL`、启用数据库并关闭全局 Scheduler；单次 `env -u` 不会修改父终端。事故的只读采证与原 Run 处置仍应指向原事故数据库，不要为了做回归切换或清理事故资源。
+
 ## 1. 先识别命令是否会执行
 
 | 入口 | 作用 | 是否可能调用模型或工具 |
@@ -428,8 +430,12 @@ RunServer 的隔离工具在独立 Task 执行，状态读取、取消和 Run �
 ### 演练与现场收尾
 
 ```sh
+# 先用 PGHOST/PGPORT/PGUSER/PGPASSWORD 选定本轮专用实验实例
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 LAB_DATABASE_ENABLED=false ./scripts/mix lab.isolate --output artifacts/week15-isolation-incident-drill
-./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
 选择新目录。18 项探针使用自有 canary、固定 C 程序、真实 loopback 基线与直接 syscall；同名恶意 profile、预置硬链接、未知命令与策略格式另有自动测试。检查总报告 expected_probe_count=18、probe_count=18、all_passed=true，再比对每份 raw execution、summary、canary hash 和 cleanup。取消/调用方崩溃必须先看到目标发布的 nonce/PID 文件，与 trusted target PID 相等，再注入故障并独立等待目标和 guardian 不存在。失败报告与已完成证据都应保留。
@@ -491,9 +497,13 @@ RunServer 保持宿主显式取消/总超时的终态行为；MCP Task 非预期
 ### 演练与事故关闭
 
 ```sh
+# 先用 PGHOST/PGPORT/PGUSER/PGPASSWORD 选定本轮专用实验实例
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/mix lab.mcp --output artifacts/week16-mcp-incident-drill
 LAB_DATABASE_ENABLED=false ./scripts/mix lab.mcp --memory --output artifacts/week16-mcp-memory-drill
-./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
 默认完整演练 20 项，包括 18 个 stdio/权限/生命周期窗口与两个真实持久恢复窗口。memory 明确只跑 18 项，recovery_verified=false；不得把它当成数据库恢复验收。使用全新目录，保持全局 Scheduler 关闭；不将真实事故 Run 当作故障 fixture。
@@ -564,8 +574,12 @@ prepared 后崩溃、效果已发生但回执未知的子节点保留 blocked/ma
 ### 复现与关闭事故
 
 ```sh
+# 先用 PGHOST/PGPORT/PGUSER/PGPASSWORD 选定本轮专用实验实例
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/mix lab.workflow --output artifacts/week17-workflow-incident-drill
-./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
 演练要求真实 PostgreSQL 与关闭的全局 Scheduler，输出目录必须全新。九个 case 涵盖同图单/双 Worker、同预算单/双 Run、失败、取消、模糊效果、控制器强杀、下游准入两个 COMMIT 窗口与 deadline。检查 expected_case_count/case_count/all_passed、每项 summary、完整 Join、预算分配/支出、真实门闩与单次效果。预期 failed/cancelled/manual 状态保留，不能为凑成功率自动确认。
@@ -669,9 +683,13 @@ control_request = %{
 取消或失败先关闭 owned Control，再补齐原 Workflow 的收敛；中断后用 `Approvals.sync(case_id)` 重复收敛。人工核对不会重开被取消的 Case。实际 round blocked/manual 继续可见；不能为让阶段验收全成功而自动确认。
 
 ```sh
+# 先用 PGHOST/PGPORT/PGUSER/PGPASSWORD 选定本轮专用实验实例
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/mix lab.approval --output artifacts/week18-approval-incident-drill
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 使用真实 PostgreSQL、关闭全局 Scheduler、选择全新输出目录。十一项演练包含实际 effect 门闩、审批/返工提交前后 kill、改回原字节仍失效、基线冲突及原 Run 暂停恢复；synthetic actor 是实验输入，不是真实发布批准。报告检查 all_passed、expected_case_count、逐项快照、原预算/操作台账与只读审计。空闲独立 BEAM 的 `Approvals.Audit.run(case_id)` 必须无模型、工具、控制变更或 Artifact.capture/check_baselines 调用；计数为 VM 全局，不与执行并行。核对正式快照、录制、预算及原始表事实没有变化。结果见 [W18 验收](validation-week18.md) 与 [P4 总结](p4-report.md)。
@@ -734,9 +752,13 @@ restart 同样可以显式清空仍存活观察器，重建队列、recent、指
 ### 演练和关闭事故
 
 ```sh
+# 先用 PGHOST/PGPORT/PGUSER/PGPASSWORD 选定本轮专用实验实例
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/mix lab.observe --output artifacts/week19-observability-incident-drill
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 演练需真实 PostgreSQL、关闭全局 Scheduler 和全新目录，只消费自己创建的队列/Run。八项检查包括实际续租门闩、unknown 的人工核对、审批返工四个子 Run 的关联、五种导出模式执行等价、16,000 条并发观察、有观察器缺失的真实执行、COMMIT 两窗口进程 kill 及只读审计。保存的 manual unknown 仍需按原核对流程处理，不能为关闭观测事故而重发工具。
@@ -763,7 +785,7 @@ LAB_DATABASE_ENABLED=false ./scripts/mix test
 
 实际 `artifact.txt` 经受控读取后保存到单独评分目录。可信固定 Scorer 在新 OS BEAM 中只检查文件 hash/字节，不执行产物代码，不启动项目应用或继承数据库/API 凭据；请求与结果绑定 task/sample/artifact/scorer 身份。模型自报成功不授予分数，产物正确而 Run 已预算失败也不能计任务成功。
 
-Scorer 默认 3 秒、输出上限 8 KiB；独立 guardian 持有 Port 并监控调用者，超时、输出超限和调用者被 kill 都清理实际子进程。它不是用于执行不可信代码的安全 sandbox，也不对抗同宿主账户恶意改文件。产物快照只读标志、hash 与评分前后原事实指纹用于发现变化；变化或读取失败会使 usage 未知，不能把旧的部分计数当完整成本。
+Scorer 默认 3 秒、输出上限 8 KiB；独立 guardian 持有 Port 并监控调用者，在超时、输出超限和调用者被 kill 时尝试终止本次自有 OS 子进程、关闭 Port 并有界轮询。当前 helper 最多轮询约 1.5 秒，到截止时仍可返回 `:ok`，评分结果没有独立的 `cleanup_verified` 字段；返回本身不认证退出，现场须按本次记录的自有 PID 独立核对进程已消失，仅关闭 Port 也不足以证明清理完成。它不是用于执行不可信代码的安全 sandbox，也不对抗同宿主账户恶意改文件。产物快照只读标志、hash 与评分前后原事实指纹用于发现变化；变化或读取失败会使 usage 未知，不能把旧的部分计数当完整成本。
 
 成本权威来源是原持久账本，公式为 `1000 × model_attempts + output_bytes + 250 × tool_attempts`，单位 synthetic lab units；dispatches 报告但不加价。output_bytes 包括已扣模型输出，不是 token，也不代表文件总大小。USD 始终 null；没有真实 provider usage/价格时不编造真实费用。失败消耗不退款、不丢样本；usage 缺失时保留 known sum/unknown count，总成本为 null。
 
@@ -799,9 +821,13 @@ LAB_DATABASE_ENABLED=false ./scripts/mix lab.eval.compare \
 完整 report hash 包含当次真实 Run ID 与延迟；可重复语义签名排除这些变量。相同 profile 重复应保持任务结果、规范化回执、产物和成本，不能要求 OS PID 或耗时逐字节一致。hash 用于内容身份，不是签名或可信来源证明；回归还需核对原账本和实际文件。实时 Trace/Metrics 是可丢观察，不作为评测费用来源。
 
 ```sh
+# 先用 PGHOST/PGPORT/PGUSER/PGPASSWORD 选定本轮专用实验实例
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/mix lab.eval.verify --output artifacts/L19-acceptance-repeat
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 完整演练分别运行两个分割的 reference、重复 reference 和 regressed，再检查稳定语义/成本、逐任务退步、篡改与不兼容拒绝、只读比较零执行。独立审计脚本以实际目录验证统计、oracle、持久源、原表行 hash 与既有数据保留，见 [W20 验收](validation-week20.md)。本周未宣称完成外部六章试读或真实模型评估。
@@ -900,13 +926,13 @@ W23 整理接口、版本、课程与操作材料，当前项目仍为 `0.1.0-de
 
 ### 给学生和操作者稳定入口
 
-[C01—C12](course-map.md) 是原十二个主题的课程组织编号，对照现有 L01—L22，不重命名历史实验。[三十张章节卡](../book/chapter-cards.md)是设计材料，只有六章具有本轮试读稿。没有历史 Git 起始标签时，使用明确 hash 的冻结源码副本与参考解答，不编造 start tag。
+[C01—C12](course-map.md) 是原十二个主题的课程组织编号，对照现有 L01—L22，不重命名历史实验。[三十张章节卡](../book/chapter-cards.md)记录设计与旧发行契约；当前全书已有 30 章正文草稿，入口见[阅读路线](../book/reading-route.md)，原六章试读稿仍保留此前冻结身份。没有历史 Git 起始标签时，使用明确 hash 的冻结源码副本与参考解答，不编造 start tag。
 
 公开命令、只读诊断入口、宿主维护动作和内部模块在接口手册中分列。Provider 行为契约不代表当前 RunServer 可以任意注入 Provider；工具也不能靠模型自报名称或 schema 注册。修改适配器必须重新验证权限、参数、operation/attempt 绑定、回执、取消与恢复测试。源码准备工具不为调用者授予执行、审批或续跑能力。
 
 ### 故障、升级与回退
 
-实际回归仍运行 `./scripts/mix check`，内存检查使用单命令前缀 `LAB_DATABASE_ENABLED=false ./scripts/mix test`。平台特定用例排除须写明，不能将未运行 Linux CI 或未执行的 20 次冻结故障矩阵写为通过。CI 固定 Ubuntu 24.04、OTP/Elixir、PostgreSQL 版本并加入准备检查和内存回归；现有 action 版本标签和镜像标签不等于不可变供应链签名。
+实际回归先按[完整回归的环境准备](command-reference.md#完整回归的环境准备)选定自己的可丢弃 PostgreSQL，再运行 `env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check`；内存检查使用单命令前缀 `LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test`。另开终端时重新选择实例并清除 `DATABASE_URL`，不要让之前的 URL 改指完整回归。平台特定用例排除须写明，不能将未运行 Linux CI 或未执行的 20 次冻结故障矩阵写为通过。CI 固定 Ubuntu 24.04、OTP/Elixir、PostgreSQL 版本并加入准备检查和内存回归；现有 action 版本标签和镜像标签不等于不可变供应链签名。
 
 任何版本或文档变更先保留前一版 manifest、实际源码和证据，再按受控流程修订清单、运行对应专项及全量回归。业务历史迁移/还原继续走第 19 节：默认只读目标、完整 proof、撤销复制 lease、提升 fencing generation、显式激活及重新领取；不把源码 hash 相等当作数据库兼容证明。回退代码也不能跳过历史版本校验或使用已经失效的旧 claim。
 

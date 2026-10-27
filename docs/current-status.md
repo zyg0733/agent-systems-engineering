@@ -1,6 +1,6 @@
 # 当前内容、运行环境与边界
 
-更新：2026-10-27（Asia/Shanghai）。这里是当前阅读入口；[W24 已知限制](known-limitations.md)和各周验收保留各自历史时点，不作为新修订已经执行的证明。
+更新：2026-10-28（Asia/Shanghai）。这里是当前阅读入口；[W24 已知限制](known-limitations.md)和各周验收保留各自历史时点，不作为新修订已经执行的证明。
 
 ## 现在可以读什么
 
@@ -8,9 +8,13 @@
 
 本轮按项目所有者决定使用 subagent 模拟读者与交叉技术审查，不做真人试读或公开试读评审。六章首批准备见[首轮报告](learning-revision-review.md)，完整阅读/实验路线、练习及解答复核见[第二轮报告](learning-round2-review.md)，新导读与 P3 有界复验见[后续记录](learning-followup-review.md)。模拟、静态核查、代码实跑和浏览器检查分别记录。没有真人满意度或学习完成率，也不要求取得这些数据才能继续编辑。
 
+2026-10-28 的[公开准备修订](readiness-improvements-review.md)同步配套命令和 L19 口径，补齐测试外壳、三个设计案例、终章综合任务、检索排序与 Linux 起步路线；具体执行和未执行范围见该记录。内容准备与实际公开继续分别处理。
+
 ## 阅读站与源码如何取得
 
 源码托管在[私有 GitHub 仓库](https://github.com/zyg0733/agent-systems-engineering)，克隆、编辑链接和 Actions artifact 下载需要仓库权限。Pages 未开启，没有公开阅读地址。静态网页展示教材，不能在浏览器运行 BEAM、PostgreSQL 或隔离实验。
+
+[材料获取与反馈](material-access.md)按阅读、实验、源码引用和历史证据说明访问范围，没有公共下载或自助授权入口；阅读站页脚先进入这份说明。Ubuntu 用户可从 [Linux core 入门](linux-core-start.md)开始适用实验，完整隔离后端仍限已声明的 macOS 路线。
 
 完整 Git 克隆可按[阅读站维护说明](reading-site.md)用 Node.js 24 构建/预览；实验导出包不包含站点 Node 工具链。源码获取与平台准备另见[项目 README](../README.md)。
 

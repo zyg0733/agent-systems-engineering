@@ -33,17 +33,20 @@
 
 在项目根目录执行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.p2
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
-后续命令与 IEx 沿用这个终端；另开终端时先重新设置上述两个环境变量。P2 需要启用 Repo，并由 runner 自己显式驱动领取、等待与接管，全局 Scheduler 不应同时消费这些故障夹具。
+后续命令与 IEx 沿用这个终端；另开终端时先选择实例、清除 `DATABASE_URL` 并重新设置上述两个环境变量。P2 需要启用 Repo，并由 runner 自己显式驱动领取、等待与接管，全局 Scheduler 不应同时消费这些故障夹具。
 
 `lab.p2` 为每个故障窗口创建独立 Run，默认每个窗口重复 20 次。它会执行真实的调用进程 kill、等待 PostgreSQL lease 到期、在同一业务身份下接管，并用新 BEAM 继续专门的跨进程场景。该命令会调用离线 Provider 和持久 Mock，属于执行路径。请使用实验数据库和独立输出目录。
 

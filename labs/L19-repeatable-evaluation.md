@@ -10,7 +10,12 @@
 
 在项目根目录执行，使用现有 PostgreSQL。评测要求关闭全局后台 Scheduler，以免它与顺序评测争领任务；本周不需要真实模型凭据或新的数据库表。
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres status
 ./scripts/mix ecto.migrate
 
@@ -35,8 +40,8 @@
   --output artifacts/L19-holdout-regression
 
 ./scripts/mix lab.eval.verify
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 已存在的输出目录拒绝覆盖，重复执行需换目录。`lab.eval` 默认 dev、reference、每任务 2 次；CLI 允许 1—10 次。带 `--baseline` 时，基线协议会在创建输出和执行样本前核验。发现回归后仍保存完整 report/comparison，再以失败退出；这与执行中断、没有完整 report 的情况不同。
@@ -93,7 +98,7 @@ flowchart LR
 
 请求和结果绑定 sample ID、task hash、artifact SHA-256 与 scorer hash。产物自报“TASK SUCCEEDED”或模型最终文字都不能替代独立判定。缺失、过大、不可读取的产物，以及超时、输出超限、非零退出、错误 schema 或配对不符，必须可见为 scorer error 或已有执行失败，不能算成功。默认评分 timeout 3 秒、stdout 上限 8 KiB；宿主接口有硬上限。
 
-独立 guardian 持有 Port 并监控调用者。超时、输出超限或调用者被 kill 时，会终止实际 owned OS PID、关闭 Port 并等待退出；仅关闭 Port 不足以证明 BEAM 已终止。测试还需用实际 PID 检查进程消失。评分前后核对原持久化 source fingerprint 与捕获产物 hash，scorer 不得修改业务事实。上述隔离用于运行可信固定 grader，不是执行不可信代码的安全 sandbox；只读权限也不代表对同一宿主账户的恶意写入有完整隔离。
+独立 guardian 持有 Port 并监控调用者。超时、输出超限或调用者被 kill 时，尝试终止本次 owned OS PID、关闭 Port 并有界轮询。当前 helper 最多轮询约 1.5 秒，到截止时仍可返回 `:ok`，评分结果没有独立的 `cleanup_verified` 字段；函数返回本身不认证 BEAM 已退出。固定测试还需用实际自有 PID 独立检查进程消失，仅关闭 Port 不足以证明清理完成。评分前后核对原持久化 source fingerprint 与捕获产物 hash，scorer 不得修改业务事实。上述隔离用于运行可信固定 grader，不是执行不可信代码的安全 sandbox；只读权限也不代表对同一宿主账户的恶意写入有完整隔离。
 
 ## 5. 成功率、成本与延迟口径
 

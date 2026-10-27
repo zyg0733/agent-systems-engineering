@@ -25,16 +25,19 @@
 
 在项目根目录执行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.recover
 ```
 
-后续命令与 IEx 沿用这个终端；另开终端时先重新设置上述两个环境变量。本实验需要启用 Repo，由观察者显式调用 step/resume，不让全局 Scheduler 抢先领取示例意图；关闭后台调度不会禁止演示自己的受控执行。
+后续命令与 IEx 沿用这个终端；另开终端时先选择实例、清除 `DATABASE_URL` 并重新设置上述两个环境变量。本实验需要启用 Repo，由观察者显式调用 step/resume，不让全局 Scheduler 抢先领取示例意图；关闭后台调度不会禁止演示自己的受控执行。
 
 演示产物、准确测试计数和实际故障点见 [第 8 周验收记录](../docs/validation-week08.md)。重复运行使用新的输出目录，避免覆盖已有证据：
 
@@ -237,7 +240,7 @@ lost_id = "l07-lost-#{suffix}"
 - 给同 operation 更换参数，冲突测试应阻止第二个业务效果。
 - 将旧 claim 结果提交到已取消 Run，迟到响应测试应保持终态不变。
 
-恢复实现后执行 `env -u DATABASE_URL ./scripts/mix check`。本周评分建议：持久配置与预算恢复 20 分，claim/lease/fencing 20 分，operation/attempt/receipt 与幂等 20 分，未知结果核对 20 分，真实故障注入与独立进程证据 15 分，边界说明 5 分。
+恢复实现后执行 `env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check`。本周评分建议：持久配置与预算恢复 20 分，claim/lease/fencing 20 分，operation/attempt/receipt 与幂等 20 分，未知结果核对 20 分，真实故障注入与独立进程证据 15 分，边界说明 5 分。
 
 有三条硬性要求：重建路径仍是零效果；恢复不能重置预算或猜测 Provider 游标；未知的非幂等外部效果不得自动重发。任一条件不满足均不算完成。
 

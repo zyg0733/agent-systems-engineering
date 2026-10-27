@@ -8,12 +8,17 @@
 
 使用现有本机 PostgreSQL 和项目固定运行时；关闭全局 Scheduler，不需要模型凭据。演练会创建随机、带 capability 和 owner marker 的新数据库，并在结束时精确清理自己拥有的目标；它不覆盖 dev/test 库，不停止共享 PostgreSQL，也不使用 force drop。
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres status
 ./scripts/mix ecto.migrate
 ./scripts/mix lab.upgrade --output artifacts/L20-history-upgrade
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 输出目录必须全新，重复演练请换目录。先观察 `report.json` 中兼容、迁移、只读核验、旧 claim 拒绝和安全续跑的各项结论，再核对 `database-cleanup.json`。数据库对象和工作区是分开的：本实验保留原授权工作区及文件，数据库清理不表示工作区文件也已归档或删除。报告不应包含凭据或 claim token；私有旧 claim fixture 仅用于本机故障验证，不能当公共观测附件。

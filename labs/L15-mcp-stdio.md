@@ -16,11 +16,16 @@
 
 在项目根目录执行。正式实验包含持久化故障窗口，需要现有 PostgreSQL；内存调用示例不依赖数据库：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/mix lab.mcp
 ./scripts/mix lab.mcp --output artifacts/week16-mcp-repeat
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 默认输出 `artifacts/week16-mcp`，目录已存在时拒绝覆盖。每次复验选择新目录，并保留失败证据。平台或隔离后端不可用时返回明确错误，不退回普通宿主进程。

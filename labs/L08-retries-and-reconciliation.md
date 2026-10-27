@@ -37,17 +37,20 @@ alias AgentSystemsLab.ErrorPolicy
 
 在项目根目录执行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.retry
 ./scripts/mix lab.reconcile
 ```
 
-后续命令与 IEx 沿用这个终端；另开终端时先重新设置上述两个环境变量。启用 Repo 并关闭全局 Scheduler 后，由观察者决定何时 resume/reconcile，不会在你检查 due、claim 和队列之前被后台推进示例。
+后续命令与 IEx 沿用这个终端；另开终端时先选择实例、清除 `DATABASE_URL` 并重新设置上述两个环境变量。启用 Repo 并关闭全局 Scheduler 后，由观察者决定何时 resume/reconcile，不会在你检查 due、claim 和队列之前被后台推进示例。
 
 重复演示时使用新目录，保留原始证据：
 
@@ -302,6 +305,6 @@ reservation 在真正调用前提交。相同 token 二次 reserve 应拒绝；�
 - 移除旧 token、取消或 expected seq 校验时，迟到结果与竞争断言必须失败。
 - 将失败半截流放进模型结果录制时，录制数量与配对断言必须失败。
 
-最后执行 `env -u DATABASE_URL ./scripts/mix check`，确认前序 fixture、历史重建、事务崩溃和第 8 周恢复测试仍通过。建议评分：分类与停止规则 15 分，有限持久重试与退避 25 分，超时和预算 20 分，unknown/队列/核对 20 分，真实故障与跨进程证据 15 分，边界说明 5 分。
+最后执行 `env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check`，确认前序 fixture、历史重建、事务崩溃和第 8 周恢复测试仍通过。建议评分：分类与停止规则 15 分，有限持久重试与退避 25 分，超时和预算 20 分，unknown/队列/核对 20 分，真实故障与跨进程证据 15 分，边界说明 5 分。
 
 三条硬性要求：次数和时间必须有限；重建与队列读取仍零效果；未知的非幂等业务不得自动重发。任一条件不满足均不算完成。参考解答见 [L08 解答](solutions/L08.md)。

@@ -8,15 +8,20 @@
 
 在项目根目录执行。正式实验与持久化诊断需要现有 PostgreSQL；本周不增加业务数据库表或外部模型凭据。
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres status
 ./scripts/mix ecto.migrate
 ./scripts/mix lab.observe
 ./scripts/mix lab.observe --output artifacts/week19-observability-repeat
 ./scripts/mix lab.trace RUN_ID --json --scope run --limit 100
 ./scripts/mix lab.trace RUN_ID --json --scope related --max-related-runs 24
-./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 用报告中的实际 Run ID 替换 `RUN_ID`。已有输出目录拒绝覆盖，重复演练使用新目录。正式用例、审计与测试数量以实际报告和验收记录为准，不能由本文的检查清单推定通过。

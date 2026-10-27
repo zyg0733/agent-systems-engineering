@@ -16,17 +16,20 @@
 
 ## 2. 准备与运行范围
 
-在项目根目录的同一终端执行；另开终端时先重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
+在项目根目录的同一终端执行；另开终端时先选择实例、清除 `DATABASE_URL` 并重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
+
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
 
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
 ./scripts/mix lab.database
 ./scripts/mix lab.p3
-env -u DATABASE_URL ./scripts/mix check
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 `lab.database` 默认输出 `artifacts/week14-database`，`lab.p3` 默认输出 `artifacts/week14-p3`，重复次数默认 2、范围 1—10。数据库 runner 对五个窗口各重复 N 次；P3 的 N 作用于信号暂停与数据库窗口，scheduling/load 组件各运行一次、每次 12 个任务。输出目录不得覆盖；再次运行使用新目录：

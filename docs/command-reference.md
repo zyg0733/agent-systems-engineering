@@ -2,7 +2,7 @@
 
 本页保留原 README 的详细命令、实现说明与逐阶段阅读入口。所有命令均在项目根目录执行；新克隆环境先按 [首页](../README.md)安装。当前接口合同以[公开接口与扩展契约](public-interfaces.md)为准，实际结果以各周验收记录为准。
 
-《Agent Systems Engineering》的 Elixir/OTP 配套实验项目。已完成第 1—21 周：状态机、Provider 与工具、事务存储、Streaming、取消与预算、受控文件与补丁、Session/Context、历史与模型录制、持久恢复、有限重试和核对队列、后台多 Worker 调度、lease/heartbeat/fencing、背压与公平性、数据库断连恢复、P3 验收、隔离执行器、MCP stdio、持久化 DAG、绑定产物的人工审批与受控返工、统一观测、固定任务评测与基线回归，以及旧历史迁移、版本兼容与备份还原。配套 L01—L25 实验、阶段验收证据、Oban 源码对照与六章试读稿。第 22 周技术交付与干净环境复现已落地，第 23 周整理发布准备入口、版本契约、12 个课程单元与 30 张章节卡；第 24 周冻结矩阵与候选交付见实际验收记录；第 25 周增加版本化发行评估、显式冻结试读与追加反馈闭环；第 26 周补齐跨环境执行与有界证据采集；3–5 名真人试读、冷主机、完整 Linux 与正式发布准入单独记录。
+《Agent Systems Engineering》的 Elixir/OTP 配套实验项目。已完成第 1—21 周：状态机、Provider 与工具、事务存储、Streaming、取消与预算、受控文件与补丁、Session/Context、历史与模型录制、持久恢复、有限重试和核对队列、后台多 Worker 调度、lease/heartbeat/fencing、背压与公平性、数据库断连恢复、P3 验收、隔离执行器、MCP stdio、持久化 DAG、绑定产物的人工审批与受控返工、统一观测、固定任务评测与基线回归，以及旧历史迁移、版本兼容与备份还原。配套 L01—L25 实验、阶段验收证据、Oban 源码对照与全书 30 章正文草稿；原六章试读稿属于此前冻结记录。第 22 周技术交付与干净环境复现已落地，第 23 周整理发布准备入口、版本契约、12 个课程单元与 30 张章节卡；第 24 周冻结矩阵与候选交付见实际验收记录；第 25 周增加版本化发行评估、显式冻结试读与追加反馈闭环；第 26 周补齐跨环境执行与有界证据采集；历史真人统计、冷主机、完整 Linux 与正式发布准入保留各自证据口径；当前教材修订采用 subagent 模拟与实际检查，不以真人招募为前置。
 
 固定输入、脚本、配置与工作区基线可重现实验轨迹。工具效果与模型提议分开；回执丢失会阻塞执行，必须查询核对才能继续。
 
@@ -10,11 +10,14 @@
 
 验证环境为 Elixir **1.20.4**、Erlang/OTP **28.4**、PostgreSQL **18.6**。依赖已通过 `mix.lock` 锁定，包含 Ecto SQL 与 Postgrex。无需模型密钥。语言要求为 Elixir 1.18 及以上的兼容 1.x 版本；其他组合尚未验证。
 
-以下快捷命令适用于已安装项目专用运行时、依赖和数据库的工作副本；新克隆目录不包含这些本机安装与数据：
+以下快捷命令适用于已安装项目专用运行时、依赖和数据库的工作副本；新克隆目录不包含这些本机安装与数据。先确认 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 指向自己的可丢弃实验实例；不设置时使用下方项目默认值，再清除父终端的 `DATABASE_URL`：
 
 ```sh
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres status
-./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.verify_db
 ./scripts/mix lab.demo
 ./scripts/mix lab.demo --lost-response
@@ -47,18 +50,36 @@
 在新的 macOS 环境中运行：
 
 ```sh
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
 sh scripts/bootstrap_runtime.sh
 ./scripts/mix local.hex --force
 ./scripts/mix deps.get
 sh scripts/bootstrap_postgres.sh
 ./scripts/postgres start
 ./scripts/mix setup
-./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ```
 
-脚本按 [Elixir 官方安装方式](https://elixir-lang.org/install/) 下载固定版本，并从 PostgreSQL 官方源码构建项目专用实例；文件与数据都位于 `.runtime/`，不修改 shell 配置。构建 PostgreSQL 需要 C 编译器和 make。Linux 可用版本管理器及自备 PostgreSQL；CI 配置已加入 PostgreSQL 服务。
+脚本按 [Elixir 官方安装方式](https://elixir-lang.org/install/) 下载固定版本，并从 PostgreSQL 官方源码构建项目专用实例；文件与数据都位于 `.runtime/`，不修改 shell 配置。构建 PostgreSQL 需要 C 编译器、make、Bison、Flex 和 Perl，完整系统前置见 [README](../README.md#快速开始)。Linux 需另备固定版本工具链；CI 配置已加入 PostgreSQL 服务。
 
-默认连接为 `127.0.0.1:55432`，用户 `postgres`，开发库 `agent_systems_lab_dev`，测试库 `agent_systems_lab_test`。可通过 `DATABASE_URL` 或 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 配置其他实验实例。项目实例仅监听回环地址，使用开发环境的本机 trust 认证；它不是生产数据库配置。启动脚本启用 fsync、同步提交与 full_page_writes。
+### 完整回归的环境准备
+
+默认连接为 `127.0.0.1:55432`，用户 `postgres`，开发库 `agent_systems_lab_dev`，测试库 `agent_systems_lab_test`。项目实例仅监听回环地址，使用开发环境的本机 trust 认证；它不是生产数据库配置。启动脚本启用 fsync、同步提交与 full_page_writes。
+
+单个实验可以用 `DATABASE_URL` 指定自己的实验库；完整 `check` 则先通过 `PGHOST/PGPORT/PGUSER/PGPASSWORD` 选择专用、可丢弃实例，保留默认测试库名 `agent_systems_lab_test`，再在同一终端执行以下准备。当前恢复测试会创建、迁移并删除自己管理的临时数据库，全局 URL 会覆盖动态 Repo 的目标，因此不能将原实验 URL 原样带入完整回归。不要指向生产库、共享库或归属不明的实例。
+
+```sh
+unset DATABASE_URL MIX_ENV
+export LAB_DATABASE_ENABLED=true
+export LAB_SCHEDULER_ENABLED=false
+./scripts/mix setup
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
+```
+
+`unset` 修改当前终端，后续 IEx 和实验命令继承它；`env -u DATABASE_URL` 只清除这一次子进程的 URL，不能代替父终端准备。另开终端时先重新确认同一专用实例并重复 `unset` 与两条 `export`。单命令的内存模式前缀不会改变父终端，下一条完整回归仍显式启用数据库并关闭全局 Scheduler。应用级调度演示只在对应实验中显式启用，不能带进完整回归。
 
 普通演示最终输出：
 
@@ -108,9 +129,9 @@ rebuild_matches=true (in-memory history; no durable storage)
 | `./scripts/mix lab.eval.compare BASELINE CANDIDATE [--output DIR]` | 只读保存报告，重算验证后比较总体及逐任务回归；不启动应用或执行任务 |
 | `./scripts/mix lab.eval.verify [--output DIR]` | 六组开发/保留集基线、重复与主动退步，验证可重复语义、完整分母和零执行比较 |
 
-已安装全局 Elixir 时，可以直接使用 `mix check` 等命令。
+已安装全局 Elixir 时可以使用全局 `mix`，但仍须遵循上述实例选择与环境准备；例如完整回归使用 `env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false mix check`。
 
-只研究内存模式且不启动数据库时，用 `LAB_DATABASE_ENABLED=false ./scripts/mix test` 排除数据库测试；同样的环境变量可用于内存演示和 Streaming 演示。完整 `check`、L02 与 L03 的数据库实验需要 PostgreSQL。
+只研究内存模式且不启动数据库时，用 `LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test` 排除数据库测试；同样的单命令前缀可用于内存演示和 Streaming 演示。完整 `check`、L02 与 L03 的数据库实验需要 PostgreSQL。
 
 ## 代码与阅读顺序
 

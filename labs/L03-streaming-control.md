@@ -32,19 +32,22 @@
 
 在项目根目录运行：
 
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
+
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.stream
 ./scripts/mix lab.stream --cancel
 ./scripts/mix lab.stream --budget
 ./scripts/iex
 ```
 
-如果运行时或数据库尚未安装，先按 README 准备。本页后续命令在同一终端继续；新开终端时先重新执行两条 `export`。完整验收需要真实 PostgreSQL，后台 Scheduler 保持关闭。只做第 3—6 节内存练习时，可跳过数据库启动与 setup，先执行 `export LAB_SCHEDULER_ENABLED=false`，再用 `LAB_DATABASE_ENABLED=false ./scripts/iex`；第 7 节另用启用数据库的会话。数据库目标、配置和可丢弃数据的要求沿用 L02。
+如果运行时或数据库尚未安装，先按 README 准备。本页后续命令在同一终端继续；新开终端时先选择实例、清除 `DATABASE_URL` 并重新执行两条 `export`。完整验收需要真实 PostgreSQL，后台 Scheduler 保持关闭。只做第 3—6 节内存练习时，可跳过数据库启动与 setup，先执行 `export LAB_SCHEDULER_ENABLED=false`，再用 `LAB_DATABASE_ENABLED=false ./scripts/iex`；第 7 节另用启用数据库的会话。数据库目标、配置和可丢弃数据的要求沿用 L02。
 
 在同一 IEx 会话定义这些辅助函数：
 
@@ -326,7 +329,7 @@ Runtime 的输出计数、定时器、活动请求和缓存不是持久 checkpoi
 运行并保留完整结果：
 
 ```sh
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.stream
 ./scripts/mix lab.stream --cancel
 ./scripts/mix lab.stream --budget

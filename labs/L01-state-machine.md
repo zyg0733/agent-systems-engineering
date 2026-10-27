@@ -75,6 +75,33 @@ GenServer.stop(tool)
 
 请先独立画一张状态图，再对照 [架构说明](../docs/architecture.md)。图中必须有 `queued`、`running`、`waiting_tool`、`blocked`、`succeeded`、`failed`、`cancelled`，并明确非法命令的处理方式。
 
+### 先准备一个能独立运行的测试文件
+
+如果你第一次使用 ExUnit，先建立测试的外壳，再做后文的业务断言。在自己的练习副本根目录执行 `mkdir -p test/student`，把下面内容保存为新文件 `test/student/l01_student_test.exs`；不要覆盖仓库现有测试：
+
+```elixir
+defmodule AgentSystemsLab.L01StudentTest do
+  use ExUnit.Case, async: true
+
+  test "能比较实际值与预测值" do
+    actual = Enum.sum([1, 2, 3])
+    assert actual == 6
+  end
+
+  # 在这里继续添加你为 L01 设计的独立 test。
+end
+```
+
+退出 IEx 后，在项目根目录的终端运行这一个文件：
+
+```sh
+MIX_ENV=test LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test test/student/l01_student_test.exs
+```
+
+`defmodule` 给测试模块命名，`use ExUnit.Case` 引入测试 DSL；每个 `test ... do` 是独立用例，`assert` 比较实际值和你预先写下的预期。这个骨架只有一个练习用例，应通过 1 项、失败 0 项；当前固定版本的汇总显示 `Result: 1 passed`。先把预期的 `6` 改成 `7`，再次运行，观察失败位置与实际值；保存这次失败后恢复为 `6`，确认重新通过。不要通过修改 `actual` 去迎合错误预期。
+
+然后在同一模块中新增自己的业务 `test`。需要短名时，在模块内加入 `alias AgentSystemsLab.Kernel, as: LabKernel`；每个用例从新的初态开始，先写预测，再构造输入、调用内核和检查返回。第 5—8 节会提出要检验的性质，这里不提前给出它们的断言答案。保留“预期失败 → 原因 → 修正 → 通过”的记录；上面的算术用例通过只说明测试文件能够运行，不代表已经完成 L01。
+
 ## 2. 准备与基线
 
 先按照 README 准备 Elixir/OTP，在仓库根目录运行。项目的 `scripts/mix` 优先使用 `.runtime/` 中的项目运行时，也兼容已安装的全局 Mix：

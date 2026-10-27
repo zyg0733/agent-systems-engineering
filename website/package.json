@@ -8,13 +8,14 @@
   "scripts": {
     "prepare:content": "node scripts/prepare.mjs",
     "dev": "npm run prepare:content && vitepress dev --host 127.0.0.1",
-    "build": "npm run prepare:content && vitepress build && node scripts/check-output.mjs",
+    "build": "npm run prepare:content && vitepress build && node scripts/check-output.mjs && node scripts/check-search.mjs",
     "preview": "node scripts/preview.mjs",
     "check": "node --test scripts/site.test.mjs"
   },
   "devDependencies": {
     "github-slugger": "2.0.0",
     "mermaid": "12.2.0",
+    "minisearch": "7.2.0",
     "vitepress": "1.6.4"
   }
 }

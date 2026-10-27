@@ -40,16 +40,19 @@ Run / Event / 下一调度意图在同一事务提交
 
 ## 3. 启动与观察
 
-在项目根目录的同一终端准备数据库；另开终端时先重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
+在项目根目录的同一终端准备数据库；另开终端时先选择实例、清除 `DATABASE_URL` 并重新执行下面两条 `export`。显式启用数据库、关闭应用级 Scheduler，避免继承内存实验或其他实验留下的配置：
+
+运行下段完整回归前，先按[完整回归的环境准备](../docs/command-reference.md#完整回归的环境准备)确认自己的可丢弃 PostgreSQL 实例；自定义实例先设置 `PGHOST/PGPORT/PGUSER/PGPASSWORD`，再清除 `DATABASE_URL`。完整回归使用默认测试库名 `agent_systems_lab_test`；另开终端时重新做同样准备。
 
 ```sh
+unset DATABASE_URL MIX_ENV
 export LAB_DATABASE_ENABLED=true
 export LAB_SCHEDULER_ENABLED=false
 ./scripts/postgres start
 ./scripts/mix setup
-env -u DATABASE_URL ./scripts/mix check
+env -u DATABASE_URL MIX_ENV=test LAB_DATABASE_ENABLED=true LAB_SCHEDULER_ENABLED=false ./scripts/mix check
 ./scripts/mix lab.schedule
-LAB_DATABASE_ENABLED=false ./scripts/mix test
+LAB_DATABASE_ENABLED=false LAB_SCHEDULER_ENABLED=false ./scripts/mix test
 ```
 
 `lab.schedule` 创建独立示例 Run 并运行多 Worker 演示，实际结果见输出报告。它不会接管某个事故 Run。为已有 Run 开启自动执行前，先按运行手册核对原配置、权限、预算与 unknown 状态；测试或演示应始终限定 `run_ids`，避免消费同一数据库中的其他练习。
