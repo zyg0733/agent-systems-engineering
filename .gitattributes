@@ -1,2 +1,9 @@
 # Preserve the unmodified upstream CC license, including its final blank line.
 LICENSE-DOCS whitespace=-blank-at-eof
+# Preserve upstream license bytes and their reviewed SHA256 across checkouts.
+website/third-party/** -text
+website/third-party/elkjs-UPSTREAM-NOTICES.txt whitespace=-blank-at-eol
+website/third-party/*-ORIGINAL-NOTICES.txt whitespace=-blank-at-eol,-blank-at-eof
+website/third-party/*-ADDITIONAL-NOTICES.txt whitespace=-blank-at-eol,-blank-at-eof
+website/third-party/EPL-1.0-original.html whitespace=-blank-at-eol,-space-before-tab
+website/third-party/chevrotain-allstar-0.5.0/LICENSE whitespace=cr-at-eol

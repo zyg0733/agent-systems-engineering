@@ -4,6 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { slug } from 'github-slugger'
 import { boostReadingDocument, tokenizeReadingText } from '../scripts/search-policy.mjs'
+import { thirdPartyLicenses } from '../scripts/third-party-licenses.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const source = path.join(root, '.content')
@@ -22,7 +23,7 @@ const labs = readdirSync(path.join(source, 'labs')).filter(file => /^L\d\d-.*\.m
   link: '/labs/' + file.replace(/\.md$/, '')
 }))
 const sidebar = [
-  { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '先修自测与桥接', link: '/book/prerequisites' }, { text: '阅读路线与章节', link: '/reading' }, { text: '术语与易混概念', link: '/book/glossary' }, { text: '材料获取与反馈', link: '/docs/material-access' }, { text: 'Linux core 入门', link: '/docs/linux-core-start' }, { text: '当前状态与边界', link: '/docs/current-status' }, { text: '环境准备与项目说明', link: '/project' }] },
+  { text: '从这里开始', items: [{ text: '开始学习', link: '/start' }, { text: '先修自测与桥接', link: '/book/prerequisites' }, { text: '阅读路线与章节', link: '/reading' }, { text: '术语与易混概念', link: '/book/glossary' }, { text: '材料获取与反馈', link: '/docs/material-access' }, { text: '固定版本实验包', link: '/docs/experiment-package' }, { text: '勘误与问题反馈', link: '/docs/errata' }, { text: 'Linux core 入门', link: '/docs/linux-core-start' }, { text: '当前状态与边界', link: '/docs/current-status' }, { text: '环境准备与项目说明', link: '/project' }] },
   { text: '全书正文 · 30 章草稿', items: chapterParts },
   { text: '动手实验 · L01—L25', collapsed: true, items: labs },
   { text: '课程与教学', collapsed: true, items: [{ text: 'C01—C12 课程地图', link: '/docs/course-map' }, { text: '全书 30 章设计卡', link: '/book/chapter-cards' }, { text: '教师参考与使用方式', link: '/teaching' }, { text: '全书草稿与交叉评审', link: '/docs/book-completion-review' }] },
@@ -38,6 +39,7 @@ export default defineConfig({
   srcDir: '.content',
   cleanUrls: false,
   lastUpdated: false,
+  vite: { plugins: [thirdPartyLicenses({ root })] },
   head: [['link', { rel: 'icon', type: 'image/svg+xml', href: base + 'logo.svg' }]],
   themeConfig: {
     logo: '/logo.svg',
@@ -54,9 +56,9 @@ export default defineConfig({
     skipToContentLabel: '跳到正文',
     externalLinkIcon: true,
     socialLinks: [{ icon: 'github', link: repo, ariaLabel: 'GitHub 源码仓库（需访问权限）' }],
-    editLink: { pattern: '/docs/material-access.html#反馈与勘误', text: '反馈与材料获取' },
+    editLink: { pattern: ({ relativePath }) => '/docs/errata.html?page=' + encodeURIComponent(relativePath), text: '报告本页问题' },
     footer: {
-      message: `教材 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 代码 <a href="${base}licenses/LICENSE.txt">Apache-2.0</a> · <a href="${base}docs/licensing.html">许可范围与署名</a>`,
+      message: `教材 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 代码 <a href="${base}licenses/LICENSE.txt">Apache-2.0</a> · <a href="${base}docs/licensing.html">许可范围与署名</a> · <a href="${base}licenses/third-party/index.html" target="_self">第三方版权与许可证</a>`,
       copyright: 'Agent Systems Lab contributors · 0.1.0-dev'
     },
     search: { provider: 'local', options: {

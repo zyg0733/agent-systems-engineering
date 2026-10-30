@@ -3,27 +3,7 @@ name: Reading site
 on:
   push:
     branches: [main]
-    paths:
-      - 'website/**'
-      - 'book/**'
-      - 'labs/**'
-      - 'docs/**'
-      - '*.md'
-      - 'LICENSE'
-      - 'LICENSE-DOCS'
-      - 'NOTICE'
-      - '.github/workflows/reading-site.yml'
   pull_request:
-    paths:
-      - 'website/**'
-      - 'book/**'
-      - 'labs/**'
-      - 'docs/**'
-      - '*.md'
-      - 'LICENSE'
-      - 'LICENSE-DOCS'
-      - 'NOTICE'
-      - '.github/workflows/reading-site.yml'
   workflow_dispatch:
 
 permissions:
@@ -79,9 +59,43 @@ jobs:
             printf 'Publication flag: `%s`. A successful build is not a successful Pages deployment.\n' "$PUBLISH_ENABLED"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  experiment-package:
+    name: Build and verify fixed-commit experiment package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build source-only package from this exact commit
+        run: python3 scripts/build_experiment_package.py build --repo . --commit "$GITHUB_SHA" --output artifacts/experiment-package
+      - name: Verify bytes, source identity and extraction
+        run: >-
+          python3 scripts/build_experiment_package.py verify
+          --archive "artifacts/experiment-package/agent-systems-engineering-$GITHUB_SHA.zip"
+          --repo . --checksum-file artifacts/experiment-package/SHA256SUMS
+          --extract artifacts/experiment-package-extracted
+      - name: Upload private experiment package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experiment-source-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/experiment-package/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Record package scope
+        env:
+          CHECKED_COMMIT: ${{ github.sha }}
+        run: |
+          {
+            printf '### Private experiment source package\n\n'
+            printf 'Commit: `%s`\n\n' "$CHECKED_COMMIT"
+            printf 'Source-only ZIP, SHA256SUMS and package summary are in the authenticated artifact.\n\n'
+            printf 'The website toolchain, installed dependencies, runtime data and historical evidence are excluded. This is not a public download or a formal software release.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
     name: Publish approved reading site
-    needs: build
+    needs: [build, experiment-package]
     if: ${{ vars.PUBLISH_READING_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15

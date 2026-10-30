@@ -24,7 +24,7 @@ npm run build
 npm run preview
 ```
 
-`check` 运行 Node 专项测试。`build` 先准备内容，再构建 VitePress，运行 `check-output.mjs` 检查生成 HTML 的站内链接、资源和锚点，再由 `check-search.mjs` 对实际生成的 MiniSearch **7.2.0** 索引执行中文读者查询，检查正文/实验优先及历史排除。它与浏览器使用同一分词和权重配置，依赖版本显式锁定。生产产物位于 `website/.vitepress/dist/`；`preview` 同样只绑定 `127.0.0.1`。应在浏览器核对桌面与窄屏导航、课程与章节入口、搜索结果、代码块、Mermaid 图和前后页。
+`check` 运行 Node 专项测试，包括勘误报告和第三方许可检查。`build` 先准备内容，再构建 VitePress，运行 `check-output.mjs` 检查生成 HTML 的站内链接、资源和锚点，再由 `check-search.mjs` 对实际生成的 MiniSearch **7.2.0** 索引执行中文读者查询，检查正文/实验优先及历史排除，并核对第三方许可产物。它与浏览器使用同一分词和权重配置，依赖版本显式锁定。生产产物位于 `website/.vitepress/dist/`；`preview` 同样只绑定 `127.0.0.1`。应在浏览器核对桌面与窄屏导航、课程与章节入口、搜索结果、代码块、Mermaid 图和前后页。
 
 `preview` 使用项目自己的只读静态服务，显式监听 IPv4 回环地址，并检查真实监听结果；没有使用 VitePress 1.6.4 会忽略 `--host` 的预览实现。它只提供生成目录内的文件，不跟随指向目录外的符号链接。使用其他端口可运行 `npm run preview -- --port 4174`。
 
@@ -45,19 +45,23 @@ SITE_BASE=/ npm run preview
 
 全文搜索在浏览器本地执行，支持中文分词；正文、术语、先修和实验优先，ADR/研究材料仍可检索但权重较低。历史验收周报、P2/P3/P4 报告和 `labs/solutions/` 中的教师参考不进入搜索索引，仍可从相应目录或正文链接访问；这只是减少历史噪声和提前看到答案，不构成权限隔离。继续阅读只保存当前浏览器最近打开的正文章节，可从首页清除，不上传阅读记录。
 
-正文与实验页在生成内容中显示一次项目源码访问说明，不改写原稿中的技术解释或复制实现到站点。页脚的“反馈与材料获取”先进入[站内说明](material-access.md)，再由读者按实际权限选择私有仓库协作或向材料提供者转交模板；不把一次无权限 404 当成损坏的教材。公开下载或新的反馈服务须取得实际地址后再接入。
+正文与实验页在生成内容中显示一次项目源码访问说明，不改写原稿中的技术解释或复制实现到站点。页脚的“报告本页问题”进入[勘误工具](errata.md)并填入当前材料路径；导航保留[材料与权限说明](material-access.md)。报告在当前页面本地生成，可复制或下载；私有 Issue 链接只在读者点击后将报告交给 GitHub，仍需读者确认提交。当前没有公开收件地址，未配置自动提交、邮件发送或表单后台；未指定渠道前，读者按材料提供者转交文本。
 
 阅读站展示的 W22、W24、W25、W26 等验收页是绑定各自冻结源码的历史材料，不能作为当前工作区已经验收的证明。当前范围见[当前状态](current-status.md)，执行记录见 [GitHub CI](github-ci.md)。本轮按所有者决定使用代理模拟评审，不安排真人验证或公开试读，见[质量计划](public-reading-quality-plan.md)；旧[发行评估](release-assessment.md)保留其历史工具语义。
 
 阅读站工具链与实验源码导出的范围分别维护。`lab.reproduce`、Mix 实验包和冻结复现包不包含 `website/` 的 Node 工具链；这些实验包继续沿其固定源码合同使用。构建阅读站须取得完整 Git 克隆，不能把实验导出包当作完整站点源码，也不能把静态站点产物当作完整实验发行包。
 
+新的[固定版本实验源码包](experiment-package.md)使用独立的 Python 工具从精确 Git 提交生成；它与上述历史冻结合同分别验证，不改变旧包、旧 manifest 或历史发行字段。
+
 ## 自动构建与私有预览
 
 独立工作流为 [`.github/workflows/reading-site.yml`](../.github/workflows/reading-site.yml)，不修改现有实验 [CI 工作流](../.github/workflows/ci.yml)。相关内容推送到 `main`、提出 pull request，或手动运行 `workflow_dispatch` 时，执行 `npm ci`、专项检查、构建和产物检查。
 
+同一工作流的 `experiment-package` job 从 `github.sha` 创建固定版本源码包，再对照该提交验证文件字节、清单和解包结果，上传独立的 `experiment-source-<commit>-<run_id>-<attempt>` 私有 artifact。它保留 14 天，下载包不包含网站或已安装依赖；需要长期留存时，维护者应保存原 ZIP 与校验文件。按完整 commit 可重新生成，构建与验包本身不执行包内实验代码；本次实验回归结果仍查看同一提交的 `Lab checks`。
+
 构建成功后上传 `reading-site-preview-<run_id>-<run_attempt>`，保留 14 天。该 artifact 从私有仓库的 Actions 登录下载，用于审阅生成文件；它不是在线预览地址。构建 job 仅有 `contents: read`，不启用 Pages，不申请 Pages 写权限。
 
-独立的 `deploy` job 只在以下条件同时满足时运行：仓库变量 `PUBLISH_READING_SITE` 的字符串值为 `true`，当前 ref 是 `refs/heads/main`，且事件不是 pull request。默认不设置该变量时，部署被跳过，构建仍可正常通过；这不表示网站已经上线。只有部署 job 获得 `pages: write` 和 `id-token: write`，并使用 `github-pages` environment。
+独立的 `deploy` job 依赖网站构建及实验包 job 成功，只在以下条件同时满足时运行：仓库变量 `PUBLISH_READING_SITE` 的字符串值为 `true`，当前 ref 是 `refs/heads/main`，且事件不是 pull request。默认不设置该变量时，部署被跳过，构建仍可正常通过；这不表示网站已经上线。只有部署 job 获得 `pages: write` 和 `id-token: write`，并使用 `github-pages` environment。
 
 部署从同一次运行下载已经验证的预览 artifact，读取已有 Pages 设置，再使用官方 Pages artifact 与部署 Action 发布；不会在部署 job 重新构建另一份内容。`configure-pages` 显式设置 `enablement: false`，不会替维护者开启站点。
 
@@ -73,6 +77,6 @@ SITE_BASE=/ npm run preview
 
 ## 许可证与依赖维护
 
-`website/` 中的原创构建脚本、测试、主题代码和配置采用 Apache-2.0；原创导读文字、教材正文和图表采用 CC BY 4.0。教材内原创代码示例继续采用 Apache-2.0，第三方内容沿其原许可；具体边界见[许可范围说明](licensing.md)。站点携带两份许可证及 NOTICE，公开前检查许可与署名入口。
+`website/` 中的原创构建脚本、测试、主题代码和配置采用 Apache-2.0；原创导读文字、教材正文和图表采用 CC BY 4.0。教材内原创代码示例继续采用 Apache-2.0，第三方内容沿其原许可；具体边界见[许可范围说明](licensing.md)。站点除两份项目许可证及 NOTICE，还随实际客户端产物提供第三方版权、许可原文与来源清单，见[第三方许可维护](third-party-notices.md)和站点页脚入口。依赖、字体及预打包资产变化时，重新核对对应声明，不能只沿用旧版清单。
 
 依赖升级时同步更新精确版本与 lockfile，重新执行专项检查、构建和浏览器核验。工作流的官方 Action 固定到完整提交 SHA，旁注标明核验时的稳定 release；更新时应从各官方仓库的已发布版本核对 SHA，再审阅输入与权限变化。站点构建通过与实验 CI、冻结候选验证、正式发行分别验收。

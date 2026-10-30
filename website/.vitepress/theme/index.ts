@@ -3,6 +3,7 @@ import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 import ReadingProgress from './ReadingProgress.vue'
 import MermaidDiagram from './MermaidDiagram.vue'
+import ErrataReport from './ErrataReport.vue'
 import './style.css'
 
 export default {
@@ -34,5 +35,6 @@ export default {
   enhanceApp({ app }) {
     app.component('ReadingProgress', ReadingProgress)
     app.component('MermaidDiagram', MermaidDiagram)
+    app.component('ErrataReport', ErrataReport)
   },
 } satisfies Theme

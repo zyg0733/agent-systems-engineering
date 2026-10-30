@@ -1,0 +1,572 @@
+{
+  "schema_version": 1,
+  "embedded": [
+    {
+      "name": "fastdom",
+      "version": "1.0.12",
+      "license": "MIT",
+      "repository": {
+        "url": "git://github.com/wilsonpage/fastdom.git",
+        "type": "git"
+      },
+      "distribution": "https://registry.npmjs.org/fastdom/-/fastdom-1.0.12.tgz",
+      "integrity": "sha512-LB+xjSTEbjHE1cWsxu+tN2Xqr1kpi+V9aADI7sVM5ZMaXyYGPHULQMzpJMYqOTULK/73pUkWVzzObFRBkPr+hg==",
+      "license_files": [
+        "fastdom-1.0.12-LICENSE.txt"
+      ],
+      "license_source": "https://github.com/wilsonpage/fastdom/blob/a7b9044d58952b970c8b918dcf0e7c8824ba0ff5/README.md#license"
+    },
+    {
+      "name": "js-yaml",
+      "version": "4.3.0",
+      "license": "MIT",
+      "repository": {
+        "url": "git+https://github.com/nodeca/js-yaml.git",
+        "type": "git"
+      },
+      "distribution": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.0.tgz",
+      "integrity": "sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==",
+      "license_files": [
+        "js-yaml-4.3.0/LICENSE"
+      ]
+    },
+    {
+      "name": "path-browserify",
+      "version": "1.0.1",
+      "license": "MIT",
+      "repository": {
+        "url": "git://github.com/browserify/path-browserify.git",
+        "type": "git"
+      },
+      "distribution": "https://registry.npmjs.org/path-browserify/-/path-browserify-1.0.1.tgz",
+      "integrity": "sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==",
+      "license_files": [
+        "path-browserify-1.0.1-LICENSE.txt"
+      ]
+    },
+    {
+      "name": "chevrotain-allstar",
+      "version": "0.5.0",
+      "license": "MIT",
+      "repository": {
+        "url": "git+https://github.com/langium/chevrotain-allstar.git",
+        "type": "git"
+      },
+      "distribution": "https://registry.npmjs.org/chevrotain-allstar/-/chevrotain-allstar-0.5.0.tgz",
+      "integrity": "sha512-KV7jVd28Qp4Kg9Ovhwlx5vyucoQxqxB22DLpxqRR2YDsHUHirr/NHAHx5bYk+bhJCD88xrLvOrfjlrrZRVa2Mg==",
+      "license_files": [
+        "chevrotain-allstar-0.5.0/LICENSE"
+      ]
+    },
+    {
+      "name": "langium",
+      "version": "4.4.0",
+      "license": "MIT",
+      "repository": {
+        "url": "git+https://github.com/eclipse-langium/langium.git",
+        "type": "git",
+        "directory": "packages/langium"
+      },
+      "distribution": "https://registry.npmjs.org/langium/-/langium-4.4.0.tgz",
+      "integrity": "sha512-VFIFtohpsmJeQ+LkaeuUNtyvkklecklI0FSLxFS8JfiGABE9XCpUJwYUNnLk6C2aOyk0w99tNlvd0pmbJ2AW/w==",
+      "license_files": [
+        "langium-4.4.0/LICENSE"
+      ]
+    },
+    {
+      "name": "vscode-jsonrpc",
+      "version": "9.0.3",
+      "license": "MIT",
+      "repository": {
+        "url": "git+https://github.com/Microsoft/vscode-languageserver-node.git",
+        "type": "git",
+        "directory": "jsonrpc"
+      },
+      "distribution": "https://registry.npmjs.org/vscode-jsonrpc/-/vscode-jsonrpc-9.0.3.tgz",
+      "integrity": "sha512-qETYf9PCl1lVfwR+oBmMfc4vP2nqLNA35ABxorw3j06+xlKRgDVxbLgKm4Y/xPL0YWdeDjLoI4ImICIT3nB0zQ==",
+      "license_files": [
+        "vscode-jsonrpc-9.0.3/License.txt"
+      ]
+    },
+    {
+      "name": "vscode-languageserver-protocol",
+      "version": "3.18.4",
+      "license": "MIT",
+      "repository": {
+        "url": "git+https://github.com/Microsoft/vscode-languageserver-node.git",
+        "type": "git",
+        "directory": "protocol"
+      },
+      "distribution": "https://registry.npmjs.org/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.18.4.tgz",
+      "integrity": "sha512-CCXbyr99dafRJzJH/0Ryk7ly5T8XPmSR0//OuF2w4m+9JiOin7zcAT5iET8GRE7Z9taFBejb3GbM0a0mbjdbrg==",
+      "license_files": [
+        "vscode-languageserver-protocol-3.18.4/License.txt"
+      ]
+    },
+    {
+      "name": "vscode-languageserver-textdocument",
+      "version": "1.0.15",
+      "license": "MIT",
+      "repository": {
+        "url": "git+https://github.com/Microsoft/vscode-languageserver-node.git",
+        "type": "git",
+        "directory": "textDocument"
+      },
+      "distribution": "https://registry.npmjs.org/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.15.tgz",
+      "integrity": "sha512-Gsfr9S8LU3S6885cS+NaleasJ0n3V5y/SOTqHCifQiXWFw3G9w9/YItDfwHrlCz+dSZWWZ8ilYVMcJe7Sz7Sxw==",
+      "license_files": [
+        "vscode-languageserver-textdocument-1.0.15/License.txt"
+      ]
+    },
+    {
+      "name": "vscode-languageserver-types",
+      "version": "3.18.4",
+      "license": "MIT",
+      "repository": {
+        "url": "git+https://github.com/Microsoft/vscode-languageserver-node.git",
+        "type": "git",
+        "directory": "types"
+      },
+      "distribution": "https://registry.npmjs.org/vscode-languageserver-types/-/vscode-languageserver-types-3.18.4.tgz",
+      "integrity": "sha512-nQsacoiijvl0fRf2q28uFDrAVwRhdCa3QveiF7/CX0r18mLR5FU/1WskSsCKOjmEbtteKUnY8x8Yzxop+k0zwg==",
+      "license_files": [
+        "vscode-languageserver-types-3.18.4/License.txt"
+      ]
+    }
+  ],
+  "fonts": {
+    "name": "Inter",
+    "version": "vitepress-1.6.4-fonts",
+    "vitepress_version": "1.6.4",
+    "license": "OFL-1.1",
+    "repository": "https://github.com/rsms/inter",
+    "source": "https://github.com/vuejs/vitepress/tree/v1.6.4/src/client/theme-default/fonts",
+    "license_source": "https://raw.githubusercontent.com/rsms/inter/v4.0/LICENSE.txt",
+    "license_files": [
+      "Inter-OFL-1.1.txt"
+    ],
+    "files": [
+      {
+        "file": "inter-italic-cyrillic-ext.woff2",
+        "sha256": "3f2ea09e148441f83171eae388d00da780b24b9bd155c141d0b5fbb0d803871d"
+      },
+      {
+        "file": "inter-italic-cyrillic.woff2",
+        "sha256": "2a1c3126375078cd85d262aad635ac9d9ff9ac2c18b8143b2d21d540f9cd3dfb"
+      },
+      {
+        "file": "inter-italic-greek-ext.woff2",
+        "sha256": "bae39b1cc79168c9ac47f120c3eaa82cb634dc17e457cdd484725d8c7a60ab3e"
+      },
+      {
+        "file": "inter-italic-greek.woff2",
+        "sha256": "138cf731e5a284e262c576f765a6cb8f58045cb798d16693091e2251a0f63559"
+      },
+      {
+        "file": "inter-italic-latin-ext.woff2",
+        "sha256": "3e166de9aeff2d6a3d13c9228e03f7ff76369f5fa95fe0ab1d1d44235d5516aa"
+      },
+      {
+        "file": "inter-italic-latin.woff2",
+        "sha256": "3570e65005ccd9ecd87c6ccc7c713fc474a80ff7c3abbb1063f0e8ab4f8dc891"
+      },
+      {
+        "file": "inter-italic-vietnamese.woff2",
+        "sha256": "a0aae13c473b99b63f3c0b8b692b3b2a4023145171aa86964f268235573e4ce5"
+      },
+      {
+        "file": "inter-roman-cyrillic-ext.woff2",
+        "sha256": "a49e47fb34f94acf8ceb57603cb2fc4c01861527a9a304de3a0236b7b67da2c6"
+      },
+      {
+        "file": "inter-roman-cyrillic.woff2",
+        "sha256": "d888610b6342164a592e59a4ce91a3755126a6ca2ee4e0d75c8e915eebaeed68"
+      },
+      {
+        "file": "inter-roman-greek-ext.woff2",
+        "sha256": "7b7519f21aff6b3a011099999cec8a9d4c99173a8c9adeecffb0bd032fc49f69"
+      },
+      {
+        "file": "inter-roman-greek.woff2",
+        "sha256": "1a1997dfdcd7a9e0d2b26944b4b7fd1f1b2fde91bb405cb7a5870f93b45d2e05"
+      },
+      {
+        "file": "inter-roman-latin-ext.woff2",
+        "sha256": "539d139f99942e93bead7bbcd18bc00f5a73932eb3a8997367f2b79f4f75bc60"
+      },
+      {
+        "file": "inter-roman-latin.woff2",
+        "sha256": "f7ab715caa2c78facb4334b211c81ee66f037cf9c99ca3f24acd543e84a93278"
+      },
+      {
+        "file": "inter-roman-vietnamese.woff2",
+        "sha256": "b315417b28ce251a54000a824d73c5af36798a88b3c05594f28dada0cbffab5a"
+      }
+    ]
+  },
+  "source_availability": "Third-party source is available under each package original license, separately from the project licenses.\nThe manifest records exact npm package versions, registry tarballs and integrity digests.\nMermaid and other npm dependencies are unmodified upstream packages processed by the site bundler; the application does not change their upstream source.\n\nelkjs 0.9.3 is distributed under EPL-2.0. Its corresponding upstream source and build instructions are available at https://github.com/kieler/elkjs/tree/0.9.3 (source archive https://github.com/kieler/elkjs/archive/refs/tags/0.9.3.tar.gz).\nThe upstream ELK sources are available at https://github.com/eclipse-elk/elk/tree/v0.9.1; The official 0.9.3 release notes also identify additional ELK pull request 955; its source change is at https://github.com/eclipse-elk/elk/pull/955/files. See https://github.com/kieler/elkjs/releases/tag/0.9.3 and build.gradle for the upstream source/build composition. The included EPL-2.0 text and original upstream notices apply.\nThe elkjs precompiled Java runtime also contains GWT, Guava, EMF GWT and Xtext xbase classes. The following fixed upstream archives supply the corresponding runtime source. The attribution files retain the original distinct copyright/license headers from each archive as a coverage set; this does not assert that every archive member is used by this site. The elkjs runtime bundle fingerprint ties these reviewed attributions to this distribution.\n\nGWT user runtime 2.10.0 (Apache-2.0): https://repo.maven.apache.org/maven2/org/gwtproject/gwt-user/2.10.0/gwt-user-2.10.0.jar\nSHA-256: b51edadffd969cda823e1fa3dcc4e43b3d9e5a338ba7f190c7ac3db8919f9b9d\nGuava runtime 31.1-jre (Apache-2.0): https://repo.maven.apache.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre-sources.jar\nSHA-256: 8ab1853cdaf936ec88be80c17302b7c20abafbd4f54d4fb54d7011c529e3a44a\nEMF GWT common runtime 2.12.4 (EPL-1.0): https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-common/2.12.4/emf-common-2.12.4-sources.jar\nSHA-256: 8dfc4e97ca8eee5474927e2b0c5f3bdbd9a52dcd5dff8c0b433b1e938b843bbe\nEMF GWT ecore runtime 2.12.4 (EPL-1.0): https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-ecore/2.12.4/emf-ecore-2.12.4-sources.jar\nSHA-256: dd3b8c1c3bd0a27c1fbba908bcf0ff21a999148da4e68b3546bcde1dbce7b13a\nXtext xbase runtime 2.28.0 (EPL-2.0): https://repo.maven.apache.org/maven2/org/eclipse/xtext/org.eclipse.xtext.xbase.lib/2.28.0/org.eclipse.xtext.xbase.lib-2.28.0-sources.jar\nSHA-256: 2b35e9ccd4308f605e213371bb26f458b6a84bbd1e3a13cecaac0eba607db69f\n",
+  "package_license_overrides": {
+    "khroma@2.1.0": {
+      "license": "MIT",
+      "reason": "package.json omits license; original package license file is MIT",
+      "license_sha256": "66b333b0f66759a0b710459e03f7029abe17f4358114a128d2c972e642961b49"
+    }
+  },
+  "bundled_components": [
+    {
+      "name": "Lucide theme icons",
+      "version": "vitepress-1.6.4",
+      "license": "ISC AND MIT",
+      "owner": "vitepress@1.6.4",
+      "description": "Icons vendored in VitePress icons.css; ISC comment identifies Lucide. License also preserves inherited Feather MIT notice. Upstream icon revision is not encoded in VitePress; exact distributed CSS is pinned below.",
+      "inputs": [
+        {
+          "file": "node_modules/vitepress/dist/client/theme-default/styles/icons.css",
+          "sha256": "9a66e7f9b1f32899dfdcbf5454b39ade90246bb88cece3f913a0855714719449"
+        }
+      ],
+      "license_files": [
+        "Lucide-LICENSE.txt"
+      ],
+      "source": "https://github.com/lucide-icons/lucide/tree/0.468.0"
+    },
+    {
+      "name": "Simple Icons data",
+      "version": "16.35.0",
+      "license": "CC0-1.0",
+      "owner": "vitepress@1.6.4",
+      "description": "VitePress build-time social icon generator uses the locked @iconify-json/simple-icons data. Brand marks retain their separate trademark status.",
+      "inputs": [
+        {
+          "file": "node_modules/@iconify-json/simple-icons/icons.json",
+          "sha256": "d2a96abe798adca0ab4a110e7fe400c660ff2ea2c509341c20fc6aef3617288b"
+        }
+      ],
+      "license_files": [
+        "Simple-Icons-CC0.txt"
+      ],
+      "source": "https://github.com/simple-icons/simple-icons/tree/16.35.0"
+    },
+    {
+      "name": "elkjs upstream bundled notices",
+      "version": "0.9.3",
+      "license": "EPL-2.0 AND Apache-2.0",
+      "owner": "elkjs@0.9.3",
+      "description": "Original copyright headers from elk.bundled.js, including its Google web-worker code. The elkjs entry separately includes its EPL text.",
+      "inputs": [
+        {
+          "file": "node_modules/elkjs/lib/elk.bundled.js",
+          "sha256": "b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4"
+        }
+      ],
+      "license_files": [
+        "elkjs-UPSTREAM-NOTICES.txt",
+        "Apache-2.0.txt"
+      ],
+      "source": "https://github.com/kieler/elkjs/tree/0.9.3"
+    },
+    {
+      "name": "GWT user runtime",
+      "version": "2.10.0",
+      "license": "Apache-2.0",
+      "owner": "elkjs@0.9.3",
+      "description": "Precompiled runtime family present in elk.bundled.js. Original upstream headers form a coverage set, not a per-class usage claim. Version follows elkjs 0.9.3 build.gradle.",
+      "inputs": [
+        {
+          "file": "node_modules/elkjs/lib/elk.bundled.js",
+          "sha256": "b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4"
+        }
+      ],
+      "license_files": [
+        "gwt-user-2.10.0.jar-ORIGINAL-NOTICES.txt",
+        "Apache-2.0.txt",
+        "gwt-user-2.10.0.jar-ADDITIONAL-NOTICES.txt",
+        "GWT-2.10.0-COPYING.txt"
+      ],
+      "source": "https://repo.maven.apache.org/maven2/org/gwtproject/gwt-user/2.10.0/gwt-user-2.10.0.jar",
+      "source_archive_sha256": "b51edadffd969cda823e1fa3dcc4e43b3d9e5a338ba7f190c7ac3db8919f9b9d",
+      "additional_notice_scope": "Upstream public-domain and inherited copyright comments retained as an attribution coverage set; not a claim that every source member is distributed."
+    },
+    {
+      "name": "Guava runtime",
+      "version": "31.1-jre",
+      "license": "Apache-2.0",
+      "owner": "elkjs@0.9.3",
+      "description": "Precompiled runtime family present in elk.bundled.js. Original upstream headers form a coverage set, not a per-class usage claim. Version follows elkjs 0.9.3 build.gradle.",
+      "inputs": [
+        {
+          "file": "node_modules/elkjs/lib/elk.bundled.js",
+          "sha256": "b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4"
+        }
+      ],
+      "license_files": [
+        "guava-31.1-jre-sources.jar-ORIGINAL-NOTICES.txt",
+        "Apache-2.0.txt",
+        "guava-31.1-jre-sources.jar-ADDITIONAL-NOTICES.txt"
+      ],
+      "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre-sources.jar",
+      "source_archive_sha256": "8ab1853cdaf936ec88be80c17302b7c20abafbd4f54d4fb54d7011c529e3a44a",
+      "additional_notice_scope": "Upstream public-domain and inherited copyright comments retained as an attribution coverage set; not a claim that every source member is distributed."
+    },
+    {
+      "name": "EMF GWT common runtime",
+      "version": "2.12.4",
+      "license": "EPL-1.0",
+      "owner": "elkjs@0.9.3",
+      "description": "Precompiled runtime family present in elk.bundled.js. Original upstream headers form a coverage set, not a per-class usage claim. Version follows elkjs 0.9.3 build.gradle.",
+      "inputs": [
+        {
+          "file": "node_modules/elkjs/lib/elk.bundled.js",
+          "sha256": "b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4"
+        }
+      ],
+      "license_files": [
+        "emf-common-2.12.4-sources.jar-ORIGINAL-NOTICES.txt",
+        "EPL-1.0.txt",
+        "EPL-1.0-original.html"
+      ],
+      "source": "https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-common/2.12.4/emf-common-2.12.4-sources.jar",
+      "source_archive_sha256": "8dfc4e97ca8eee5474927e2b0c5f3bdbd9a52dcd5dff8c0b433b1e938b843bbe"
+    },
+    {
+      "name": "EMF GWT ecore runtime",
+      "version": "2.12.4",
+      "license": "EPL-1.0",
+      "owner": "elkjs@0.9.3",
+      "description": "Precompiled runtime family present in elk.bundled.js. Original upstream headers form a coverage set, not a per-class usage claim. Version follows elkjs 0.9.3 build.gradle.",
+      "inputs": [
+        {
+          "file": "node_modules/elkjs/lib/elk.bundled.js",
+          "sha256": "b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4"
+        }
+      ],
+      "license_files": [
+        "emf-ecore-2.12.4-sources.jar-ORIGINAL-NOTICES.txt",
+        "EPL-1.0.txt",
+        "EPL-1.0-original.html"
+      ],
+      "source": "https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-ecore/2.12.4/emf-ecore-2.12.4-sources.jar",
+      "source_archive_sha256": "dd3b8c1c3bd0a27c1fbba908bcf0ff21a999148da4e68b3546bcde1dbce7b13a"
+    },
+    {
+      "name": "Xtext xbase runtime",
+      "version": "2.28.0",
+      "license": "EPL-2.0",
+      "owner": "elkjs@0.9.3",
+      "description": "Precompiled runtime family present in elk.bundled.js. Original upstream headers form a coverage set, not a per-class usage claim. Version follows elkjs 0.9.3 build.gradle.",
+      "inputs": [
+        {
+          "file": "node_modules/elkjs/lib/elk.bundled.js",
+          "sha256": "b0745abd7f23cd91690a1587e377edbe19fd7233c783300290936720546216d4"
+        }
+      ],
+      "license_files": [
+        "org.eclipse.xtext.xbase.lib-2.28.0-sources.jar-ORIGINAL-NOTICES.txt",
+        "EPL-2.0.txt"
+      ],
+      "source": "https://repo.maven.apache.org/maven2/org/eclipse/xtext/org.eclipse.xtext.xbase.lib/2.28.0/org.eclipse.xtext.xbase.lib-2.28.0-sources.jar",
+      "source_archive_sha256": "2b35e9ccd4308f605e213371bb26f458b6a84bbd1e3a13cecaac0eba607db69f"
+    }
+  ],
+  "license_source_records": [
+    {
+      "file": "Lucide-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/0.468.0/LICENSE",
+      "sha256": "1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc"
+    },
+    {
+      "file": "Simple-Icons-CC0.txt",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.35.0/LICENSE.md",
+      "sha256": "9046848b63a5c92bff14e4accca80bd987e0623b74adf9226ce5198d312b79d5"
+    },
+    {
+      "file": "Apache-2.0.txt",
+      "source": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "file": "DocSearch-3.8.2-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/docsearch/v3.8.2/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    },
+    {
+      "file": "Algolia-Autocomplete-1.17.7-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/algolia/autocomplete/v1.17.7/LICENSE",
+      "sha256": "1e605499213e06118cc81abc00b32bbb33ead185d9b0e190f2662588e8806f02"
+    },
+    {
+      "file": "fastdom-1.0.12-LICENSE.txt",
+      "source": "https://github.com/wilsonpage/fastdom/blob/a7b9044d58952b970c8b918dcf0e7c8824ba0ff5/README.md#license",
+      "sha256": "efd1a97ac2074c0697206c03811d973c75d390e455c0d230a991ffdd08d347a4"
+    },
+    {
+      "file": "js-yaml-4.3.0/LICENSE",
+      "source": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.0.tgz",
+      "sha256": "a07bc24468b9654ce76a547d47a2db282d07733b715db4c73a98bd63961f9550"
+    },
+    {
+      "file": "path-browserify-1.0.1-LICENSE.txt",
+      "source": "https://registry.npmjs.org/path-browserify/-/path-browserify-1.0.1.tgz",
+      "sha256": "a22b9d5763f574e5db347c30acc0b33eaf4846767c03d2e27d012e864e79a824"
+    },
+    {
+      "file": "chevrotain-allstar-0.5.0/LICENSE",
+      "source": "https://registry.npmjs.org/chevrotain-allstar/-/chevrotain-allstar-0.5.0.tgz",
+      "sha256": "1db2cfbc7ce5fa3b82699b4ac4badce8984084d25b5308ece00f5c9b1381a0a5"
+    },
+    {
+      "file": "langium-4.4.0/LICENSE",
+      "source": "https://registry.npmjs.org/langium/-/langium-4.4.0.tgz",
+      "sha256": "599bf70b4e55f06250571d103dbd8441e0c47cb7f858c0147ca312ce38e9ef2a"
+    },
+    {
+      "file": "vscode-jsonrpc-9.0.3/License.txt",
+      "source": "https://registry.npmjs.org/vscode-jsonrpc/-/vscode-jsonrpc-9.0.3.tgz",
+      "sha256": "ec9ee83580841e8eb687aca9867f221503809ba6426c7f876ede17d91b9fcfd0"
+    },
+    {
+      "file": "vscode-languageserver-protocol-3.18.4/License.txt",
+      "source": "https://registry.npmjs.org/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.18.4.tgz",
+      "sha256": "ec9ee83580841e8eb687aca9867f221503809ba6426c7f876ede17d91b9fcfd0"
+    },
+    {
+      "file": "vscode-languageserver-textdocument-1.0.15/License.txt",
+      "source": "https://registry.npmjs.org/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.15.tgz",
+      "sha256": "ec9ee83580841e8eb687aca9867f221503809ba6426c7f876ede17d91b9fcfd0"
+    },
+    {
+      "file": "vscode-languageserver-types-3.18.4/License.txt",
+      "source": "https://registry.npmjs.org/vscode-languageserver-types/-/vscode-languageserver-types-3.18.4.tgz",
+      "sha256": "ec9ee83580841e8eb687aca9867f221503809ba6426c7f876ede17d91b9fcfd0"
+    },
+    {
+      "file": "Inter-OFL-1.1.txt",
+      "source": "https://raw.githubusercontent.com/rsms/inter/v4.0/LICENSE.txt",
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
+    },
+    {
+      "file": "elkjs-UPSTREAM-NOTICES.txt",
+      "source": "https://github.com/kieler/elkjs/tree/0.9.3",
+      "sha256": "89a85ffe0fda9c24943469104f381febf7296a2de8010ffe0f706c345b40403b"
+    },
+    {
+      "file": "EPL-1.0.txt",
+      "source": "https://www.eclipse.org/legal/epl/epl-v10.html",
+      "sha256": "1eb0a16a0f2023139b9877a9dab64b5a3dbdaabbea93efaeeb6af77ae0c3e32c",
+      "transformation": "Official HTML license text only; markup removed, entities decoded and whitespace normalized. Original HTML retained alongside this text."
+    },
+    {
+      "file": "EPL-1.0-original.html",
+      "source": "https://www.eclipse.org/legal/epl/epl-v10.html",
+      "sha256": "a40741b59364cc49449255e9b9bfe1fcfe6a2e7ab4d37ca89db3bacbfb14e9d2",
+      "transformation": "Original response bytes"
+    },
+    {
+      "file": "EPL-2.0.txt",
+      "source": "https://registry.npmjs.org/elkjs/-/elkjs-0.9.3.tgz#package/LICENSE.md",
+      "sha256": "89591d4578fb1ebd91501312a3d25f021bd865a2e436641c1cf7b1bc7e3c1617"
+    },
+    {
+      "file": "gwt-user-2.10.0.jar-ORIGINAL-NOTICES.txt",
+      "source": "https://repo.maven.apache.org/maven2/org/gwtproject/gwt-user/2.10.0/gwt-user-2.10.0.jar",
+      "sha256": "f2e2941f5d10df5c0451e1a4e9f8c067ddfa7a2be58eb5efca870d4488702989",
+      "transformation": "Distinct original copyright/license comment blocks, retaining source archive member labels; complete archive provenance is at the start of the notice."
+    },
+    {
+      "file": "guava-31.1-jre-sources.jar-ORIGINAL-NOTICES.txt",
+      "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre-sources.jar",
+      "sha256": "0fb7bc9fc95e31894275f8ebaf778a35b7ffdb8c8b44f2238ae4bffb239d8cf8",
+      "transformation": "Distinct original copyright/license comment blocks, retaining source archive member labels; complete archive provenance is at the start of the notice."
+    },
+    {
+      "file": "emf-common-2.12.4-sources.jar-ORIGINAL-NOTICES.txt",
+      "source": "https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-common/2.12.4/emf-common-2.12.4-sources.jar",
+      "sha256": "f3330f20b0a8e72647777faa58f52850e38d24f273b845ac6e20c0b62353ac03",
+      "transformation": "Distinct original copyright/license comment blocks, retaining source archive member labels; complete archive provenance is at the start of the notice."
+    },
+    {
+      "file": "emf-ecore-2.12.4-sources.jar-ORIGINAL-NOTICES.txt",
+      "source": "https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-ecore/2.12.4/emf-ecore-2.12.4-sources.jar",
+      "sha256": "2f4a0da2f1d3b94907f0dddb0b20fe4a30fb0c0ac2dbc00506d31ee9b4c95d82",
+      "transformation": "Distinct original copyright/license comment blocks, retaining source archive member labels; complete archive provenance is at the start of the notice."
+    },
+    {
+      "file": "org.eclipse.xtext.xbase.lib-2.28.0-sources.jar-ORIGINAL-NOTICES.txt",
+      "source": "https://repo.maven.apache.org/maven2/org/eclipse/xtext/org.eclipse.xtext.xbase.lib/2.28.0/org.eclipse.xtext.xbase.lib-2.28.0-sources.jar",
+      "sha256": "b5fcdff63342dd21ef1b168e70222bbfefbc031d643e807d51a736a801b47965",
+      "transformation": "Distinct original copyright/license comment blocks, retaining source archive member labels; complete archive provenance is at the start of the notice."
+    },
+    {
+      "file": "gwt-user-2.10.0.jar-ADDITIONAL-NOTICES.txt",
+      "source": "https://repo.maven.apache.org/maven2/org/gwtproject/gwt-user/2.10.0/gwt-user-2.10.0.jar",
+      "sha256": "7d51ec3bef96d3bfb3cb9293f4a3d35f61310703b2cff29dff03bcbb07147623",
+      "transformation": "Original comment blocks outside the first copyright header, with source archive member labels."
+    },
+    {
+      "file": "guava-31.1-jre-sources.jar-ADDITIONAL-NOTICES.txt",
+      "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre-sources.jar",
+      "sha256": "6674ca390fbe391ae8ff7e5a186b251ad46df3b56a98b6cbfc20fd6fdccdeaed",
+      "transformation": "Original comment blocks outside the first copyright header, with source archive member labels."
+    },
+    {
+      "file": "GWT-2.10.0-COPYING.txt",
+      "source": "https://raw.githubusercontent.com/gwtproject/gwt/c32238861c4d58bc559d303ab44f91ddd4e10685/user/super/com/google/gwt/emul/COPYING",
+      "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+      "description": "Exact GWT 2.10.0 runtime COPYING; core, i18n and json copies have the same SHA-256. Fixed upstream tree contains no file named NOTICE."
+    }
+  ],
+  "source_map_overrides": [
+    {
+      "source": "webpack://LIB/node_modules/path-browserify/index.js",
+      "source_sha256": "f6d60f9e7cd83f65f947cda34ef846e82706c044d9a9fa7c5b69718b13b78e28",
+      "name": "path-browserify",
+      "version": "1.0.1",
+      "upstream_source_sha256": "f6d60f9e7cd83f65f947cda34ef846e82706c044d9a9fa7c5b69718b13b78e28",
+      "derivation": "Byte-for-byte match to path-browserify 1.0.1 package/index.js from its integrity-checked npm archive."
+    }
+  ],
+  "package_notice_overrides": {
+    "@docsearch/css@3.8.2": {
+      "license_files": [
+        "DocSearch-3.8.2-LICENSE.txt"
+      ],
+      "reason": "MIT text from exact upstream monorepo tag; npm omits LICENSE"
+    },
+    "@docsearch/js@3.8.2": {
+      "license_files": [
+        "DocSearch-3.8.2-LICENSE.txt"
+      ],
+      "reason": "MIT text from exact upstream monorepo tag; npm omits LICENSE"
+    },
+    "@docsearch/react@3.8.2": {
+      "license_files": [
+        "DocSearch-3.8.2-LICENSE.txt"
+      ],
+      "reason": "MIT text from exact upstream monorepo tag; npm omits LICENSE"
+    },
+    "@algolia/autocomplete-shared@1.17.7": {
+      "license_files": [
+        "Algolia-Autocomplete-1.17.7-LICENSE.txt"
+      ],
+      "reason": "MIT text from exact upstream monorepo tag; npm omits LICENSE"
+    },
+    "@algolia/autocomplete-plugin-algolia-insights@1.17.7": {
+      "license_files": [
+        "Algolia-Autocomplete-1.17.7-LICENSE.txt"
+      ],
+      "reason": "MIT text from exact upstream monorepo tag; npm omits LICENSE"
+    },
+    "@algolia/autocomplete-core@1.17.7": {
+      "license_files": [
+        "Algolia-Autocomplete-1.17.7-LICENSE.txt"
+      ],
+      "reason": "MIT text from exact upstream monorepo tag; npm omits LICENSE"
+    },
+    "@algolia/autocomplete-preset-algolia@1.17.7": {
+      "license_files": [
+        "Algolia-Autocomplete-1.17.7-LICENSE.txt"
+      ],
+      "reason": "MIT text from exact upstream monorepo tag; npm omits LICENSE"
+    }
+  }
+}

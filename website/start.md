@@ -22,6 +22,8 @@ description: 选择阅读、实验或授课路线，从第一个状态机进入 
 
 运行实验需要源码。仓库目前为[私有仓库](https://github.com/zyg0733/agent-systems-engineering)，下面的克隆命令仅供已有权限者使用；没有权限请先看[材料获取方式](../docs/material-access.md#没有源码权限)，不要将克隆失败当成工具链安装错误。
 
+若已从维护者取得[固定版本实验包](../docs/experiment-package.md)，先按说明核对来源、校验值并解包，再进入包内项目目录，从下方安装工具链开始；无需执行 `git clone`。初次安装依赖仍需联网。包内没有 `website/`，阅读站由维护者另外提供。
+
 以下是已验收的 macOS 路线，在克隆后的**项目根目录**执行。首次安装需要下载运行时和依赖；安装脚本会将它们放入项目的 `.runtime/`。详细平台和工具要求见[跨环境执行说明](../docs/cross-environment-validation.md)。
 
 ```sh

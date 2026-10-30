@@ -10,7 +10,7 @@
 
 | Job | 执行内容 | 明确排除与限制 |
 | --- | --- | --- |
-| Python environment runner | `repository_check.py --json` 源码入库检查；Python 标准库执行器专项，当前为 48 项 | 两项分别保留结果，源码检查失败仍运行执行器专项；不启动真实 BEAM/PostgreSQL，不能代替跨主机执行 |
+| Python environment runner | `repository_check.py --json` 源码入库检查；Python 标准库执行器及实验包专项，用例数以本次日志为准 | 两项分别保留结果，源码检查失败仍运行专项；不启动真实 BEAM/PostgreSQL，不能代替跨主机执行 |
 | Linux core (Seatbelt excluded) | Ubuntu 24.04；OTP 28.4、Elixir 1.20.4、PostgreSQL 18.6；source readiness、`mix check`、内存 `mix test` | `test/test_helper.exs` 在 Linux 排除 `seatbelt`；内存模式另排除 `database`；排除数以实际 ExUnit 日志为准 |
 
 数据库服务使用全新 runner 的 `postgres:18.6` 容器。备份/恢复源码固定调用 `.runtime/postgres/18.6/bin/pg_dump` 与 `pg_restore`，因此 CI 另外复用已有 `bootstrap_postgres.sh` 从官方校验和验证过的源码编译原生工具，避免误用 Ubuntu 默认客户端或仅安装容器服务却缺少本地工具。源码安装步骤只准备项目内工具，不启动第二个数据库。Scheduler 保持关闭。
@@ -30,3 +30,5 @@
 这份工作流的绿色结果只证明实际执行的 Linux 核心适用检查。它没有运行 W26 的完整 frozen-source 环境执行器，不直接生成 `EnvironmentValidation` 或发行准入 bundle；需要该证据时，按[跨环境手册](cross-environment-validation.md)在真实 Linux 环境执行 `linux-core` profile 并采集。它也不提供完整 Linux 隔离后端、18 项隔离探针和 12×20 矩阵，不解除原 `linux_full` 发行 gate；冷 macOS 与真人试读继续独立验收。
 
 仓库已接入 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)；实际状态、日志与 artifact 以各提交对应的运行记录为准，不能仅凭本文或工作流配置登记为通过。CI 文件属于 `fixtures/release/manifest.json` 的固定源码清单，修改时只更新当前工作区相应条目的 SHA256、字节数和模式，运行 source readiness；历史冻结包不回写。
+
+2026-10-30 的发布准备把固定提交的实验源码包构建与验包接入独立的 `Reading site` 工作流，和网站预览分别上传为私有 artifact，详见[实验包说明](experiment-package.md)。`Lab checks` 继续提供本次提交的真实 Linux 核心回归结果，其既有工作流和冻结清单不因这项接入变更。教材站和实验包均未因 artifact 上传而对外公开。
