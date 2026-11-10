@@ -546,8 +546,16 @@ defmodule AgentSystemsLab.FencingDemo do
         env: [{~c"ERL_FLAGS", ~c"+S 2:2"}]
       ])
 
-    {:os_pid, pid} = Port.info(port, :os_pid)
     Process.put({__MODULE__, port}, "")
+
+    # A startup failure can close the port before its PID is read. Keep the port
+    # so await_json and cleanup can collect its actual output and exit status.
+    pid =
+      case Port.info(port, :os_pid) do
+        {:os_pid, pid} -> pid
+        nil -> nil
+      end
+
     {port, pid}
   end
 
@@ -688,9 +696,11 @@ defmodule AgentSystemsLab.FencingDemo do
       # supplied by an arbitrary fixture or the PostgreSQL/parent process.
       System.cmd("/bin/kill", ["-CONT", Integer.to_string(pid)], stderr_to_stdout: true)
       System.cmd("/bin/kill", ["-KILL", Integer.to_string(pid)], stderr_to_stdout: true)
-      await_cleanup_exit(port, 2_000)
     end
 
+    # Port closure and delivery of its exit_status are separate observations.
+    # Even an already-closed port must yield the real exit status before cleanup.
+    await_cleanup_exit(port, 2_000)
     drain_port(port)
     status = Process.delete({__MODULE__, port, :exit})
     true = not is_nil(status) and is_nil(Port.info(port))

@@ -239,6 +239,9 @@ defmodule AgentSystemsLab.FencingDemoTest do
     cleanup = read_json(root, "cleanup")
     assert cleanup["exit_observed"]
     assert cleanup["exit_status"] == 23
+    assert cleanup["pid"] == read_json(root, "process")["pid"]
+    assert File.read!(Path.join(root, "child.log")) =~ "injected fencing startup failure"
+    refute cleanup["continue_sent"]
     refute cleanup["kill_sent"]
   end
 

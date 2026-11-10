@@ -188,6 +188,17 @@ defmodule AgentSystemsLab.DatabaseFaultDemoTest do
             assert probe["automatic_completion"]
             assert probe["scheduler_before"] == probe["scheduler_after"]
             assert is_binary(probe["scheduler_before"])
+            takeover = read_json(root, "takeover-claim")
+            assert takeover["old"] == read_json(root, "ready")["claim"]
+            assert takeover["resumed"]["intent_id"] == takeover["old"]["intent_id"]
+            assert takeover["resumed"]["seq"] == takeover["old"]["seq"]
+            assert takeover["resumed"]["generation"] == takeover["old"]["generation"] + 1
+            assert takeover["resumed"]["token"] != takeover["old"]["token"]
+
+            assert Enum.any?(takeover["scheduler"]["active"], fn entry ->
+                     entry["claim"]["token"] == takeover["resumed"]["token"] and
+                       entry["claim"]["generation"] == takeover["resumed"]["generation"]
+                   end)
           end
 
           if name == "tool_effect_pending_disconnect" do

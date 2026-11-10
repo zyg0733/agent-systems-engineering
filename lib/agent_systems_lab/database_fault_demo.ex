@@ -410,10 +410,23 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
 
         old = decode_claim(heal["old_claim"])
 
+        write_json(
+          Path.join(directory, "takeover-claim.json"),
+          Map.merge(base, %{
+            "old" => dto(old),
+            "resumed" => dto(entry.claim),
+            "scheduler" => dto(Scheduler.status(scheduler))
+          })
+        )
+
         true =
-          entry.claim.intent_id == old.intent_id and entry.claim.generation == old.generation + 1
+          entry.claim.intent_id == old.intent_id and entry.claim.seq == old.seq and
+            entry.claim.generation == old.generation + 1 and entry.claim.token != old.token
 
         {:ok, before_stale} = Storage.load(id)
+        true = before_stale.intent.id == entry.claim.intent_id
+        true = before_stale.intent.claim_token == entry.claim.token
+        true = before_stale.intent.claim_generation == entry.claim.generation
         stale = IntentStore.renew(old)
         {:ok, after_stale} = Storage.load(id)
         true = before_stale.state === after_stale.state
@@ -481,15 +494,25 @@ defmodule AgentSystemsLab.DatabaseFaultDemo do
       end
     end
 
+    # The reconnect probe must allow its 500 ms connection attempt to complete
+    # before a claim helper deadline. Keep renewal plus that deadline below the
+    # lease so the observed first takeover still has time to renew. These are
+    # bounded demonstration budgets, not production timing guarantees; the other
+    # socket-fault probes retain their shorter lease and deadline.
+    {lease_ms, renew_interval_ms, database_timeout_ms} =
+      if opts["case"] == "auto_poll_reconnect",
+        do: {2_000, 250, 1_000},
+        else: {@lease_ms, 80, 200}
+
     {:ok, scheduler} =
       Scheduler.start_link(
         workers: 1,
         run_ids: [opts["run_id"]],
-        lease_ms: @lease_ms,
-        renew_interval_ms: 80,
+        lease_ms: lease_ms,
+        renew_interval_ms: renew_interval_ms,
         poll_interval_ms: 20,
         execution_timeout_ms: 10_000,
-        database_timeout_ms: 200,
+        database_timeout_ms: database_timeout_ms,
         database_backoff_ms: 100,
         max_database_backoff_ms: 500,
         recovery_options: [{key, hook}]
