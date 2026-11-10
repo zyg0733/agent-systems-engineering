@@ -31,4 +31,4 @@
 
 仓库已接入 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)；实际状态、日志与 artifact 以各提交对应的运行记录为准，不能仅凭本文或工作流配置登记为通过。CI 文件属于 `fixtures/release/manifest.json` 的固定源码清单，修改时只更新当前工作区相应条目的 SHA256、字节数和模式，运行 source readiness；历史冻结包不回写。
 
-2026-10-30 的发布准备把固定提交的实验源码包构建与验包接入独立的 `Reading site` 工作流，当时与网站预览分别上传为私有 artifact。2026-11-10 起仓库作为开源教程草稿开放，读者直接克隆即可取得教材与源码；Actions artifact 仍需登录下载，保留 14 天，详见[实验包说明](experiment-package.md)。`Lab checks` 继续提供对应提交的真实 Linux 核心回归结果，其既有工作流和冻结清单不因托管开放变更。网站是否部署成功查看 `Reading site` 的独立部署 job 和实际 Pages 地址。
+2026-10-30 的发布准备把固定提交的实验源码包构建与验包接入独立的 `Reading site` 工作流，当时与网站预览分别上传为私有 artifact。2026-11-11 起仓库作为开源教程草稿开放，读者直接克隆即可取得教材与源码；Actions artifact 仍需登录下载，保留 14 天，详见[实验包说明](experiment-package.md)。`Lab checks` 继续提供对应提交的真实 Linux 核心回归结果，其既有工作流和冻结清单不因托管开放变更。网站是否部署成功查看 `Reading site` 的独立部署 job 和实际 Pages 地址。

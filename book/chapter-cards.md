@@ -640,7 +640,7 @@
 
 源码入口：[mix.exs](../mix.exs)、[固定运行入口](../scripts/mix)、[Reproduction.export/2](../lib/agent_systems_lab/reproduction.ex)、[ReaderStudy.prepare/1](../lib/agent_systems_lab/reader_study.ex)；版本冻结不等于生产部署许可。
 
-实验：[课程地图](../docs/course-map.md) 的 12 单元，最后完成 [L22](../labs/L22-release-readiness.md) 发布前核验；原 W24 排期属于历史设计卡时点，已有结果见[W24 记录](../docs/validation-week24.md)，本批全书草稿与私有提交的范围另见[全书复核](../docs/book-completion-review.md)。
+实验：[课程地图](../docs/course-map.md) 的 12 单元，最后完成 [L22](../labs/L22-release-readiness.md) 发布前核验；原 W24 排期属于历史设计卡时点，已有结果见[W24 记录](../docs/validation-week24.md)，该批全书草稿与配套验证的范围另见[全书复核](../docs/book-completion-review.md)。
 
 习题：① 写了 30 卡可宣称全书完成吗？② v0.1-dev 加源 manifest 可替代不存在的历史 tag 吗？③ 什么会阻止宣称 P5 全部通过？
 

@@ -10,7 +10,7 @@
 | 跑通纯内存练习 | 会在终端进入目录、运行命令；有仓库访问权和 Elixir/OTP 环境；能读元组、map 和模式匹配 | [L01 首次小练习](../labs/L01-state-machine.md#first-exercise) |
 | 完成持久化与故障实验 | 在上一行基础上，能使用自己的可丢弃 PostgreSQL，理解事务、进程退出和并发 | 先补下方事务与领取桥接，再按[课程地图](../docs/course-map.md)逐项完成 |
 
-只阅读概念可以暂不安装工具。运行实验前先查看[开始学习](../README.md#快速开始)的安装与平台说明：当前仓库仍私有；Ubuntu 读者可按 [Linux core 入门](../docs/linux-core-start.md)准备固定版本并运行首个内存演示。完整隔离实验依赖 macOS Seatbelt，Linux 核心回归并不包含该后端。
+只阅读概念可以暂不安装工具。运行实验前先克隆公开仓库，再查看[开始学习](../README.md#快速开始)的安装与平台说明；Ubuntu 读者可按 [Linux core 入门](../docs/linux-core-start.md)准备固定版本并运行首个内存演示。完整隔离实验依赖 macOS Seatbelt，Linux 核心回归并不包含该后端。
 
 ## 五道自测
 
