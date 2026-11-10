@@ -1,6 +1,6 @@
 # Ubuntu 24.04：从固定工具链到首次内存练习
 
-这条路线面向 Ubuntu 24.04 的 **Linux core**：先运行不需要 PostgreSQL 的演示与 L01，再按需要准备自己的实验数据库。当前源码仍为私有，需先取得仓库权限或维护者提供的明确版本源码；网页可读不代表已经取得实验文件。不要把无法访问源码误诊为 Elixir 安装失败。
+这条路线面向 Ubuntu 24.04 的 **Linux core**：先运行不需要 PostgreSQL 的演示与 L01，再按需要准备自己的实验数据库。源码公开，可直接克隆 [GitHub 仓库](https://github.com/zyg0733/agent-systems-engineering)，无需申请访问权限；网页用于阅读，实验在自己的本地副本运行。
 
 项目的 Linux CI 使用 Ubuntu 24.04、Elixir **1.20.4**、Erlang/OTP **28.4** 和 PostgreSQL **18.6**。下文的安装命令依据官方说明和现有 CI 整理；本次文档修订没有在新的 Ubuntu 主机执行这些安装，不把命令写出或已有 CI 通过称为你的新主机已验收。[CI 范围与证据](github-ci.md)保留实际执行身份。
 

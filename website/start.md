@@ -7,7 +7,7 @@ description: 选择阅读、实验或授课路线，从第一个状态机进入 
 
 先读一章，再完成一个能解释清楚的实验。本书适合写过程序、想理解 Agent 执行与恢复机制的读者；动手部分逐步需要 Elixir/OTP、进程与 SQL 事务知识。你不需要准备模型密钥；当前实现使用固定 Scripted/Recorded Provider、Mock 与受控工具。
 
-开始前用[阅读准备与先修桥接](../book/prerequisites.md)的五道自测找出需要补读的概念。只读设计无需立即安装环境；运行代码则需要仓库访问权和对应平台。[材料获取与反馈](../docs/material-access.md)说明无权限时可读什么、如何申请实验材料，以及源码链接为何可能返回 404。
+开始前用[阅读准备与先修桥接](../book/prerequisites.md)的五道自测找出需要补读的概念。只读设计无需立即安装环境；运行代码则先克隆开源仓库，按对应平台准备工具链。[材料获取与反馈](../docs/material-access.md)说明如何取得源码、选择固定版本和提交勘误。
 
 ## 选择你的入口
 
@@ -20,9 +20,9 @@ description: 选择阅读、实验或授课路线，从第一个状态机进入 
 
 ## 跑通第一个演示
 
-运行实验需要源码。仓库目前为[私有仓库](https://github.com/zyg0733/agent-systems-engineering)，下面的克隆命令仅供已有权限者使用；没有权限请先看[材料获取方式](../docs/material-access.md#没有源码权限)，不要将克隆失败当成工具链安装错误。
+运行实验先克隆[开源仓库](https://github.com/zyg0733/agent-systems-engineering)。公开源码可直接查看或通过以下 HTTPS 命令克隆，无需申请仓库权限。
 
-若已从维护者取得[固定版本实验包](../docs/experiment-package.md)，先按说明核对来源、校验值并解包，再进入包内项目目录，从下方安装工具链开始；无需执行 `git clone`。初次安装依赖仍需联网。包内没有 `website/`，阅读站由维护者另外提供。
+若使用[固定版本实验包](../docs/experiment-package.md)，先按说明核对来源、校验值并解包，再进入包内项目目录，从下方安装工具链开始；无需执行 `git clone`。初次安装依赖仍需联网。包内没有 `website/`；构建本地阅读站请使用完整 Git 克隆。
 
 以下是已验收的 macOS 路线，在克隆后的**项目根目录**执行。首次安装需要下载运行时和依赖；安装脚本会将它们放入项目的 `.runtime/`。详细平台和工具要求见[跨环境执行说明](../docs/cross-environment-validation.md)。
 

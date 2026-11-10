@@ -1,6 +1,6 @@
 # 固定版本实验源码包
 
-实验包用于取得与某个 Git commit 对应的教学源码，不要求接收者具有私有仓库读取权限。**本批只在维护者本地和私有 Actions artifact 中准备、验证，尚未提供公共下载地址。** 只有维护者另行公开包和校验文件后，才能把它描述为公开取得的实验材料。阅读与反馈入口见[材料获取](material-access.md)。
+通常直接克隆[公开仓库](https://github.com/zyg0733/agent-systems-engineering)即可取得教材与完整源码，无需申请访问权限。实验包是补充方式，便于保存、转交和核对某个 Git commit 的教学源码。它可从对应 `Reading site` Actions 运行下载（需要登录 GitHub），也可在克隆后自行生成；没有另设永久实验包下载地址。克隆与反馈入口见[材料获取](material-access.md)。
 
 ## 包里有什么
 
@@ -37,13 +37,13 @@ python3 scripts/build_experiment_package.py verify \
 
 构建器拒绝源码符号链接、submodule、非白名单路径和受查凭据格式。验包器还拒绝路径穿越、重复项、异常权限、额外或缺失源码、清单/说明篡改、非规范 ZIP 和未登记的附加字节。使用自己控制的新目录，避免与其他进程并发写入；这些检查不等于穷尽凭据扫描或程序安全认证。
 
-私有 CI 在每次 `main` 推送和 Pull Request 时，使用当前运行的完整提交生成同一包，并执行 Git 对照、外部 SHA256 和解包验证。构建器禁用 Git replace objects，避免本机替换引用让旧 commit 名称指向不同源码。只有这些检查通过的 artifact 才进入后续发布准备；下载私有 Actions artifact 仍需权限，不能把它当作公共下载地址。
+CI 在每次 `main` 推送和 Pull Request 时，使用当前运行的完整提交生成同一包，并执行 Git 对照、外部 SHA256 和解包验证。构建器禁用 Git replace objects，避免本机替换引用让旧 commit 名称指向不同源码。下载时选择检查通过的运行及其 artifact；公开仓库的 artifact 下载仍需要登录 GitHub。
 
-在 `Reading site` 工作流中，实验包 artifact 命名为 `experiment-source-<完整 commit>-<run_id>-<run_attempt>`，保留 **14 天**。其中只有 ZIP、`SHA256SUMS` 与 `package-summary.json`；解包临时树不作为下载材料上传。它是需要仓库权限的暂存交付物，正式开放时须将同一已验包材料转交到获准的公开位置，不依赖过期 artifact 作为永久下载。过期后可用原固定 commit 与该提交中的打包器重新生成，并核对原始 SHA256；不要用后来变化的 `main` 替换旧包身份。
+在 `Reading site` 工作流中，实验包 artifact 命名为 `experiment-source-<完整 commit>-<run_id>-<run_attempt>`，保留 **14 天**。其中只有 ZIP、`SHA256SUMS` 与 `package-summary.json`；解包临时树不作为下载材料上传。需要长期保存时下载这三份文件，不依赖 artifact 作为永久下载。过期后可从公开仓库检出原固定 commit，使用该提交中的打包器重新生成，并核对原始 SHA256；不要用后来变化的 `main` 替换旧包身份。
 
 ## 接收者核对和首次运行
 
-从可信材料提供者取得 ZIP、`SHA256SUMS` 和 `package-summary.json`，先确认版本与校验来源。SHA256 能发现传输或文件变化；如果攻击者同时替换 ZIP 与校验清单，摘要本身不能认证作者。
+从本仓库对应提交的 Actions 运行、自己的构建结果或可信材料提供者取得 ZIP、`SHA256SUMS` 和 `package-summary.json`，先确认版本与校验来源。GitHub 普通源码 ZIP 不含此实验包的生成清单，不能混用两者的校验文件。SHA256 能发现传输或文件变化；如果攻击者同时替换 ZIP 与校验清单，摘要本身不能认证作者。
 
 在这三个文件所在目录校验。macOS 使用：
 
@@ -57,7 +57,7 @@ Linux 使用：
 sha256sum -c SHA256SUMS
 ```
 
-有可信的本项目检查器时，可在完整仓库外独立验包并安全解开。以下变量填写实际收到的 ZIP 文件路径；这里没有公共下载 URL：
+有可信的本项目检查器时，可在完整仓库外独立验包并安全解开。以下变量填写实际取得的 ZIP 文件路径：
 
 ```sh
 package_archive=/absolute/path/to/agent-systems-engineering-COMMIT.zip

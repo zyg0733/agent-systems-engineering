@@ -38,7 +38,7 @@ jobs:
         run: npm run check
       - name: Build and verify links, resources and anchors
         run: npm run build
-      - name: Upload private preview artifact
+      - name: Upload preview artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: reading-site-preview-${{ github.run_id }}-${{ github.run_attempt }}
@@ -75,7 +75,7 @@ jobs:
           --archive "artifacts/experiment-package/agent-systems-engineering-$GITHUB_SHA.zip"
           --repo . --checksum-file artifacts/experiment-package/SHA256SUMS
           --extract artifacts/experiment-package-extracted
-      - name: Upload private experiment package
+      - name: Upload experiment package
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: experiment-source-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -87,10 +87,10 @@ jobs:
           CHECKED_COMMIT: ${{ github.sha }}
         run: |
           {
-            printf '### Private experiment source package\n\n'
+            printf '### Fixed-commit experiment source package\n\n'
             printf 'Commit: `%s`\n\n' "$CHECKED_COMMIT"
             printf 'Source-only ZIP, SHA256SUMS and package summary are in the authenticated artifact.\n\n'
-            printf 'The website toolchain, installed dependencies, runtime data and historical evidence are excluded. This is not a public download or a formal software release.\n'
+            printf 'The website toolchain, installed dependencies, runtime data and historical evidence are excluded. Clone the public repository for permanent source access. Artifacts require a GitHub login and expire after 14 days; this is not a formal software release.\n'
           } >> "$GITHUB_STEP_SUMMARY"
 
   deploy:

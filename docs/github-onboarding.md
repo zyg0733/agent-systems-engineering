@@ -1,6 +1,6 @@
 # GitHub 首次入库与交接
 
-项目已接入私有仓库 [zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)，默认分支为 `main`，首次提交 [`a45fe75`](https://github.com/zyg0733/agent-systems-engineering/commit/a45fe750118f4f180bb36c9847edbe9f75e89e68)已推送。项目版本保持 `0.1.0-dev`。项目所有者已确定原创代码采用 Apache-2.0、教材采用 CC BY 4.0，具体边界见[许可范围说明](licensing.md)。本文不替代正式发行评估。
+项目最初接入私有仓库 [zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)，默认分支为 `main`，首次提交 [`a45fe75`](https://github.com/zyg0733/agent-systems-engineering/commit/a45fe750118f4f180bb36c9847edbe9f75e89e68)已推送。2026-11-10 起按开源教程草稿开放，当前取得方式见[材料获取](material-access.md)，以下保留首次入库记录。项目版本保持 `0.1.0-dev`。项目所有者已确定原创代码采用 Apache-2.0、教材采用 CC BY 4.0，具体边界见[许可范围说明](licensing.md)。本文不替代正式发行评估。
 
 ## 已核对的起点
 

@@ -1,10 +1,10 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { createErrataReport, privateIssueDraft } from '../../scripts/errata-report.mjs'
+import { createErrataReport, issueDraft } from '../../scripts/errata-report.mjs'
 
 const values = reactive({ where: '', version: '', category: '文字或解释', expected: '', actual: '', evidence: '', environment: '' })
 const report = computed(() => createErrataReport(values))
-const issueUrl = computed(() => privateIssueDraft(values))
+const issueUrl = computed(() => issueDraft(values))
 const status = ref('')
 onMounted(() => {
   values.where = (new URLSearchParams(window.location.search).get('page') || '').slice(0, 300)
@@ -20,7 +20,7 @@ function downloadReport() {
   link.download = 'agent-systems-erratum.txt'
   link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
-  status.value = '已发起文本下载。保存文件后交给材料提供者；这一步没有提交反馈。'
+  status.value = '已发起文本下载。保存后可附到 GitHub Issue；这一步没有提交反馈。'
 }
 </script>
 
@@ -39,9 +39,9 @@ function downloadReport() {
     <div class="errata-actions"><button type="button" @click="copyReport">复制报告</button><button type="button" @click="downloadReport">下载文本报告</button></div>
     <p class="errata-status" role="status" aria-live="polite">{{ status }}</p>
     <details><summary>检查生成的报告</summary><textarea class="errata-preview" :value="report" readonly rows="14" aria-label="生成的勘误报告"></textarea></details>
-    <p>有私有仓库权限的协作者可先检查报告，再打开 GitHub 草稿。点击会将报告内容交给 GitHub，仍需你在 GitHub 确认提交。</p>
-    <a v-if="issueUrl" :href="issueUrl" target="_blank" rel="noopener noreferrer">打开私有 GitHub Issue 草稿（需权限）</a>
-    <p v-else>报告较长，请复制或下载后，手动粘贴到<a href="https://github.com/zyg0733/agent-systems-engineering/issues/new" target="_blank" rel="noopener noreferrer">私有 Issue（需权限）</a>。</p>
+    <p>检查报告后可打开 GitHub Issue 草稿。点击会将报告内容交给 GitHub，仍需登录 GitHub 并确认提交；提交后的 Issue 对外公开。</p>
+    <a v-if="issueUrl" :href="issueUrl" target="_blank" rel="noopener noreferrer">打开 GitHub Issue 草稿（需登录）</a>
+    <p v-else>报告较长，请复制或下载后，手动粘贴到<a href="https://github.com/zyg0733/agent-systems-engineering/issues/new" target="_blank" rel="noopener noreferrer">GitHub Issue（需登录）</a>。</p>
   </section>
 </template>
 

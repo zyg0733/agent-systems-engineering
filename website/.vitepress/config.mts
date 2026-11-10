@@ -55,7 +55,7 @@ export default defineConfig({
     darkModeSwitchTitle: '切换深色',
     skipToContentLabel: '跳到正文',
     externalLinkIcon: true,
-    socialLinks: [{ icon: 'github', link: repo, ariaLabel: 'GitHub 源码仓库（需访问权限）' }],
+    socialLinks: [{ icon: 'github', link: repo, ariaLabel: 'GitHub 开源仓库' }],
     editLink: { pattern: ({ relativePath }) => '/docs/errata.html?page=' + encodeURIComponent(relativePath), text: '报告本页问题' },
     footer: {
       message: `教材 <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 代码 <a href="${base}licenses/LICENSE.txt">Apache-2.0</a> · <a href="${base}docs/licensing.html">许可范围与署名</a> · <a href="${base}licenses/third-party/index.html" target="_self">第三方版权与许可证</a>`,

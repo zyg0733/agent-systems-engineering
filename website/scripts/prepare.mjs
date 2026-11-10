@@ -41,7 +41,7 @@ export async function prepare() {
     if (excludeFromReaderSearch(relative)) source = disablePageSearch(source)
     if (/^(?:book\/ch\d\d-|labs\/L\d\d-)/.test(relative)) {
       const access = path.posix.relative(path.posix.dirname(relative), 'docs/material-access.md')
-      source = source.replace(/^(# [^\n]+)\n/m, `$1\n\n::: info 源码与实验材料\n本页提供静态讲解；调用项目模块和打开仓库源码、测试引用需要实验源码访问权。纯 Elixir 表达式可在已有运行时学习。[查看材料获取与反馈方式](${access})。\n:::\n`)
+      source = source.replace(/^(# [^\n]+)\n/m, `$1\n\n::: info 源码与实验材料\n本页提供静态讲解；源码与测试可在开源仓库直接查看。运行项目模块时，先克隆仓库并安装对应工具链。纯 Elixir 表达式可在已有运行时学习。[查看材料获取与反馈方式](${access})。\n:::\n`)
     }
     await writeFile(target, source)
   }

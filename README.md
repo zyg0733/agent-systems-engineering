@@ -1,22 +1,29 @@
-# Agent Systems Lab
+# Agent Systems Engineering
 
-《Agent Systems Engineering》的 Elixir/OTP 配套实验项目，学习如何把 Agent 的状态、外部效果与恢复过程变成可检查的事实。固定 Scripted/Recorded Provider、Mock 与受控工具支持离线复现，**无需模型密钥**。
+开源教程《Agent Systems Engineering》与 Elixir/OTP 配套实验项目 Agent Systems Lab，学习如何把 Agent 的状态、外部效果与恢复过程变成可检查的事实。固定 Scripted/Recorded Provider、Mock 与受控工具支持离线复现，**无需模型密钥**。
 
 项目覆盖纯状态机、事务与事件历史、Streaming 和预算、Session/Context、工具回执与核对、崩溃恢复、多 Worker 调度、lease/fencing、隔离执行、MCP stdio、DAG、人工审批、观测与固定评测。配套 **25 份实验手册、12 个课程单元、30 张章节设计卡和 30 章正文草稿**（七篇完整阅读路线）。
 
-当前版本为 **`0.1.0-dev`**。W26 技术交付已完成；`v0.1.0-rc.1` 是历史候选包的清单标签，正式 `0.1.0` 尚未发布。
+教材以**公开草稿**持续修订，配套软件当前版本为 **`0.1.0-dev`**。W26 技术交付已完成；`v0.1.0-rc.1` 是历史候选包的清单标签，正式软件版本 `0.1.0` 尚未发布。
 
-源码仓库：[zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)（私有仓库，需获得访问权限）。远程检查见 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)，结果以具体提交对应的运行记录为准。
+在线阅读：[Agent Systems Engineering](https://zyg0733.github.io/agent-systems-engineering/)。教材与完整源码：[zyg0733/agent-systems-engineering](https://github.com/zyg0733/agent-systems-engineering)。仓库可直接浏览、克隆或下载，无需申请邀请；远程检查见 [GitHub Actions](https://github.com/zyg0733/agent-systems-engineering/actions)，结果以具体提交对应的运行记录为准。
 
-阅读、实验源码和历史证据的获取范围见[材料获取与反馈](docs/material-access.md)。当前没有公开网站或公共实验下载；阅读页中的源码、测试和协作入口仍需仓库权限。没有权限时可继续概念阅读，并按该页模板向提供教材的维护者申请材料。
+直接克隆项目即可在本地阅读教材、构建阅读站和运行实验：
 
-发布准备提供[固定版本实验源码包](docs/experiment-package.md)：按完整 Git 提交生成 ZIP、文件清单与 SHA-256 校验文件，供授权用户从私有 Actions 取得或由维护者交付。包内包含教材和实验 core 源码，不包含 Node 阅读站工具链、已安装依赖或历史运行产物。问题可用[勘误入口](docs/errata.md)在本地生成、复制和下载报告；有仓库权限者可自行提交私有 Issue。
+```sh
+git clone https://github.com/zyg0733/agent-systems-engineering.git
+cd agent-systems-engineering
+```
+
+只阅读可从[第 1 章](book/ch01-from-llm-apps-to-agent-systems-engineering.md)开始；运行实验按下方“快速开始”安装环境。源码、站点和历史证据的范围见[材料获取与反馈](docs/material-access.md)。
+
+[固定版本实验源码包](docs/experiment-package.md)是 Git 克隆之外的补充方式：按完整提交生成 ZIP、文件清单与 SHA-256 校验文件，可从对应 Actions 运行取得（下载 artifact 需登录 GitHub）。包内不包含 Node 阅读站工具链、已安装依赖或历史运行产物。问题可用[勘误入口](docs/errata.md)生成、复制和下载报告，或登录 GitHub 后提交 [Issue](https://github.com/zyg0733/agent-systems-engineering/issues)。
 
 公开准备评估后的命令修正、案例、综合任务与阅读改进见[本批修订记录](docs/readiness-improvements-review.md)；各轮验证分别绑定实际源码，不把历史 W26 数字视为本批测试结果。
 
 ## 阅读站与本地预览
 
-面向教材与实验的 VitePress 阅读站已具备本地构建和私有 Actions 预览，尚未公开。阅读站提供导读、正文、课程、实验与参考文档的统一入口；维护和发布说明见[阅读站维护文档](docs/reading-site.md)。在项目根目录启动本地预览：
+面向教材与实验的 VitePress [在线阅读站](https://zyg0733.github.io/agent-systems-engineering/)提供导读、正文、课程、实验与参考文档的统一入口，也可在本地构建。维护和发布说明见[阅读站维护文档](docs/reading-site.md)。在克隆后的项目根目录启动本地预览：
 
 以下 Node 命令需要**包含 `website/` 的完整 Git 克隆**；仅取得实验源码包时，请从下方“快速开始”进入实验。
 
@@ -104,7 +111,7 @@ GitHub 首次入库后的 Linux 核心回归已在提交 [`285f242a75f1c62a034e5
 
 运行时目前使用 Scripted/Recorded Provider，尚未接入真实厂商模型；隔离是 macOS Seatbelt 教学后端，Linux 后端未实现。外部效果不确定时保留 unknown；直接取消不会撤销效果，终态后也不能经原 Run reconcile 续跑。项目面向单可信宿主与单 PostgreSQL；当前边界见[当前状态](docs/current-status.md)，[W24 限制](docs/known-limitations.md)保留历史时点。
 
-正式发布保持 `evidence_complete=false`、`approval_recorded=false`、`release_ready=false`。首次 GitHub 托管与正式版本发行分别验收。
+历史软件发行评估保持 `evidence_complete=false`、`approval_recorded=false`、`release_ready=false`。这些字段属于原有正式软件版本的验收合同；公开教程草稿和源码不将其改写为通过。
 
 ## 许可证
 

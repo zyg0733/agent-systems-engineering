@@ -1,6 +1,6 @@
 # 当前内容、运行环境与边界
 
-更新：2026-10-30（Asia/Shanghai）。这里是当前阅读入口；[W24 已知限制](known-limitations.md)和各周验收保留各自历史时点，不作为新修订已经执行的证明。
+更新：2026-11-10（Asia/Shanghai）。这里是当前阅读入口；[W24 已知限制](known-limitations.md)和各周验收保留各自历史时点，不作为新修订已经执行的证明。
 
 ## 现在可以读什么
 
@@ -12,9 +12,9 @@
 
 ## 阅读站与源码如何取得
 
-源码托管在[私有 GitHub 仓库](https://github.com/zyg0733/agent-systems-engineering)，克隆、编辑链接和 Actions artifact 下载需要仓库权限。Pages 未开启，没有公开阅读地址。静态网页展示教材，不能在浏览器运行 BEAM、PostgreSQL 或隔离实验。
+教材与源码托管在[公开 GitHub 仓库](https://github.com/zyg0733/agent-systems-engineering)，可以直接浏览和 `git clone`；在线阅读入口是 [GitHub Pages](https://zyg0733.github.io/agent-systems-engineering/)。静态网页展示教材，不能在浏览器运行 BEAM、PostgreSQL 或隔离实验。
 
-[材料获取与反馈](material-access.md)按阅读、实验、源码引用和历史证据说明访问范围，没有公共下载或自助授权入口。[固定版本实验包](experiment-package.md)由精确提交生成并通过私有 Actions 保存；网站页脚进入[勘误报告工具](errata.md)，支持本地复制、下载和私有 Issue 草稿。Ubuntu 用户可从 [Linux core 入门](linux-core-start.md)开始适用实验，完整隔离后端仍限已声明的 macOS 路线。
+[材料获取与反馈](material-access.md)提供克隆命令及各类材料的说明。[固定版本实验包](experiment-package.md)是克隆之外的补充方式，由精确提交生成并通过 Actions 保存；下载 artifact 需要登录 GitHub，且有保留期限。网站页脚进入[勘误报告工具](errata.md)，支持本地复制、下载和公开 Issue 草稿；提交 Issue 需要登录。Ubuntu 用户可从 [Linux core 入门](linux-core-start.md)开始适用实验，完整隔离后端仍限已声明的 macOS 路线。
 
 完整 Git 克隆可按[阅读站维护说明](reading-site.md)用 Node.js 24 构建/预览；实验导出包不包含站点 Node 工具链。源码获取与平台准备另见[项目 README](../README.md)。
 
@@ -31,6 +31,6 @@
 
 ## 验证与版本
 
-当前仍为 0.1.0-dev，正式 0.1.0 未发布。六章第二轮修订基线提交为 [e335e4e](https://github.com/zyg0733/agent-systems-engineering/commit/e335e4e6f0b10406b3c5f1a02c34b7242a326809)：[Reading site](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40220350159)和 [Lab checks](https://github.com/zyg0733/agent-systems-engineering/actions/runs/40220350130)通过；首次 P3 失败证据及首因未知的结论保留。该基线不替代本批全书验证；本批以对应提交的 [Actions](https://github.com/zyg0733/agent-systems-engineering/actions)和后续记录为准。
+教程以公开草稿持续修订；配套软件仍为 `0.1.0-dev`，正式 `0.1.0` 未发布。公开前收尾基线 [a9b3ed6](https://github.com/zyg0733/agent-systems-engineering/commit/a9b3ed644c54102ea7eed9e80b814b23badb786f)已取得 [Reading site](https://github.com/zyg0733/agent-systems-engineering/actions/runs/41085204234)和 [Lab checks](https://github.com/zyg0733/agent-systems-engineering/actions/runs/41085204439)通过记录，覆盖许可、固定源码包及适用回归。此后变更的验证与部署状态以各提交的 [Actions](https://github.com/zyg0733/agent-systems-engineering/actions)为准；既有首次 P3 失败证据及首因未知的结论保留。
 
-旧候选和 v1 发行工具保持原字段，release_ready=false 和历史真人 0 不伪造成通过。本轮以[教材质量计划](public-reading-quality-plan.md)推进代理评审，不把旧真人 gate 设为教材继续写作的条件。完整平台与正式版本发布另行处理，本轮不创建 tag 或开放网站。
+旧候选和 v1 发行工具保持原字段，`release_ready=false` 和历史真人 0 不伪造成通过。教材按[质量计划](public-reading-quality-plan.md)继续代理评审，不把旧真人 gate 设为开源教程草稿的发布条件。公开仓库与阅读站不创建正式软件版本 tag，也不代表完整平台和生产使用已经验收。

@@ -2,11 +2,11 @@
 
 阅读站把教材、实验手册和参考文档组织成可连续阅读的静态网站。站点源码位于 [`website/`](../website/)，复用现有 `book/`、`labs/`、`docs/` 和根 README；教材原稿仍在原位置维护。本站使用 VitePress **1.6.4**、Mermaid **12.2.0** 和 Node.js **24**，依赖版本与完整依赖树由 [`package.json`](../website/package.json)及 [`package-lock.json`](../website/package-lock.json)固定。
 
-当前准备的是本地阅读站和默认关闭部署的工作流，**尚未启用 GitHub Pages，也没有公开阅读地址**。仓库保持私有。此前 Pages API 查询返回 404，账户查询的 `plan` 为 `null`，没有取得足以确认套餐的资料；不能据此认定该账户具备从私有仓库发布 Pages 的资格。
+在线阅读地址为 [https://zyg0733.github.io/agent-systems-engineering/](https://zyg0733.github.io/agent-systems-engineering/)，教材与源码保存在[公开仓库](https://github.com/zyg0733/agent-systems-engineering)。读者可以直接在线阅读，也可 `git clone` 后在本地阅读和运行实验；GitHub Pages 为阅读提供便利，不是本地使用的前置条件。
 
 ## 本地阅读与验证
 
-从具有仓库访问权限的完整 Git 克隆开始，确认 `node --version` 为 24.x。在项目根目录运行：
+从完整 Git 克隆开始，确认 `node --version` 为 24.x。在项目根目录运行：
 
 ```sh
 cd website
@@ -41,11 +41,11 @@ SITE_BASE=/ npm run preview
 
 新增或修订章节时，直接编辑 `book/`；实验讲解与参考解答编辑 `labs/`；操作和设计文档编辑 `docs/`。可随实验包阅读的路线维护在 `book/reading-route.md`，准备器将它呈现为站点的 `/reading.html`，并加入最近章节组件；不要维护另一份路线副本。全书目录的单一来源是 `website/chapters.json`：配置按其中的篇号生成七篇导航，`ReadingProgress.vue` 从同一清单识别全部章节，内容准备器检查 30 个文件、顺序与标题。维护该清单、首页规模和阅读路线即可，不再分别维护两套章节数组。对应设计卡以“当前正文进度：draft”登记，保留旧 W23 v1 清单约束的“状态”字段，并说明两者用途。阅读站自己的首页与开始/教学页在 `website/`，导航、主题、内容准备和检查代码也在该目录。`npm run prepare:content` 会把当前原稿准备到忽略的 `website/.content/`；不要编辑或提交 `.content/`、`node_modules/`、缓存和构建产物。原稿变化后重新运行 `dev` 或 `build` 以刷新准备内容。
 
-阅读站呈现静态讲解与代码，不能在网页上执行 PostgreSQL、BEAM、故障注入或隔离实验。实际实验仍需按 [README](../README.md)和[课程地图](course-map.md)在本地配置环境。站点中的源码链接指向私有 GitHub 仓库，访问者仍需相应仓库权限；教材公开不会自动赋予源码访问权。
+阅读站呈现静态讲解与代码，不能在网页上执行 PostgreSQL、BEAM、故障注入或隔离实验。实际实验仍需按 [README](../README.md)和[课程地图](course-map.md)在本地配置环境。站点中的源码链接指向公开 GitHub 仓库，无需登录即可查看；在本地克隆中也可按相同路径查找。
 
 全文搜索在浏览器本地执行，支持中文分词；正文、术语、先修和实验优先，ADR/研究材料仍可检索但权重较低。历史验收周报、P2/P3/P4 报告和 `labs/solutions/` 中的教师参考不进入搜索索引，仍可从相应目录或正文链接访问；这只是减少历史噪声和提前看到答案，不构成权限隔离。继续阅读只保存当前浏览器最近打开的正文章节，可从首页清除，不上传阅读记录。
 
-正文与实验页在生成内容中显示一次项目源码访问说明，不改写原稿中的技术解释或复制实现到站点。页脚的“报告本页问题”进入[勘误工具](errata.md)并填入当前材料路径；导航保留[材料与权限说明](material-access.md)。报告在当前页面本地生成，可复制或下载；私有 Issue 链接只在读者点击后将报告交给 GitHub，仍需读者确认提交。当前没有公开收件地址，未配置自动提交、邮件发送或表单后台；未指定渠道前，读者按材料提供者转交文本。
+正文与实验页在生成内容中显示一次项目源码访问说明，不改写原稿中的技术解释或复制实现到站点。页脚的“报告本页问题”进入[勘误工具](errata.md)并填入当前材料路径；导航保留[材料获取说明](material-access.md)。报告在当前页面本地生成，可复制或下载；Issue 链接只在读者点击后将报告交给 GitHub，仍需登录并确认提交。Issue 提交后公开可见；当前未另设邮箱、表单后台或自动提交服务。
 
 阅读站展示的 W22、W24、W25、W26 等验收页是绑定各自冻结源码的历史材料，不能作为当前工作区已经验收的证明。当前范围见[当前状态](current-status.md)，执行记录见 [GitHub CI](github-ci.md)。本轮按所有者决定使用代理模拟评审，不安排真人验证或公开试读，见[质量计划](public-reading-quality-plan.md)；旧[发行评估](release-assessment.md)保留其历史工具语义。
 
@@ -53,27 +53,27 @@ SITE_BASE=/ npm run preview
 
 新的[固定版本实验源码包](experiment-package.md)使用独立的 Python 工具从精确 Git 提交生成；它与上述历史冻结合同分别验证，不改变旧包、旧 manifest 或历史发行字段。
 
-## 自动构建与私有预览
+## 自动构建与部署
 
 独立工作流为 [`.github/workflows/reading-site.yml`](../.github/workflows/reading-site.yml)，不修改现有实验 [CI 工作流](../.github/workflows/ci.yml)。相关内容推送到 `main`、提出 pull request，或手动运行 `workflow_dispatch` 时，执行 `npm ci`、专项检查、构建和产物检查。
 
-同一工作流的 `experiment-package` job 从 `github.sha` 创建固定版本源码包，再对照该提交验证文件字节、清单和解包结果，上传独立的 `experiment-source-<commit>-<run_id>-<attempt>` 私有 artifact。它保留 14 天，下载包不包含网站或已安装依赖；需要长期留存时，维护者应保存原 ZIP 与校验文件。按完整 commit 可重新生成，构建与验包本身不执行包内实验代码；本次实验回归结果仍查看同一提交的 `Lab checks`。
+同一工作流的 `experiment-package` job 从 `github.sha` 创建固定版本源码包，再对照该提交验证文件字节、清单和解包结果，上传独立的 `experiment-source-<commit>-<run_id>-<attempt>` artifact。它保留 14 天，下载需要登录 GitHub，包内不包含网站或已安装依赖；需要长期留存时保存原 ZIP 与校验文件。按完整 commit 可重新生成，构建与验包本身不执行包内实验代码；本次实验回归结果仍查看同一提交的 `Lab checks`。
 
-构建成功后上传 `reading-site-preview-<run_id>-<run_attempt>`，保留 14 天。该 artifact 从私有仓库的 Actions 登录下载，用于审阅生成文件；它不是在线预览地址。构建 job 仅有 `contents: read`，不启用 Pages，不申请 Pages 写权限。
+构建成功后上传 `reading-site-preview-<run_id>-<run_attempt>`，保留 14 天。该 artifact 从 Actions 登录下载，用于审阅生成文件；在线阅读使用本页开头的 Pages 地址。构建 job 仅有 `contents: read`，不申请 Pages 写权限。
 
 独立的 `deploy` job 依赖网站构建及实验包 job 成功，只在以下条件同时满足时运行：仓库变量 `PUBLISH_READING_SITE` 的字符串值为 `true`，当前 ref 是 `refs/heads/main`，且事件不是 pull request。默认不设置该变量时，部署被跳过，构建仍可正常通过；这不表示网站已经上线。只有部署 job 获得 `pages: write` 和 `id-token: write`，并使用 `github-pages` environment。
 
 部署从同一次运行下载已经验证的预览 artifact，读取已有 Pages 设置，再使用官方 Pages artifact 与部署 Action 发布；不会在部署 job 重新构建另一份内容。`configure-pages` 显式设置 `enablement: false`，不会替维护者开启站点。
 
-## 启用公开阅读前
+## Pages 配置与维护
 
-项目负责人先确认教材可公开、公开范围及对应许可，并确认账户套餐支持从当前私有仓库发布 Pages。[GitHub 官方说明](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)列明：GitHub Pro、Team 和 Enterprise 可在私有仓库使用 Pages；当前账户套餐仍待核实。私有仓库与网站可见性应分别确认，不能把“源码私有”理解为“教材网站也私有”。
+本项目使用公开仓库发布 Pages。[GitHub 官方说明](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)列明 GitHub Free 支持公开仓库的 Pages；因此本项目的开源发布不依赖私有仓库 Pages 套餐。
 
-获得公开授权并确认托管条件后，由负责人在仓库 Settings → Pages 将构建来源设为 **GitHub Actions**（API 中为 `build_type: workflow`），核对 `github-pages` environment 仅允许预期分支部署。如果使用自定义域名或路径，同时调整 `READING_SITE_BASE` 并重新构建；随后才设置 `PUBLISH_READING_SITE=true`，在 `main` 手动运行本工作流。GitHub 的具体配置要求见[官方自定义工作流说明](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
+仓库 Settings → Pages 的构建来源使用 **GitHub Actions**（API 中为 `build_type: workflow`），`github-pages` environment 应只允许预期分支部署。仓库变量 `PUBLISH_READING_SITE=true` 开启发布；`main` 推送或手动运行本工作流会按前述条件部署。如果使用自定义域名或路径，同时调整 `READING_SITE_BASE` 并重新构建。GitHub 的具体配置要求见[官方自定义工作流说明](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
 
-负责人应检查独立部署 job 成功、实际返回的 Pages 地址和浏览器访问结果，再补入 README 的公开入口。关闭发布开关只会阻止后续部署；已有网站如需撤下，应另行在 Pages 设置停用，不能把一次 skipped 部署当成已撤下。
+维护者应检查独立部署 job 成功、实际返回的 Pages 地址和浏览器访问结果，保持 README 的公开入口有效。关闭发布开关只会阻止后续部署；已有网站如需撤下，应另行在 Pages 设置停用，不能把一次 skipped 部署当成已撤下。
 
-本轮不自动开启 Pages、不设置发布变量、不改变仓库可见性，也不把套餐升级作为默认动作。若最终选择其他托管方式或另设公开教材仓库，先确定目的地与公开范围，再调整部署合同。
+仓库、阅读站和实验包共享同一项目与提交历史，不另设教材发布仓库。读者使用 Git 克隆即可取得完整源码，Actions artifact 是临时保存的补充材料，不是使用本项目的前置条件。
 
 ## 许可证与依赖维护
 

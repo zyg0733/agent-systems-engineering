@@ -13,7 +13,7 @@ export function createErrataReport(values) {
   }).join('\n\n') + '\n'
 }
 
-export function privateIssueDraft(values) {
+export function issueDraft(values) {
   const url = new URL(issueEndpoint)
   const location = String(values.where || '教材反馈').replace(/\s+/g, ' ').trim().slice(0, 80)
   url.searchParams.set('title', `[教材勘误] ${location}`)

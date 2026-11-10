@@ -31,7 +31,7 @@ features:
 
 <div class="book-home">
 
-<div class="edition-note"><span class="edition-badge">0.1.0-dev · 持续写作中</span><span>七篇三十章正文草稿已齐，按实现、反例与实验逐章审校。</span></div>
+<div class="edition-note"><span class="edition-badge">公开草稿 · 0.1.0-dev</span><span>七篇三十章正文草稿已齐，教材与配套实验源码均已开源。</span></div>
 
 <ReadingProgress />
 
@@ -57,7 +57,7 @@ features:
 </section>
 
 <section class="home-section home-footnote" aria-label="内容与使用说明">
-  <p>正文、实验和章节设计卡分别标明完成状态。先看<a href="./book/prerequisites.html">先修与桥接</a>，随时查<a href="./book/glossary.html">术语表</a>。实际实验在本地源码中运行，源码与测试链接需仓库权限；先确认<a href="./docs/material-access.html">材料获取方式</a>，再查看<a href="./docs/current-status.html">当前状态与平台边界</a>。</p><p>原创代码采用 Apache-2.0，教材正文与原创图表采用 CC BY 4.0。<a href="./docs/licensing.html">查看许可范围</a> · <a href="./teaching.html">教师与授课说明</a></p>
+  <p>正文、实验和章节设计卡分别标明完成状态。先看<a href="./book/prerequisites.html">先修与桥接</a>，随时查<a href="./book/glossary.html">术语表</a>。源码与测试可在<a href="https://github.com/zyg0733/agent-systems-engineering">开源仓库</a>直接查看，克隆后即可按说明在本地运行实验。<a href="./docs/material-access.html">材料获取与反馈</a>和<a href="./docs/current-status.html">当前状态与平台边界</a>说明具体准备步骤。</p><p>原创代码采用 Apache-2.0，教材正文与原创图表采用 CC BY 4.0。<a href="./docs/licensing.html">查看许可范围</a> · <a href="./teaching.html">教师与授课说明</a></p>
 </section>
 
 </div>

@@ -273,7 +273,7 @@ def build(repo, revision, output):
     result = {"status": "built", "source_commit": commit, "source_tree": tree,
               "archive": archive.name, "archive_sha256": checksum,
               "source_file_count": len(files), "source_entries_sha256": manifest["entries_sha256"],
-              "scope": "source-only teaching draft; private preparation until separately published"}
+              "scope": "source-only teaching draft; fixed Git commit; excludes website tooling and installed dependencies"}
     (output / "package-summary.json").write_bytes(canonical_json(result))
     verify(archive, repo=repo)
     return result
